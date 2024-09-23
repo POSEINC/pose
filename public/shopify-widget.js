@@ -99,6 +99,7 @@
   const imagePreview = document.createElement('img');
   imagePreview.id = 'imagePreview';
   imagePreview.style.maxWidth = '100%';
+  imagePreview.style.maxHeight = '300px'; // Set a maximum height
   imagePreview.style.display = 'none'; // Hidden by default
 
   modalContent.appendChild(closeButton);
