@@ -1,62 +1,27 @@
 (function() {
   console.log('Shopify widget script started');
 
-  // Create the "See Me In This" button
-  const tryOnButton = document.createElement('button');
-  tryOnButton.textContent = 'See Me In This';
-  tryOnButton.style.marginBottom = '10px';
-  tryOnButton.className = 'button button--full-width button--primary';
-  tryOnButton.type = 'button'; // Ensure it's not a submit button
+  // Create the widget section
+  const widgetSection = document.createElement('div');
+  widgetSection.style.display = 'flex';
+  widgetSection.style.justifyContent = 'space-between';
+  widgetSection.style.alignItems = 'flex-start';
+  widgetSection.style.padding = '20px';
+  widgetSection.style.marginTop = '20px';
+  widgetSection.style.border = '1px solid #e8e8e8';
 
-  // Find the "Add to Cart" button
-  const addToCartButton = document.querySelector('button[name="add"]');
-  if (addToCartButton && addToCartButton.parentNode) {
-    addToCartButton.parentNode.insertBefore(tryOnButton, addToCartButton);
-    console.log('Try-on button inserted into DOM');
-  } else {
-    console.error('Could not find the Add to Cart button');
-    return;
-  }
+  // Left side: Example images
+  const exampleImages = document.createElement('div');
+  exampleImages.style.width = '30%';
+  exampleImages.innerHTML = '<h3>Example Images</h3><img src="/path/to/example1.jpg" alt="Example 1" style="max-width: 100%; margin-bottom: 10px;"><img src="/path/to/example2.jpg" alt="Example 2" style="max-width: 100%;">';
+  widgetSection.appendChild(exampleImages);
 
-  // Create a modal for the photo upload and try-on feature
-  const modal = document.createElement('div');
-  modal.style.position = 'fixed';
-  modal.style.top = '0';
-  modal.style.left = '0';
-  modal.style.width = '100%';
-  modal.style.height = '100%';
-  modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-  modal.style.display = 'none'; // Hidden by default
-  modal.style.zIndex = '1000'; // Ensure it appears above other content
-  modal.style.alignItems = 'center';
-  modal.style.justifyContent = 'center';
-  modal.style.flexDirection = 'column'; // Ensure flexbox centering
-  modal.style.display = 'flex'; // Ensure flexbox is applied
-
-  const modalContent = document.createElement('div');
-  modalContent.style.backgroundColor = 'white';
-  modalContent.style.padding = '20px';
-  modalContent.style.border = '1px solid #888';
-  modalContent.style.width = '80%';
-  modalContent.style.maxWidth = '600px';
-  modalContent.style.position = 'relative';
-
-  const closeButton = document.createElement('button');
-  closeButton.innerHTML = '&times;';
-  closeButton.style.position = 'absolute';
-  closeButton.style.top = '10px';
-  closeButton.style.right = '10px';
-  closeButton.style.fontSize = '20px';
-  closeButton.style.border = 'none';
-  closeButton.style.background = 'none';
-  closeButton.style.cursor = 'pointer';
-  closeButton.addEventListener('click', function() {
-    modal.style.display = 'none'; // Hide the modal
-    console.log('Modal closed'); // Debugging statement
-  });
-
-  const productTitle = document.querySelector('.product__title').textContent;
-  const productImage = document.querySelector('.product__image img').src;
+  // Middle: Upload box and Try it on button
+  const uploadSection = document.createElement('div');
+  uploadSection.style.width = '30%';
+  uploadSection.style.display = 'flex';
+  uploadSection.style.flexDirection = 'column';
+  uploadSection.style.alignItems = 'center';
 
   const uploadBox = document.createElement('div');
   uploadBox.id = 'uploadBox';
@@ -82,13 +47,6 @@
     }
   });
 
-  const replaceImageButton = document.createElement('button');
-  replaceImageButton.textContent = 'Replace Image';
-  replaceImageButton.className = 'button button--full-width button--secondary';
-  replaceImageButton.style.marginTop = '10px';
-  replaceImageButton.style.display = 'none'; // Hidden by default
-  replaceImageButton.addEventListener('click', () => photoUpload.click());
-
   const tryItOnButton = document.createElement('button');
   tryItOnButton.textContent = 'Try it on';
   tryItOnButton.className = 'button button--full-width button--primary';
@@ -103,42 +61,36 @@
     }
   });
 
+  uploadSection.appendChild(uploadBox);
+  uploadSection.appendChild(photoUpload);
+  uploadSection.appendChild(tryItOnButton);
+  widgetSection.appendChild(uploadSection);
+
+  // Right side: Result container
   const resultContainer = document.createElement('div');
   resultContainer.id = 'resultContainer';
-  resultContainer.style.marginTop = '20px';
+  resultContainer.style.width = '30%';
+  resultContainer.innerHTML = '<h3>Result</h3>';
+  widgetSection.appendChild(resultContainer);
+
+  // Insert the widget section after the product images
+  const productMediaContainer = document.querySelector('.product__media-container');
+  if (productMediaContainer && productMediaContainer.parentNode) {
+    productMediaContainer.parentNode.insertBefore(widgetSection, productMediaContainer.nextSibling);
+    console.log('Widget section inserted into DOM');
+  } else {
+    console.error('Could not find the product media container');
+    return;
+  }
+
+  const productTitle = document.querySelector('.product__title').textContent;
+  const productImage = document.querySelector('.product__image img').src;
 
   const imagePreview = document.createElement('img');
   imagePreview.id = 'imagePreview';
   imagePreview.style.maxWidth = '100%';
-  imagePreview.style.maxHeight = '300px'; // Set a maximum height
+  imagePreview.style.maxHeight = '150px';
   imagePreview.style.display = 'none'; // Hidden by default
-
-  modalContent.appendChild(closeButton);
-  modalContent.appendChild(uploadBox);
-  modalContent.appendChild(photoUpload);
-  modalContent.appendChild(imagePreview);
-  modalContent.appendChild(replaceImageButton);
-  modalContent.appendChild(tryItOnButton);
-  modalContent.appendChild(resultContainer);
-  modal.appendChild(modalContent);
-  document.body.appendChild(modal);
-
-  // Event listener for the "See Me In This" button
-  tryOnButton.addEventListener('click', function(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    console.log('See Me In This button clicked'); // Debugging statement
-    modal.style.display = 'flex'; // Show the modal
-    console.log('Modal should be visible'); // Debugging statement
-  });
-
-  // Close the modal when clicking outside of it
-  modal.addEventListener('click', function(event) {
-    if (event.target === modal) {
-      modal.style.display = 'none'; // Hide the modal
-      console.log('Modal closed by clicking outside'); // Debugging statement
-    }
-  });
 
   function handleFileUpload(file) {
     const reader = new FileReader();
@@ -150,8 +102,8 @@
       imagePreview.src = humanImg;
       imagePreview.style.display = 'block';
       tryItOnButton.disabled = false; // Enable the "Try it on" button
-      uploadBox.style.display = 'none'; // Hide the upload box
-      replaceImageButton.style.display = 'block'; // Show the replace image button
+      uploadBox.innerHTML = ''; // Clear the upload box
+      uploadBox.appendChild(imagePreview); // Add the preview to the upload box
     };
     reader.readAsDataURL(file);
   }
@@ -196,8 +148,7 @@
   }
 
   function displayResult(outputUrl) {
-    const resultContainer = document.getElementById('resultContainer');
-    resultContainer.innerHTML = `<img src="${outputUrl}" alt="Try-on result" style="max-width: 100%;">`;
+    resultContainer.innerHTML = `<h3>Result</h3><img src="${outputUrl}" alt="Try-on result" style="max-width: 100%;">`;
   }
 
   console.log('Try-on widget fully initialized');
