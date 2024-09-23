@@ -19,31 +19,35 @@
 
   // Create a modal for the photo upload and try-on feature
   const modal = document.createElement('div');
-  modal.style.display = 'none';
-  modal.style.position = 'fixed';
-  modal.style.zIndex = '1000';
-  modal.style.left = '0';
-  modal.style.top = '0';
-  modal.style.width = '100%';
-  modal.style.height = '100%';
-  modal.style.backgroundColor = 'rgba(0,0,0,0.5)';
+  modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50';
 
   const modalContent = document.createElement('div');
-  modalContent.style.backgroundColor = '#fefefe';
-  modalContent.style.margin = '15% auto';
-  modalContent.style.padding = '20px';
-  modalContent.style.border = '1px solid #888';
-  modalContent.style.width = '80%';
-  modalContent.style.maxWidth = '500px';
-  modalContent.style.borderRadius = '10px';
+  modalContent.className = 'bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl';
 
   const productTitle = document.querySelector('.product__title').textContent;
 
   modalContent.innerHTML = `
-    <h2>See how ${productTitle} looks on yourself</h2>
-    <input type="file" id="photoUpload" accept="image/*" style="margin-top: 10px;">
-    <button id="submitPhoto" style="margin-top: 10px;">Try On This Item</button>
-    <div id="tryOnResult" style="margin-top: 20px;"></div>
+    <h2 class="text-2xl font-bold mb-4">See how ${productTitle} looks on yourself</h2>
+    <div class="flex">
+      <div class="w-1/2 flex flex-col items-center">
+        <div class="mb-4">
+          <p class="text-center mb-2">Before</p>
+          <img src="https://via.placeholder.com/150" alt="Before" class="w-full h-auto rounded-lg">
+        </div>
+        <div>
+          <p class="text-center mb-2">After</p>
+          <img src="https://via.placeholder.com/150" alt="After" class="w-full h-auto rounded-lg">
+        </div>
+      </div>
+      <div class="w-1/2 flex flex-col items-center">
+        <div id="uploadBox" class="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer mb-4">
+          <p class="text-center text-gray-500">Click to upload or drag and drop an image here</p>
+          <input type="file" id="photoUpload" accept="image/*" class="hidden">
+        </div>
+        <button id="submitPhoto" class="bg-blue-500 text-white py-2 px-4 rounded-lg">Try On This Item</button>
+        <div id="tryOnResult" class="mt-4 w-full"></div>
+      </div>
+    </div>
   `;
 
   modal.appendChild(modalContent);
@@ -51,7 +55,7 @@
 
   // Event listener for the "See Me In This" button
   tryOnButton.addEventListener('click', function() {
-    modal.style.display = 'block';
+    modal.style.display = 'flex';
   });
 
   // Close the modal when clicking outside of it
@@ -61,56 +65,82 @@
     }
   });
 
-  // Handle photo upload and try-on
-  document.getElementById('submitPhoto').addEventListener('click', async function() {
-    const fileInput = document.getElementById('photoUpload');
-    if (fileInput.files && fileInput.files[0]) {
-      const reader = new FileReader();
-      reader.onload = async function(e) {
-        const humanImg = e.target.result;
-        const garmImg = document.querySelector('.product__media img').src;
-        const garmentDes = document.querySelector('.product__title').textContent;
+  // Handle drag and drop for the upload box
+  const uploadBox = document.getElementById('uploadBox');
+  const photoUpload = document.getElementById('photoUpload');
 
-        document.getElementById('tryOnResult').innerHTML = 'Processing...';
+  uploadBox.addEventListener('click', () => photoUpload.click());
 
-        console.log('Sending data to API:', { garmImg, humanImg, garmentDes });
+  uploadBox.addEventListener('dragover', (event) => {
+    event.preventDefault();
+    uploadBox.classList.add('border-blue-500');
+  });
 
-        try {
-          console.log('Attempting to fetch from API...');
-          const response = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ garmImg, humanImg, garmentDes }),
-          });
+  uploadBox.addEventListener('dragleave', () => {
+    uploadBox.classList.remove('border-blue-500');
+  });
 
-          console.log('Fetch response received:', response);
-
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-          }
-
-          const data = await response.json();
-          if (data.status === 'processing') {
-            pollForResult(data.jobId);
-          } else {
-            displayResult(data.output);
-          }
-        } catch (error) {
-          console.error('Detailed error:', error);
-          document.getElementById('tryOnResult').innerHTML = `An error occurred while processing the image: ${error.message}`;
-          if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
-            console.log('This might be a CORS issue or the server is not responding');
-          }
-        }
-      };
-      reader.readAsDataURL(fileInput.files[0]);
-    } else {
-      alert('Please select a photo first.');
+  uploadBox.addEventListener('drop', (event) => {
+    event.preventDefault();
+    uploadBox.classList.remove('border-blue-500');
+    const files = event.dataTransfer.files;
+    if (files.length > 0) {
+      photoUpload.files = files;
+      handleFileUpload(files[0]);
     }
   });
+
+  photoUpload.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      handleFileUpload(file);
+    }
+  });
+
+  function handleFileUpload(file) {
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+      const humanImg = e.target.result;
+      const garmImg = document.querySelector('.product__media img').src;
+      const garmentDes = document.querySelector('.product__title').textContent;
+
+      document.getElementById('tryOnResult').innerHTML = 'Processing...';
+
+      console.log('Sending data to API:', { garmImg, humanImg, garmentDes });
+
+      try {
+        console.log('Attempting to fetch from API...');
+        const response = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ garmImg, humanImg, garmentDes }),
+        });
+
+        console.log('Fetch response received:', response);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        }
+
+        const data = await response.json();
+        if (data.status === 'processing') {
+          pollForResult(data.jobId);
+        } else {
+          displayResult(data.output);
+        }
+      } catch (error) {
+        console.error('Detailed error:', error);
+        document.getElementById('tryOnResult').innerHTML = `An error occurred while processing the image: ${error.message}`;
+        if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+          console.log('This might be a CORS issue or the server is not responding');
+        }
+      }
+    };
+    reader.readAsDataURL(file);
+  }
 
   function pollForResult(jobId) {
     let attempts = 0;
