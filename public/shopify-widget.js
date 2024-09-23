@@ -23,7 +23,14 @@
   modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden'; // Hidden by default
 
   const modalContent = document.createElement('div');
-  modalContent.className = 'bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl';
+  modalContent.className = 'bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl relative';
+
+  const closeButton = document.createElement('button');
+  closeButton.innerHTML = '&times;';
+  closeButton.className = 'absolute top-2 right-2 text-2xl font-bold text-gray-600 hover:text-gray-900';
+  closeButton.addEventListener('click', function() {
+    modal.classList.add('hidden'); // Hide the modal
+  });
 
   const productTitle = document.querySelector('.product__title').textContent;
 
@@ -51,6 +58,7 @@
     </div>
   `;
 
+  modalContent.appendChild(closeButton);
   modal.appendChild(modalContent);
   document.body.appendChild(modal);
 
