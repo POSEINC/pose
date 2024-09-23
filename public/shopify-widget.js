@@ -52,6 +52,7 @@
   closeButton.style.cursor = 'pointer';
   closeButton.addEventListener('click', function() {
     modal.style.display = 'none'; // Hide the modal
+    console.log('Modal closed'); // Debugging statement
   });
 
   const productTitle = document.querySelector('.product__title').textContent;
@@ -128,12 +129,14 @@
     event.stopPropagation();
     console.log('See Me In This button clicked'); // Debugging statement
     modal.style.display = 'flex'; // Show the modal
+    console.log('Modal should be visible'); // Debugging statement
   });
 
   // Close the modal when clicking outside of it
   modal.addEventListener('click', function(event) {
     if (event.target === modal) {
       modal.style.display = 'none'; // Hide the modal
+      console.log('Modal closed by clicking outside'); // Debugging statement
     }
   });
 
