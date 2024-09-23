@@ -42,7 +42,7 @@
 
   modalContent.appendChild(uploadBox); // Ensure uploadBox is appended to modalContent
 
-  modalContent.innerHTML = `
+  modalContent.innerHTML += `
     <h2 class="text-2xl font-bold mb-4">See how ${productTitle} looks on you</h2>
     <div class="flex">
       <div class="w-1/2 flex flex-col items-center">
