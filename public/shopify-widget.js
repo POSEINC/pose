@@ -126,6 +126,7 @@
   tryOnButton.addEventListener('click', function(event) {
     event.preventDefault();
     event.stopPropagation();
+    console.log('See Me In This button clicked'); // Debugging statement
     modal.style.display = 'flex'; // Show the modal
   });
 
