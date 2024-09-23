@@ -25,6 +25,9 @@ export default async function handler(req, res) {
     const body = await json(req, { limit: '10mb' }); // Increase the limit to 10mb
     const { garmImg, humanImg, garmentDes } = body;
 
+    // Log the token to ensure it is being read correctly (remove this in production)
+    console.log('REPLICATE_API_TOKEN:', process.env.REPLICATE_API_TOKEN);
+
     const replicate = new Replicate({
       auth: process.env.REPLICATE_API_TOKEN,
     });
