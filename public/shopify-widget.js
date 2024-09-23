@@ -56,7 +56,10 @@
   uploadBox.style.cursor = 'pointer';
   uploadBox.style.position = 'relative';
   uploadBox.innerHTML = '<p>Click to upload or drag and drop an image here</p>';
-  uploadBox.addEventListener('click', () => photoUpload.click());
+  uploadBox.addEventListener('click', () => {
+    console.log('Upload box clicked'); // Debug log
+    photoUpload.click();
+  });
 
   const photoUpload = document.createElement('input');
   photoUpload.type = 'file';
@@ -64,9 +67,13 @@
   photoUpload.accept = 'image/*';
   photoUpload.style.display = 'none';
   photoUpload.addEventListener('change', (event) => {
+    console.log('File input change event triggered'); // Debug log
     const file = event.target.files[0];
     if (file) {
+      console.log('File selected:', file.name); // Debug log
       handleFileUpload(file);
+    } else {
+      console.log('No file selected'); // Debug log
     }
   });
 
@@ -120,10 +127,12 @@
   imagePreview.style.display = 'none'; // Hidden by default
 
   function handleFileUpload(file) {
+    console.log('handleFileUpload function called'); // Debug log
     const reader = new FileReader();
     reader.onload = function(e) {
+      console.log('FileReader onload event triggered'); // Debug log
       const humanImg = e.target.result;
-      console.log('Image uploaded:', humanImg);
+      console.log('Image uploaded:', humanImg.substring(0, 50) + '...'); // Log first 50 chars of base64 string
 
       // Display the uploaded image preview
       imagePreview.src = humanImg;
@@ -131,6 +140,8 @@
       tryItOnButton.disabled = false; // Enable the "Try it on" button
       uploadBox.innerHTML = ''; // Clear the upload box
       uploadBox.appendChild(imagePreview); // Add the preview to the upload box
+
+      console.log('Image preview added to uploadBox'); // Debug log
 
       // Add a "Replace Image" button
       const replaceButton = document.createElement('button');
@@ -150,6 +161,9 @@
       // Show/hide replace button on hover
       uploadBox.addEventListener('mouseenter', () => replaceButton.style.opacity = '1');
       uploadBox.addEventListener('mouseleave', () => replaceButton.style.opacity = '0');
+    };
+    reader.onerror = function(error) {
+      console.error('Error reading file:', error); // Debug log for errors
     };
     reader.readAsDataURL(file);
   }
