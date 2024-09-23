@@ -7,13 +7,27 @@ export const config = {
   },
 };
 
+// In-memory storage for job status (replace with a database in production)
+const jobStatus = new Map();
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS, GET');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
     res.status(200).end();
+    return;
+  }
+
+  if (req.method === 'GET') {
+    const { jobId } = req.query;
+    const status = jobStatus.get(jobId);
+    if (status) {
+      res.status(200).json(status);
+    } else {
+      res.status(404).json({ message: 'Job not found' });
+    }
     return;
   }
 
@@ -22,16 +36,28 @@ export default async function handler(req, res) {
   }
 
   try {
-    const body = await json(req, { limit: '10mb' }); // Increase the limit to 10mb
+    const body = await json(req, { limit: '10mb' });
     const { garmImg, humanImg, garmentDes } = body;
-
-    // Log the token to ensure it is being read correctly (remove this in production)
-    console.log('REPLICATE_API_TOKEN:', process.env.REPLICATE_API_TOKEN);
 
     if (!process.env.REPLICATE_API_TOKEN) {
       throw new Error('REPLICATE_API_TOKEN is not set');
     }
 
+    const jobId = Date.now().toString();
+    jobStatus.set(jobId, { status: 'processing' });
+
+    // Start processing asynchronously
+    processImage(jobId, garmImg, humanImg, garmentDes);
+
+    res.status(202).json({ status: 'processing', jobId });
+  } catch (error) {
+    console.error('Error starting try-on request:', error);
+    res.status(500).json({ message: 'Error starting try-on request', error: error.message });
+  }
+}
+
+async function processImage(jobId, garmImg, humanImg, garmentDes) {
+  try {
     const replicate = new Replicate({
       auth: process.env.REPLICATE_API_TOKEN,
     });
@@ -40,7 +66,7 @@ export default async function handler(req, res) {
       garm_img: garmImg,
       human_img: humanImg,
       garment_des: garmentDes,
-      category: "upper_body", // You might want to make this dynamic based on the product
+      category: "upper_body",
     };
 
     const output = await replicate.run(
@@ -48,9 +74,9 @@ export default async function handler(req, res) {
       { input }
     );
 
-    res.status(200).json({ output });
+    jobStatus.set(jobId, { status: 'completed', output });
   } catch (error) {
-    console.error('Error calling Replicate API:', error);
-    res.status(500).json({ message: 'Error processing try-on request', error: error.message });
+    console.error('Error processing image:', error);
+    jobStatus.set(jobId, { status: 'failed', error: error.message });
   }
 }
