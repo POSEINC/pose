@@ -58,6 +58,12 @@
     </div>
   `;
 
+  // Add outline box styles to the upload box
+  const uploadBox = document.createElement('div');
+  uploadBox.id = 'uploadBox';
+  uploadBox.className = 'w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer mb-4';
+  uploadBox.style.outline = '2px dashed #4CAF50'; // Add this line for the outline box
+
   modalContent.appendChild(closeButton);
   modal.appendChild(modalContent);
   document.body.appendChild(modal);
@@ -77,7 +83,6 @@
   });
 
   // Handle drag and drop for the upload box
-  const uploadBox = document.getElementById('uploadBox');
   const photoUpload = document.getElementById('photoUpload');
 
   uploadBox.addEventListener('click', () => photoUpload.click());
