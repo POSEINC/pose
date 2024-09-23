@@ -20,7 +20,7 @@
 
   // Load our widget bundle
   const script3 = document.createElement('script');
-  script3.src = 'https://your-app-url.com/widget-bundle.js';
+  script3.src = 'https://shopify-virtual-tryon-app.vercel.app/widget-bundle.js';
 
   document.body.appendChild(script1);
   document.body.appendChild(script2);
