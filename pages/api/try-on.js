@@ -1,4 +1,11 @@
+import { json } from 'micro';
 import Replicate from "replicate";
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -14,13 +21,14 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  const { garmImg, humanImg, garmentDes } = req.body;
-
-  const replicate = new Replicate({
-    auth: process.env.REPLICATE_API_TOKEN,
-  });
-
   try {
+    const body = await json(req, { limit: '10mb' }); // Increase the limit to 10mb
+    const { garmImg, humanImg, garmentDes } = body;
+
+    const replicate = new Replicate({
+      auth: process.env.REPLICATE_API_TOKEN,
+    });
+
     const output = await replicate.run(
       "cuuupid/idm-vton:c871bb9b046607b680449ecbae55fd8c6d945e0a1948644bf2361b3d021d3ff4",
       {
@@ -36,6 +44,6 @@ export default async function handler(req, res) {
     res.status(200).json({ output });
   } catch (error) {
     console.error('Error calling Replicate API:', error);
-    res.status(500).json({ message: 'Error processing try-on request' });
+    res.status(500).json({ message: 'Error processing try-on request', error: error.message });
   }
 }
