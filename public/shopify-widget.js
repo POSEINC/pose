@@ -13,8 +13,8 @@
   const widgetContainer = document.createElement('div');
   widgetContainer.className = 'page-width';
   widgetContainer.style.display = 'flex';
-  widgetContainer.style.flexDirection = 'column';
-  widgetContainer.style.alignItems = 'center';
+  widgetContainer.style.justifyContent = 'space-between';
+  widgetContainer.style.alignItems = 'flex-start';
 
   // Section title
   const sectionTitle = document.createElement('h2');
@@ -23,35 +23,27 @@
   sectionTitle.style.textAlign = 'center';
   sectionTitle.style.marginBottom = '30px';
 
-  // Example images
-  const exampleContainer = document.createElement('div');
-  exampleContainer.style.display = 'flex';
-  exampleContainer.style.justifyContent = 'space-between';
-  exampleContainer.style.width = '100%';
-  exampleContainer.style.maxWidth = '800px';
-  exampleContainer.style.marginBottom = '30px';
+  // Left side: Example images
+  const exampleImages = document.createElement('div');
+  exampleImages.style.width = '30%';
+  exampleImages.innerHTML = `
+    <div style="text-align: center; margin-bottom: 20px;">
+      <img src="/path/to/before-example.jpg" alt="Before Example" style="max-width: 100%; height: auto; margin-bottom: 10px;">
+      <p>Before</p>
+    </div>
+    <div style="text-align: center;">
+      <img src="/path/to/after-example.jpg" alt="After Example" style="max-width: 100%; height: auto; margin-bottom: 10px;">
+      <p>After</p>
+    </div>
+  `;
+  widgetContainer.appendChild(exampleImages);
 
-  const beforeExample = document.createElement('div');
-  beforeExample.style.width = '48%';
-  beforeExample.style.textAlign = 'center';
-  beforeExample.innerHTML = '<img src="/path/to/before-example.jpg" alt="Before Example" style="width: 100%; height: auto;"><p>Before</p>';
-
-  const afterExample = document.createElement('div');
-  afterExample.style.width = '48%';
-  afterExample.style.textAlign = 'center';
-  afterExample.innerHTML = '<img src="/path/to/after-example.jpg" alt="After Example" style="width: 100%; height: auto;"><p>After</p>';
-
-  exampleContainer.appendChild(beforeExample);
-  exampleContainer.appendChild(afterExample);
-
-  // Upload section
+  // Middle: Upload box and Try it on button
   const uploadSection = document.createElement('div');
-  uploadSection.style.width = '100%';
-  uploadSection.style.maxWidth = '400px';
+  uploadSection.style.width = '30%';
   uploadSection.style.display = 'flex';
   uploadSection.style.flexDirection = 'column';
   uploadSection.style.alignItems = 'center';
-  uploadSection.style.marginBottom = '30px';
 
   const uploadBox = document.createElement('div');
   uploadBox.id = 'uploadBox';
@@ -59,10 +51,10 @@
   uploadBox.style.height = '200px';
   uploadBox.style.border = '2px dashed #4CAF50';
   uploadBox.style.display = 'flex';
-  uploadBox.style.flexDirection = 'column';
   uploadBox.style.alignItems = 'center';
   uploadBox.style.justifyContent = 'center';
   uploadBox.style.cursor = 'pointer';
+  uploadBox.style.position = 'relative';
   uploadBox.innerHTML = '<p>Click to upload or drag and drop an image here</p>';
   uploadBox.addEventListener('click', () => photoUpload.click());
 
@@ -95,33 +87,16 @@
   uploadSection.appendChild(uploadBox);
   uploadSection.appendChild(photoUpload);
   uploadSection.appendChild(tryItOnButton);
+  widgetContainer.appendChild(uploadSection);
 
-  // Result container
+  // Right side: Result container
   const resultContainer = document.createElement('div');
   resultContainer.id = 'resultContainer';
-  resultContainer.style.width = '100%';
-  resultContainer.style.maxWidth = '800px';
-  resultContainer.style.display = 'flex';
-  resultContainer.style.justifyContent = 'space-between';
-  resultContainer.style.marginTop = '30px';
-
-  const userImageContainer = document.createElement('div');
-  userImageContainer.style.width = '48%';
-  userImageContainer.style.textAlign = 'center';
-  userImageContainer.innerHTML = '<h3>Your Image</h3><div id="userImagePlaceholder" style="width: 100%; height: 300px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;"><p>Your image will appear here</p></div>';
-
-  const outputImageContainer = document.createElement('div');
-  outputImageContainer.style.width = '48%';
-  outputImageContainer.style.textAlign = 'center';
-  outputImageContainer.innerHTML = '<h3>Result</h3><div id="outputImagePlaceholder" style="width: 100%; height: 300px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;"><p>Try-on result will appear here</p></div>';
-
-  resultContainer.appendChild(userImageContainer);
-  resultContainer.appendChild(outputImageContainer);
-
-  // Append elements to the widget
-  widgetContainer.appendChild(exampleContainer);
-  widgetContainer.appendChild(uploadSection);
+  resultContainer.style.width = '30%';
+  resultContainer.innerHTML = '<h3>Result</h3><div id="resultImage" style="width: 100%; height: 200px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;"><p>Result will appear here</p></div>';
   widgetContainer.appendChild(resultContainer);
+
+  // Append the container to the section
   widgetSection.appendChild(sectionTitle);
   widgetSection.appendChild(widgetContainer);
 
@@ -141,7 +116,7 @@
   const imagePreview = document.createElement('img');
   imagePreview.id = 'imagePreview';
   imagePreview.style.maxWidth = '100%';
-  imagePreview.style.maxHeight = '300px';
+  imagePreview.style.maxHeight = '200px';
   imagePreview.style.display = 'none'; // Hidden by default
 
   function handleFileUpload(file) {
@@ -154,21 +129,27 @@
       imagePreview.src = humanImg;
       imagePreview.style.display = 'block';
       tryItOnButton.disabled = false; // Enable the "Try it on" button
-      
-      const userImagePlaceholder = document.getElementById('userImagePlaceholder');
-      userImagePlaceholder.innerHTML = '';
-      userImagePlaceholder.appendChild(imagePreview);
+      uploadBox.innerHTML = ''; // Clear the upload box
+      uploadBox.appendChild(imagePreview); // Add the preview to the upload box
 
       // Add a "Replace Image" button
       const replaceButton = document.createElement('button');
       replaceButton.textContent = 'Replace Image';
       replaceButton.className = 'btn btn--small';
-      replaceButton.style.marginTop = '10px';
+      replaceButton.style.position = 'absolute';
+      replaceButton.style.top = '10px';
+      replaceButton.style.right = '10px';
+      replaceButton.style.opacity = '0';
+      replaceButton.style.transition = 'opacity 0.3s';
       replaceButton.addEventListener('click', (e) => {
         e.stopPropagation(); // Prevent triggering uploadBox click
         photoUpload.click();
       });
-      userImagePlaceholder.appendChild(replaceButton);
+      uploadBox.appendChild(replaceButton);
+
+      // Show/hide replace button on hover
+      uploadBox.addEventListener('mouseenter', () => replaceButton.style.opacity = '1');
+      uploadBox.addEventListener('mouseleave', () => replaceButton.style.opacity = '0');
     };
     reader.readAsDataURL(file);
   }
@@ -183,15 +164,8 @@
   }
 
   function displayResult(outputUrl) {
-    const outputImagePlaceholder = document.getElementById('outputImagePlaceholder');
-    outputImagePlaceholder.innerHTML = '';
-    
-    const resultImage = document.createElement('img');
-    resultImage.src = outputUrl;
-    resultImage.style.maxWidth = '100%';
-    resultImage.style.maxHeight = '300px';
-    
-    outputImagePlaceholder.appendChild(resultImage);
+    const resultImage = document.getElementById('resultImage');
+    resultImage.innerHTML = `<img src="${outputUrl}" alt="Try-on result" style="max-width: 100%; max-height: 200px;">`;
   }
 
   console.log('Try-on widget fully initialized');
