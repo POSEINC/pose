@@ -5,12 +5,11 @@
   const tryOnButton = document.createElement('button');
   tryOnButton.textContent = 'See Me In This';
   tryOnButton.style.marginBottom = '10px';
-  tryOnButton.className = 'button button--full-width button--primary'; // Adjust class names as needed
+  tryOnButton.className = 'button button--full-width button--primary';
 
   // Find the "Add to Cart" button
   const addToCartButton = document.querySelector('button[name="add"]');
   if (addToCartButton && addToCartButton.parentNode) {
-    // Insert the "See Me In This" button before the "Add to Cart" button
     addToCartButton.parentNode.insertBefore(tryOnButton, addToCartButton);
     console.log('Try-on button inserted into DOM');
   } else {
@@ -59,16 +58,40 @@
     }
   });
 
-  // Handle photo upload and try-on (placeholder functionality)
-  document.getElementById('submitPhoto').addEventListener('click', function() {
+  // Handle photo upload and try-on
+  document.getElementById('submitPhoto').addEventListener('click', async function() {
     const fileInput = document.getElementById('photoUpload');
     if (fileInput.files && fileInput.files[0]) {
       const reader = new FileReader();
-      reader.onload = function(e) {
-        document.getElementById('tryOnResult').innerHTML = `
-          <p>Here's how you might look in this item:</p>
-          <img src="${e.target.result}" style="max-width: 100%; height: auto;">
-        `;
+      reader.onload = async function(e) {
+        const humanImg = e.target.result;
+        const garmImg = document.querySelector('.product__media img').src;
+        const garmentDes = document.querySelector('.product__title').textContent;
+
+        document.getElementById('tryOnResult').innerHTML = 'Processing...';
+
+        try {
+          const response = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ garmImg, humanImg, garmentDes }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+
+          const data = await response.json();
+          document.getElementById('tryOnResult').innerHTML = `
+            <p>Here's how you might look in this item:</p>
+            <img src="${data.output}" style="max-width: 100%; height: auto;">
+          `;
+        } catch (error) {
+          console.error('Error:', error);
+          document.getElementById('tryOnResult').innerHTML = 'An error occurred while processing the image.';
+        }
       };
       reader.readAsDataURL(fileInput.files[0]);
     } else {
