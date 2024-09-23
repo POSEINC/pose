@@ -82,6 +82,7 @@
   tryItOnButton.textContent = 'Try it on';
   tryItOnButton.className = 'button button--full-width button--primary';
   tryItOnButton.style.marginTop = '10px';
+  tryItOnButton.disabled = true; // Initially disabled
   tryItOnButton.addEventListener('click', function() {
     const file = photoUpload.files[0];
     if (file) {
@@ -95,9 +96,15 @@
   resultContainer.id = 'resultContainer';
   resultContainer.style.marginTop = '20px';
 
+  const imagePreview = document.createElement('img');
+  imagePreview.id = 'imagePreview';
+  imagePreview.style.maxWidth = '100%';
+  imagePreview.style.display = 'none'; // Hidden by default
+
   modalContent.appendChild(closeButton);
   modalContent.appendChild(uploadBox);
   modalContent.appendChild(photoUpload);
+  modalContent.appendChild(imagePreview);
   modalContent.appendChild(tryItOnButton);
   modalContent.appendChild(resultContainer);
   modal.appendChild(modalContent);
@@ -122,6 +129,11 @@
     reader.onload = async function(e) {
       const humanImg = e.target.result;
       console.log('Image uploaded:', humanImg);
+
+      // Display the uploaded image preview
+      imagePreview.src = humanImg;
+      imagePreview.style.display = 'block';
+      tryItOnButton.disabled = false; // Enable the "Try it on" button
 
       // Call the Replicate API
       const response = await fetch('https://api.replicate.com/v1/predictions', {
