@@ -23,6 +23,27 @@
   sectionTitle.style.textAlign = 'center';
   sectionTitle.style.marginBottom = '30px';
 
+  // Example images
+  const exampleContainer = document.createElement('div');
+  exampleContainer.style.display = 'flex';
+  exampleContainer.style.justifyContent = 'space-between';
+  exampleContainer.style.width = '100%';
+  exampleContainer.style.maxWidth = '800px';
+  exampleContainer.style.marginBottom = '30px';
+
+  const beforeExample = document.createElement('div');
+  beforeExample.style.width = '48%';
+  beforeExample.style.textAlign = 'center';
+  beforeExample.innerHTML = '<img src="/path/to/before-example.jpg" alt="Before Example" style="width: 100%; height: auto;"><p>Before</p>';
+
+  const afterExample = document.createElement('div');
+  afterExample.style.width = '48%';
+  afterExample.style.textAlign = 'center';
+  afterExample.innerHTML = '<img src="/path/to/after-example.jpg" alt="After Example" style="width: 100%; height: auto;"><p>After</p>';
+
+  exampleContainer.appendChild(beforeExample);
+  exampleContainer.appendChild(afterExample);
+
   // Upload section
   const uploadSection = document.createElement('div');
   uploadSection.style.width = '100%';
@@ -79,11 +100,26 @@
   const resultContainer = document.createElement('div');
   resultContainer.id = 'resultContainer';
   resultContainer.style.width = '100%';
+  resultContainer.style.maxWidth = '800px';
   resultContainer.style.display = 'flex';
-  resultContainer.style.flexDirection = 'column';
-  resultContainer.style.alignItems = 'center';
+  resultContainer.style.justifyContent = 'space-between';
+  resultContainer.style.marginTop = '30px';
+
+  const userImageContainer = document.createElement('div');
+  userImageContainer.style.width = '48%';
+  userImageContainer.style.textAlign = 'center';
+  userImageContainer.innerHTML = '<h3>Your Image</h3><div id="userImagePlaceholder" style="width: 100%; height: 300px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;"><p>Your image will appear here</p></div>';
+
+  const outputImageContainer = document.createElement('div');
+  outputImageContainer.style.width = '48%';
+  outputImageContainer.style.textAlign = 'center';
+  outputImageContainer.innerHTML = '<h3>Result</h3><div id="outputImagePlaceholder" style="width: 100%; height: 300px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;"><p>Try-on result will appear here</p></div>';
+
+  resultContainer.appendChild(userImageContainer);
+  resultContainer.appendChild(outputImageContainer);
 
   // Append elements to the widget
+  widgetContainer.appendChild(exampleContainer);
   widgetContainer.appendChild(uploadSection);
   widgetContainer.appendChild(resultContainer);
   widgetSection.appendChild(sectionTitle);
@@ -105,7 +141,7 @@
   const imagePreview = document.createElement('img');
   imagePreview.id = 'imagePreview';
   imagePreview.style.maxWidth = '100%';
-  imagePreview.style.maxHeight = '200px';
+  imagePreview.style.maxHeight = '300px';
   imagePreview.style.display = 'none'; // Hidden by default
 
   function handleFileUpload(file) {
@@ -118,8 +154,10 @@
       imagePreview.src = humanImg;
       imagePreview.style.display = 'block';
       tryItOnButton.disabled = false; // Enable the "Try it on" button
-      uploadBox.innerHTML = ''; // Clear the upload box
-      uploadBox.appendChild(imagePreview); // Add the preview to the upload box
+      
+      const userImagePlaceholder = document.getElementById('userImagePlaceholder');
+      userImagePlaceholder.innerHTML = '';
+      userImagePlaceholder.appendChild(imagePreview);
 
       // Add a "Replace Image" button
       const replaceButton = document.createElement('button');
@@ -130,7 +168,7 @@
         e.stopPropagation(); // Prevent triggering uploadBox click
         photoUpload.click();
       });
-      uploadBox.appendChild(replaceButton);
+      userImagePlaceholder.appendChild(replaceButton);
     };
     reader.readAsDataURL(file);
   }
@@ -145,51 +183,15 @@
   }
 
   function displayResult(outputUrl) {
-    const resultContainer = document.getElementById('resultContainer');
-    resultContainer.innerHTML = '<h3>Result</h3>';
-
-    const comparisonContainer = document.createElement('div');
-    comparisonContainer.style.display = 'flex';
-    comparisonContainer.style.justifyContent = 'space-between';
-    comparisonContainer.style.width = '100%';
-    comparisonContainer.style.maxWidth = '800px';
-
-    const beforeContainer = document.createElement('div');
-    beforeContainer.style.width = '48%';
-    beforeContainer.style.textAlign = 'center';
-
-    const afterContainer = document.createElement('div');
-    afterContainer.style.width = '48%';
-    afterContainer.style.textAlign = 'center';
-
-    const beforeImg = document.createElement('img');
-    beforeImg.src = imagePreview.src;
-    beforeImg.style.width = '100%';
-    beforeImg.style.height = 'auto';
-
-    const afterImg = document.createElement('img');
-    afterImg.src = outputUrl;
-    afterImg.style.width = '100%';
-    afterImg.style.height = 'auto';
-
-    const beforeLabel = document.createElement('p');
-    beforeLabel.textContent = 'Before';
-    beforeLabel.style.marginTop = '5px';
-
-    const afterLabel = document.createElement('p');
-    afterLabel.textContent = 'After';
-    afterLabel.style.marginTop = '5px';
-
-    beforeContainer.appendChild(beforeImg);
-    beforeContainer.appendChild(beforeLabel);
-
-    afterContainer.appendChild(afterImg);
-    afterContainer.appendChild(afterLabel);
-
-    comparisonContainer.appendChild(beforeContainer);
-    comparisonContainer.appendChild(afterContainer);
-
-    resultContainer.appendChild(comparisonContainer);
+    const outputImagePlaceholder = document.getElementById('outputImagePlaceholder');
+    outputImagePlaceholder.innerHTML = '';
+    
+    const resultImage = document.createElement('img');
+    resultImage.src = outputUrl;
+    resultImage.style.maxWidth = '100%';
+    resultImage.style.maxHeight = '300px';
+    
+    outputImagePlaceholder.appendChild(resultImage);
   }
 
   console.log('Try-on widget fully initialized');
