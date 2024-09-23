@@ -28,7 +28,6 @@
   modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
   modal.style.display = 'none'; // Hidden by default
   modal.style.zIndex = '1000'; // Ensure it appears above other content
-  modal.style.display = 'flex';
   modal.style.alignItems = 'center';
   modal.style.justifyContent = 'center';
 
