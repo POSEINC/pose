@@ -31,6 +31,7 @@
   modal.style.alignItems = 'center';
   modal.style.justifyContent = 'center';
   modal.style.flexDirection = 'column'; // Ensure flexbox centering
+  modal.style.display = 'flex'; // Ensure flexbox is applied
 
   const modalContent = document.createElement('div');
   modalContent.style.backgroundColor = 'white';
