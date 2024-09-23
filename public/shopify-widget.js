@@ -91,9 +91,9 @@
   tryItOnButton.style.marginTop = '10px';
   tryItOnButton.disabled = true; // Initially disabled
   tryItOnButton.addEventListener('click', async function() {
-    const file = photoUpload.files[0];
-    if (file) {
-      await handleFileUpload(file);
+    const humanImg = imagePreview.src;
+    if (humanImg) {
+      await callReplicateAPI(humanImg);
     } else {
       alert('Please upload an image first.');
     }
@@ -133,9 +133,9 @@
     }
   });
 
-  async function handleFileUpload(file) {
+  function handleFileUpload(file) {
     const reader = new FileReader();
-    reader.onload = async function(e) {
+    reader.onload = function(e) {
       const humanImg = e.target.result;
       console.log('Image uploaded:', humanImg);
 
@@ -145,32 +145,34 @@
       tryItOnButton.disabled = false; // Enable the "Try it on" button
       uploadBox.style.display = 'none'; // Hide the upload box
       replaceImageButton.style.display = 'block'; // Show the replace image button
-
-      // Call the Replicate API
-      const response = await fetch('https://api.replicate.com/v1/predictions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Token ${process.env.NEXT_PUBLIC_REPLICATE_API_TOKEN}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          version: process.env.NEXT_PUBLIC_REPLICATE_MODEL_VERSION,
-          input: {
-            image: humanImg,
-            product: productTitle
-          }
-        })
-      });
-
-      const result = await response.json();
-      if (result && result.output) {
-        displayResult(result.output);
-      } else {
-        console.error('Error from Replicate API:', result);
-        alert('An error occurred while processing the image.');
-      }
     };
     reader.readAsDataURL(file);
+  }
+
+  async function callReplicateAPI(humanImg) {
+    // Call the Replicate API
+    const response = await fetch('https://api.replicate.com/v1/predictions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Token ${process.env.NEXT_PUBLIC_REPLICATE_API_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        version: process.env.NEXT_PUBLIC_REPLICATE_MODEL_VERSION,
+        input: {
+          image: humanImg,
+          product: productTitle
+        }
+      })
+    });
+
+    const result = await response.json();
+    if (result && result.output) {
+      displayResult(result.output);
+    } else {
+      console.error('Error from Replicate API:', result);
+      alert('An error occurred while processing the image.');
+    }
   }
 
   function displayResult(outputUrl) {
