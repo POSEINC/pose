@@ -53,6 +53,7 @@
   });
 
   const productTitle = document.querySelector('.product__title').textContent;
+  const productImage = document.querySelector('.product__image img').src;
 
   const uploadBox = document.createElement('div');
   uploadBox.id = 'uploadBox';
@@ -93,7 +94,7 @@
   tryItOnButton.addEventListener('click', async function() {
     const humanImg = imagePreview.src;
     if (humanImg) {
-      await callReplicateAPI(humanImg);
+      await callReplicateAPI(productImage, humanImg, productTitle);
     } else {
       alert('Please upload an image first.');
     }
@@ -149,30 +150,43 @@
     reader.readAsDataURL(file);
   }
 
-  async function callReplicateAPI(humanImg) {
-    // Call the Replicate API
-    const response = await fetch('https://api.replicate.com/v1/predictions', {
+  async function callReplicateAPI(garmImg, humanImg, garmentDes) {
+    // Call the custom API endpoint
+    const response = await fetch('/api/try-on', {
       method: 'POST',
       headers: {
-        'Authorization': `Token ${process.env.NEXT_PUBLIC_REPLICATE_API_TOKEN}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        version: process.env.NEXT_PUBLIC_REPLICATE_MODEL_VERSION,
-        input: {
-          image: humanImg,
-          product: productTitle
-        }
+        garmImg,
+        humanImg,
+        garmentDes
       })
     });
 
     const result = await response.json();
-    if (result && result.output) {
-      displayResult(result.output);
+    if (result && result.status === 'processing') {
+      checkJobStatus(result.jobId);
     } else {
-      console.error('Error from Replicate API:', result);
+      console.error('Error from API:', result);
       alert('An error occurred while processing the image.');
     }
+  }
+
+  async function checkJobStatus(jobId) {
+    const interval = setInterval(async () => {
+      const response = await fetch(`/api/try-on?jobId=${jobId}`);
+      const result = await response.json();
+
+      if (result.status === 'completed') {
+        clearInterval(interval);
+        displayResult(result.output);
+      } else if (result.status === 'failed') {
+        clearInterval(interval);
+        console.error('Error from API:', result);
+        alert('An error occurred while processing the image.');
+      }
+    }, 5000); // Check every 5 seconds
   }
 
   function displayResult(outputUrl) {
