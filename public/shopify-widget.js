@@ -73,13 +73,17 @@
         console.log('Sending data to API:', { garmImg, humanImg, garmentDes });
 
         try {
+          console.log('Attempting to fetch from API...');
           const response = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              'Origin': window.location.origin
             },
             body: JSON.stringify({ garmImg, humanImg, garmentDes }),
           });
+
+          console.log('Fetch response received:', response);
 
           if (!response.ok) {
             const errorText = await response.text();
@@ -92,8 +96,11 @@
             <img src="${data.output}" style="max-width: 100%; height: auto;">
           `;
         } catch (error) {
-          console.error('Error details:', error);
+          console.error('Detailed error:', error);
           document.getElementById('tryOnResult').innerHTML = `An error occurred while processing the image: ${error.message}`;
+          if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+            console.log('This might be a CORS issue or the server is not responding');
+          }
         }
       };
       reader.readAsDataURL(fileInput.files[0]);
