@@ -78,9 +78,28 @@
     }
   });
 
+  const tryItOnButton = document.createElement('button');
+  tryItOnButton.textContent = 'Try it on';
+  tryItOnButton.className = 'button button--full-width button--primary';
+  tryItOnButton.style.marginTop = '10px';
+  tryItOnButton.addEventListener('click', function() {
+    const file = photoUpload.files[0];
+    if (file) {
+      handleFileUpload(file);
+    } else {
+      alert('Please upload an image first.');
+    }
+  });
+
+  const resultContainer = document.createElement('div');
+  resultContainer.id = 'resultContainer';
+  resultContainer.style.marginTop = '20px';
+
   modalContent.appendChild(closeButton);
   modalContent.appendChild(uploadBox);
   modalContent.appendChild(photoUpload);
+  modalContent.appendChild(tryItOnButton);
+  modalContent.appendChild(resultContainer);
   modal.appendChild(modalContent);
   document.body.appendChild(modal);
 
@@ -98,14 +117,42 @@
     }
   });
 
-  function handleFileUpload(file) {
+  async function handleFileUpload(file) {
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = async function(e) {
       const humanImg = e.target.result;
       console.log('Image uploaded:', humanImg);
-      // Add your image processing logic here
+
+      // Call the Replicate API
+      const response = await fetch('https://api.replicate.com/v1/predictions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Token ${process.env.NEXT_PUBLIC_REPLICATE_API_TOKEN}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          version: process.env.NEXT_PUBLIC_REPLICATE_MODEL_VERSION,
+          input: {
+            image: humanImg,
+            product: productTitle
+          }
+        })
+      });
+
+      const result = await response.json();
+      if (result && result.output) {
+        displayResult(result.output);
+      } else {
+        console.error('Error from Replicate API:', result);
+        alert('An error occurred while processing the image.');
+      }
     };
     reader.readAsDataURL(file);
+  }
+
+  function displayResult(outputUrl) {
+    const resultContainer = document.getElementById('resultContainer');
+    resultContainer.innerHTML = `<img src="${outputUrl}" alt="Try-on result" style="max-width: 100%;">`;
   }
 
   console.log('Try-on widget fully initialized');
