@@ -30,7 +30,7 @@
   modal.style.zIndex = '1000'; // Ensure it appears above other content
   modal.style.alignItems = 'center';
   modal.style.justifyContent = 'center';
-  modal.style.display = 'flex'; // Ensure flexbox centering
+  modal.style.flexDirection = 'column'; // Ensure flexbox centering
 
   const modalContent = document.createElement('div');
   modalContent.style.backgroundColor = 'white';
