@@ -1,59 +1,80 @@
 (function() {
   console.log('Shopify widget script started');
 
-  // Create a container for our widget
-  const container = document.createElement('div');
-  container.id = 'shopify-try-on-widget';
-  console.log('Widget container created');
-  
-  // Find the element we want to insert our widget after
-  const referenceNode = document.querySelector('.product__info-wrapper');
-  if (referenceNode && referenceNode.parentNode) {
-    referenceNode.parentNode.insertBefore(container, referenceNode.nextSibling);
-    console.log('Widget container inserted into DOM');
+  // Create the "See Me In This" button
+  const tryOnButton = document.createElement('button');
+  tryOnButton.textContent = 'See Me In This';
+  tryOnButton.style.marginBottom = '10px';
+  tryOnButton.className = 'button button--full-width button--primary'; // Adjust class names as needed
+
+  // Find the "Add to Cart" button
+  const addToCartButton = document.querySelector('button[name="add"]');
+  if (addToCartButton && addToCartButton.parentNode) {
+    // Insert the "See Me In This" button before the "Add to Cart" button
+    addToCartButton.parentNode.insertBefore(tryOnButton, addToCartButton);
+    console.log('Try-on button inserted into DOM');
   } else {
-    console.error('Could not find a suitable location to insert the widget');
+    console.error('Could not find the Add to Cart button');
     return;
   }
 
-  // Add debug element
-  const debugElement = document.createElement('div');
-  debugElement.textContent = 'Widget script loaded';
-  debugElement.style.backgroundColor = 'red';
-  debugElement.style.color = 'white';
-  debugElement.style.padding = '10px';
-  debugElement.style.margin = '10px 0';
-  document.body.appendChild(debugElement);
+  // Create a modal for the photo upload and try-on feature
+  const modal = document.createElement('div');
+  modal.style.display = 'none';
+  modal.style.position = 'fixed';
+  modal.style.zIndex = '1000';
+  modal.style.left = '0';
+  modal.style.top = '0';
+  modal.style.width = '100%';
+  modal.style.height = '100%';
+  modal.style.backgroundColor = 'rgba(0,0,0,0.5)';
 
-  // Load React and ReactDOM
-  const script1 = document.createElement('script');
-  script1.src = 'https://unpkg.com/react@17/umd/react.production.min.js';
-  const script2 = document.createElement('script');
-  script2.src = 'https://unpkg.com/react-dom@17/umd/react-dom.production.min.js';
+  const modalContent = document.createElement('div');
+  modalContent.style.backgroundColor = '#fefefe';
+  modalContent.style.margin = '15% auto';
+  modalContent.style.padding = '20px';
+  modalContent.style.border = '1px solid #888';
+  modalContent.style.width = '80%';
+  modalContent.style.maxWidth = '500px';
 
-  // Load our widget bundle
-  const script3 = document.createElement('script');
-  script3.src = 'https://shopify-virtual-tryon-app.vercel.app/api/widget-bundle';
+  modalContent.innerHTML = `
+    <h2>Upload Your Photo</h2>
+    <input type="file" id="photoUpload" accept="image/*">
+    <button id="submitPhoto">Try On</button>
+    <div id="tryOnResult"></div>
+  `;
 
-  document.body.appendChild(script1);
-  document.body.appendChild(script2);
-  document.body.appendChild(script3);
+  modal.appendChild(modalContent);
+  document.body.appendChild(modal);
 
-  console.log('Scripts appended to body');
+  // Event listener for the "See Me In This" button
+  tryOnButton.addEventListener('click', function() {
+    modal.style.display = 'block';
+  });
 
-  // Initialize the widget once everything is loaded
-  script3.onload = function() {
-    console.log('Widget bundle loaded');
-    if (typeof TryOnWidget !== 'undefined' && TryOnWidget.init) {
-      const product = {
-        id: meta.product.id,
-        name: meta.product.title,
-        image: meta.product.featured_image
-      };
-      console.log('Initializing widget with product:', product);
-      TryOnWidget.init(document.getElementById('shopify-try-on-widget'), product);
-    } else {
-      console.error('TryOnWidget not found or init method not available');
+  // Close the modal when clicking outside of it
+  modal.addEventListener('click', function(event) {
+    if (event.target === modal) {
+      modal.style.display = 'none';
     }
-  };
+  });
+
+  // Handle photo upload and try-on (placeholder functionality)
+  document.getElementById('submitPhoto').addEventListener('click', function() {
+    const fileInput = document.getElementById('photoUpload');
+    if (fileInput.files && fileInput.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('tryOnResult').innerHTML = `
+          <p>Here's how you might look in this item:</p>
+          <img src="${e.target.result}" style="max-width: 100%; height: auto;">
+        `;
+      };
+      reader.readAsDataURL(fileInput.files[0]);
+    } else {
+      alert('Please select a photo first.');
+    }
+  });
+
+  console.log('Try-on widget fully initialized');
 })();
