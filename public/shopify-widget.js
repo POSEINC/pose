@@ -78,15 +78,22 @@
     }
   });
 
+  const replaceImageButton = document.createElement('button');
+  replaceImageButton.textContent = 'Replace Image';
+  replaceImageButton.className = 'button button--full-width button--secondary';
+  replaceImageButton.style.marginTop = '10px';
+  replaceImageButton.style.display = 'none'; // Hidden by default
+  replaceImageButton.addEventListener('click', () => photoUpload.click());
+
   const tryItOnButton = document.createElement('button');
   tryItOnButton.textContent = 'Try it on';
   tryItOnButton.className = 'button button--full-width button--primary';
   tryItOnButton.style.marginTop = '10px';
   tryItOnButton.disabled = true; // Initially disabled
-  tryItOnButton.addEventListener('click', function() {
+  tryItOnButton.addEventListener('click', async function() {
     const file = photoUpload.files[0];
     if (file) {
-      handleFileUpload(file);
+      await handleFileUpload(file);
     } else {
       alert('Please upload an image first.');
     }
@@ -106,6 +113,7 @@
   modalContent.appendChild(uploadBox);
   modalContent.appendChild(photoUpload);
   modalContent.appendChild(imagePreview);
+  modalContent.appendChild(replaceImageButton);
   modalContent.appendChild(tryItOnButton);
   modalContent.appendChild(resultContainer);
   modal.appendChild(modalContent);
@@ -135,6 +143,8 @@
       imagePreview.src = humanImg;
       imagePreview.style.display = 'block';
       tryItOnButton.disabled = false; // Enable the "Try it on" button
+      uploadBox.style.display = 'none'; // Hide the upload box
+      replaceImageButton.style.display = 'block'; // Show the replace image button
 
       // Call the Replicate API
       const response = await fetch('https://api.replicate.com/v1/predictions', {
