@@ -35,12 +35,15 @@
   modalContent.style.border = '1px solid #888';
   modalContent.style.width = '80%';
   modalContent.style.maxWidth = '500px';
+  modalContent.style.borderRadius = '10px';
+
+  const productTitle = document.querySelector('.product__title').textContent;
 
   modalContent.innerHTML = `
-    <h2>Upload Your Photo</h2>
-    <input type="file" id="photoUpload" accept="image/*">
-    <button id="submitPhoto">Try On This Item</button>
-    <div id="tryOnResult"></div>
+    <h2>See how ${productTitle} looks on yourself</h2>
+    <input type="file" id="photoUpload" accept="image/*" style="margin-top: 10px;">
+    <button id="submitPhoto" style="margin-top: 10px;">Try On This Item</button>
+    <div id="tryOnResult" style="margin-top: 20px;"></div>
   `;
 
   modal.appendChild(modalContent);
