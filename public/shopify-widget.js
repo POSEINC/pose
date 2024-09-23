@@ -34,6 +34,14 @@
 
   const productTitle = document.querySelector('.product__title').textContent;
 
+  // Add outline box styles to the upload box
+  const uploadBox = document.createElement('div');
+  uploadBox.id = 'uploadBox';
+  uploadBox.className = 'w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer mb-4';
+  uploadBox.style.outline = '2px dashed #4CAF50'; // Add this line for the outline box
+
+  modalContent.appendChild(uploadBox); // Ensure uploadBox is appended to modalContent
+
   modalContent.innerHTML = `
     <h2 class="text-2xl font-bold mb-4">See how ${productTitle} looks on yourself</h2>
     <div class="flex">
@@ -57,12 +65,6 @@
       </div>
     </div>
   `;
-
-  // Add outline box styles to the upload box
-  const uploadBox = document.createElement('div');
-  uploadBox.id = 'uploadBox';
-  uploadBox.className = 'w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer mb-4';
-  uploadBox.style.outline = '2px dashed #4CAF50'; // Add this line for the outline box
 
   modalContent.appendChild(closeButton);
   modal.appendChild(modalContent);
