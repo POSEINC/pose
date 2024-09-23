@@ -20,7 +20,7 @@
 
   // Create a modal for the photo upload and try-on feature
   const modal = document.createElement('div');
-  modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50';
+  modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden'; // Hidden by default
 
   const modalContent = document.createElement('div');
   modalContent.className = 'bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl';
@@ -58,13 +58,13 @@
   tryOnButton.addEventListener('click', function(event) {
     event.preventDefault();
     event.stopPropagation();
-    modal.style.display = 'flex';
+    modal.classList.remove('hidden'); // Show the modal
   });
 
   // Close the modal when clicking outside of it
   modal.addEventListener('click', function(event) {
     if (event.target === modal) {
-      modal.style.display = 'none';
+      modal.classList.add('hidden'); // Hide the modal
     }
   });
 
