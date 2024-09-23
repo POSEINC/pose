@@ -84,6 +84,9 @@
   resultContainer.id = 'resultContainer';
   resultContainer.style.width = '30%';
   resultContainer.innerHTML = '<h3>Result</h3>';
+  resultContainer.style.display = 'flex';
+  resultContainer.style.flexDirection = 'column';
+  resultContainer.style.alignItems = 'center';
   widgetContainer.appendChild(resultContainer);
 
   // Append the container to the section
@@ -113,7 +116,52 @@
   function handleFileUpload(file) { /* ... */ }
   async function callReplicateAPI(garmImg, humanImg, garmentDes) { /* ... */ }
   async function checkJobStatus(jobId) { /* ... */ }
-  function displayResult(outputUrl) { /* ... */ }
+  function displayResult(outputUrl) {
+    const resultContainer = document.getElementById('resultContainer');
+    resultContainer.innerHTML = '<h3>Result</h3>';
+
+    const comparisonContainer = document.createElement('div');
+    comparisonContainer.style.display = 'flex';
+    comparisonContainer.style.justifyContent = 'space-between';
+    comparisonContainer.style.width = '100%';
+
+    const beforeContainer = document.createElement('div');
+    beforeContainer.style.width = '48%';
+    beforeContainer.style.textAlign = 'center';
+
+    const afterContainer = document.createElement('div');
+    afterContainer.style.width = '48%';
+    afterContainer.style.textAlign = 'center';
+
+    const beforeImg = document.createElement('img');
+    beforeImg.src = imagePreview.src;
+    beforeImg.style.width = '100%';
+    beforeImg.style.height = 'auto';
+
+    const afterImg = document.createElement('img');
+    afterImg.src = outputUrl;
+    afterImg.style.width = '100%';
+    afterImg.style.height = 'auto';
+
+    const beforeLabel = document.createElement('p');
+    beforeLabel.textContent = 'Before';
+    beforeLabel.style.marginTop = '5px';
+
+    const afterLabel = document.createElement('p');
+    afterLabel.textContent = 'After';
+    afterLabel.style.marginTop = '5px';
+
+    beforeContainer.appendChild(beforeImg);
+    beforeContainer.appendChild(beforeLabel);
+
+    afterContainer.appendChild(afterImg);
+    afterContainer.appendChild(afterLabel);
+
+    comparisonContainer.appendChild(beforeContainer);
+    comparisonContainer.appendChild(afterContainer);
+
+    resultContainer.appendChild(comparisonContainer);
+  }
 
   console.log('Try-on widget fully initialized');
 })();
