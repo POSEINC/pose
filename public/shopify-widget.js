@@ -163,9 +163,17 @@ console.log('Shopify try-on widget script started');
       // Show/hide replace button on hover
       uploadBox.addEventListener('mouseenter', () => replaceButton.style.opacity = '1');
       uploadBox.addEventListener('mouseleave', () => replaceButton.style.opacity = '0');
+
+      // Add visual feedback
+      uploadBox.style.border = '2px solid #4CAF50';
+      uploadBox.style.backgroundColor = '#e8f5e9';
     };
     reader.onerror = function(error) {
       console.error('Error reading file:', error); // Debug log for errors
+      // Add visual feedback for error
+      uploadBox.style.border = '2px solid #f44336';
+      uploadBox.style.backgroundColor = '#ffebee';
+      uploadBox.innerHTML = '<p style="color: #f44336;">Error uploading image. Please try again.</p>';
     };
     reader.readAsDataURL(file);
   }
