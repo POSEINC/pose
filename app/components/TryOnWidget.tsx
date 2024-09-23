@@ -10,7 +10,7 @@ interface TryOnWidgetProps {
   productName: string; // Add this line
 }
 
-const TryOnWidget: React.FC<TryOnWidgetProps> = ({ 
+export const TryOnWidget: React.FC<TryOnWidgetProps> = ({ 
   productImage, 
   initialTryOnImage, // Change this line
   productName
