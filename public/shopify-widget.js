@@ -1,3 +1,5 @@
+console.log('Shopify try-on widget script started');
+
 (function() {
   console.log('Shopify try-on widget script started');
 
