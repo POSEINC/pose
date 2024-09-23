@@ -28,6 +28,10 @@ export default async function handler(req, res) {
     // Log the token to ensure it is being read correctly (remove this in production)
     console.log('REPLICATE_API_TOKEN:', process.env.REPLICATE_API_TOKEN);
 
+    if (!process.env.REPLICATE_API_TOKEN) {
+      throw new Error('REPLICATE_API_TOKEN is not set');
+    }
+
     const replicate = new Replicate({
       auth: process.env.REPLICATE_API_TOKEN,
     });
