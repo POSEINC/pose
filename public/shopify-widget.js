@@ -90,10 +90,11 @@
           }
 
           const data = await response.json();
-          document.getElementById('tryOnResult').innerHTML = `
-            <p>Here's how you might look in this item:</p>
-            <img src="${data.output}" style="max-width: 100%; height: auto;">
-          `;
+          if (data.status === 'processing') {
+            pollForResult(data.jobId);
+          } else {
+            displayResult(data.output);
+          }
         } catch (error) {
           console.error('Detailed error:', error);
           document.getElementById('tryOnResult').innerHTML = `An error occurred while processing the image: ${error.message}`;
@@ -107,6 +108,31 @@
       alert('Please select a photo first.');
     }
   });
+
+  function pollForResult(jobId) {
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on-status?jobId=${jobId}`);
+        const data = await response.json();
+        if (data.status === 'completed') {
+          clearInterval(pollInterval);
+          displayResult(data.output);
+        } else if (data.status === 'failed') {
+          clearInterval(pollInterval);
+          document.getElementById('tryOnResult').innerHTML = `An error occurred while processing the image: ${data.error}`;
+        }
+      } catch (error) {
+        console.error('Error polling for result:', error);
+      }
+    }, 5000); // Poll every 5 seconds
+  }
+
+  function displayResult(outputUrl) {
+    document.getElementById('tryOnResult').innerHTML = `
+      <p>Here's how you might look in this item:</p>
+      <img src="${outputUrl}" style="max-width: 100%; height: auto;">
+    `;
+  }
 
   console.log('Try-on widget fully initialized');
 })();
