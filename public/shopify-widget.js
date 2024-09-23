@@ -157,9 +157,14 @@
   async function callReplicateAPI(garmImg, humanImg, garmentDes) {
     // Placeholder for API call
     console.log('Calling Replicate API...');
+    console.log('Garment Image:', garmImg);
+    console.log('Human Image:', humanImg);
+    console.log('Garment Description:', garmentDes);
+    
     // Simulating API call delay
     await new Promise(resolve => setTimeout(resolve, 2000));
-    // Placeholder result
+    
+    // Placeholder result - replace this with actual API call when ready
     displayResult(humanImg); // Using uploaded image as placeholder result
   }
 
