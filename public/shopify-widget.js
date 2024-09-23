@@ -30,11 +30,11 @@ console.log('Shopify try-on widget script started');
   exampleImages.style.width = '30%';
   exampleImages.innerHTML = `
     <div style="text-align: center; margin-bottom: 20px;">
-      <img src="/path/to/before-example.jpg" alt="Before Example" style="max-width: 100%; height: auto; margin-bottom: 10px;">
+      <img src="/images/before-example.jpg" alt="Before Example" style="max-width: 100%; height: auto; margin-bottom: 10px;">
       <p>Before</p>
     </div>
     <div style="text-align: center;">
-      <img src="/path/to/after-example.jpg" alt="After Example" style="max-width: 100%; height: auto; margin-bottom: 10px;">
+      <img src="/images/after-example.jpg" alt="After Example" style="max-width: 100%; height: auto; margin-bottom: 10px;">
       <p>After</p>
     </div>
   `;
