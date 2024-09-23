@@ -70,6 +70,8 @@
 
         document.getElementById('tryOnResult').innerHTML = 'Processing...';
 
+        console.log('Sending data to API:', { garmImg, humanImg, garmentDes });
+
         try {
           const response = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
             method: 'POST',
@@ -80,7 +82,8 @@
           });
 
           if (!response.ok) {
-            throw new Error('Network response was not ok');
+            const errorText = await response.text();
+            throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
           }
 
           const data = await response.json();
@@ -89,8 +92,8 @@
             <img src="${data.output}" style="max-width: 100%; height: auto;">
           `;
         } catch (error) {
-          console.error('Error:', error);
-          document.getElementById('tryOnResult').innerHTML = 'An error occurred while processing the image.';
+          console.error('Error details:', error);
+          document.getElementById('tryOnResult').innerHTML = `An error occurred while processing the image: ${error.message}`;
         }
       };
       reader.readAsDataURL(fileInput.files[0]);
