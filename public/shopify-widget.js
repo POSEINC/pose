@@ -6,6 +6,7 @@
   tryOnButton.textContent = 'See Me In This';
   tryOnButton.style.marginBottom = '10px';
   tryOnButton.className = 'button button--full-width button--primary';
+  tryOnButton.type = 'button'; // Ensure it's not a submit button
 
   // Find the "Add to Cart" button
   const addToCartButton = document.querySelector('button[name="add"]');
@@ -54,7 +55,9 @@
   document.body.appendChild(modal);
 
   // Event listener for the "See Me In This" button
-  tryOnButton.addEventListener('click', function() {
+  tryOnButton.addEventListener('click', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
     modal.style.display = 'flex';
   });
 
