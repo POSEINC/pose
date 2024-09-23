@@ -110,27 +110,42 @@
   });
 
   function pollForResult(jobId) {
+    let attempts = 0;
+    const maxAttempts = 60; // 5 minutes max (60 * 5 seconds)
     const pollInterval = setInterval(async () => {
       try {
-        const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on-status?jobId=${jobId}`);
+        console.log(`Polling for job ${jobId}, attempt ${attempts + 1}`);
+        const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
         const data = await response.json();
+        console.log(`Poll response for job ${jobId}:`, data);
+        
         if (data.status === 'completed') {
           clearInterval(pollInterval);
           displayResult(data.output);
         } else if (data.status === 'failed') {
           clearInterval(pollInterval);
           document.getElementById('tryOnResult').innerHTML = `An error occurred while processing the image: ${data.error}`;
+        } else if (data.status === 'processing') {
+          document.getElementById('tryOnResult').innerHTML = `Processing... (Attempt ${attempts + 1})`;
+        }
+        
+        attempts++;
+        if (attempts >= maxAttempts) {
+          clearInterval(pollInterval);
+          document.getElementById('tryOnResult').innerHTML = 'Processing timed out. Please try again.';
         }
       } catch (error) {
         console.error('Error polling for result:', error);
+        document.getElementById('tryOnResult').innerHTML = `Error checking status: ${error.message}`;
       }
     }, 5000); // Poll every 5 seconds
   }
 
   function displayResult(outputUrl) {
+    console.log('Displaying result:', outputUrl);
     document.getElementById('tryOnResult').innerHTML = `
       <p>Here's how you might look in this item:</p>
-      <img src="${outputUrl}" style="max-width: 100%; height: auto;">
+      <img src="${outputUrl}" style="max-width: 100%; height: auto;" onerror="this.onerror=null; this.src=''; this.alt='Error loading image';">
     `;
   }
 

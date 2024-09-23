@@ -22,10 +22,13 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     const { jobId } = req.query;
+    console.log(`Checking status for job ${jobId}`);
     const status = jobStatus.get(jobId);
     if (status) {
+      console.log(`Status for job ${jobId}:`, status);
       res.status(200).json(status);
     } else {
+      console.log(`Job ${jobId} not found`);
       res.status(404).json({ message: 'Job not found' });
     }
     return;
@@ -58,6 +61,7 @@ export default async function handler(req, res) {
 
 async function processImage(jobId, garmImg, humanImg, garmentDes) {
   try {
+    console.log(`Starting processing for job ${jobId}`);
     const replicate = new Replicate({
       auth: process.env.REPLICATE_API_TOKEN,
     });
@@ -74,9 +78,10 @@ async function processImage(jobId, garmImg, humanImg, garmentDes) {
       { input }
     );
 
+    console.log(`Processing completed for job ${jobId}. Output:`, output);
     jobStatus.set(jobId, { status: 'completed', output });
   } catch (error) {
-    console.error('Error processing image:', error);
+    console.error(`Error processing image for job ${jobId}:`, error);
     jobStatus.set(jobId, { status: 'failed', error: error.message });
   }
 }
