@@ -112,6 +112,32 @@
   function pollForResult(jobId) {
     let attempts = 0;
     const maxAttempts = 60; // 5 minutes max (60 * 5 seconds)
+    
+    // Create progress bar elements
+    const progressContainer = document.createElement('div');
+    progressContainer.style.width = '100%';
+    progressContainer.style.backgroundColor = '#f0f0f0';
+    progressContainer.style.borderRadius = '5px';
+    progressContainer.style.margin = '10px 0';
+
+    const progressBar = document.createElement('div');
+    progressBar.style.width = '0%';
+    progressBar.style.height = '20px';
+    progressBar.style.backgroundColor = '#4CAF50';
+    progressBar.style.borderRadius = '5px';
+    progressBar.style.transition = 'width 0.5s ease-in-out';
+
+    progressContainer.appendChild(progressBar);
+
+    const progressText = document.createElement('div');
+    progressText.style.textAlign = 'center';
+    progressText.style.marginTop = '5px';
+
+    const resultElement = document.getElementById('tryOnResult');
+    resultElement.innerHTML = '';
+    resultElement.appendChild(progressContainer);
+    resultElement.appendChild(progressText);
+
     const pollInterval = setInterval(async () => {
       try {
         console.log(`Polling for job ${jobId}, attempt ${attempts + 1}`);
@@ -124,19 +150,21 @@
           displayResult(data.output);
         } else if (data.status === 'failed') {
           clearInterval(pollInterval);
-          document.getElementById('tryOnResult').innerHTML = `An error occurred while processing the image: ${data.error}`;
+          resultElement.innerHTML = `An error occurred while processing the image: ${data.error}`;
         } else if (data.status === 'processing') {
-          document.getElementById('tryOnResult').innerHTML = `Processing... (Attempt ${attempts + 1})`;
+          const progress = ((attempts + 1) / maxAttempts) * 100;
+          progressBar.style.width = `${progress}%`;
+          progressText.textContent = `Processing: ${Math.round(progress)}%`;
         }
         
         attempts++;
         if (attempts >= maxAttempts) {
           clearInterval(pollInterval);
-          document.getElementById('tryOnResult').innerHTML = 'Processing timed out. Please try again.';
+          resultElement.innerHTML = 'Processing timed out. Please try again.';
         }
       } catch (error) {
         console.error('Error polling for result:', error);
-        document.getElementById('tryOnResult').innerHTML = `Error checking status: ${error.message}`;
+        resultElement.innerHTML = `Error checking status: ${error.message}`;
       }
     }, 5000); // Poll every 5 seconds
   }
