@@ -16,6 +16,15 @@
     return;
   }
 
+  // Add debug element
+  const debugElement = document.createElement('div');
+  debugElement.textContent = 'Widget script loaded';
+  debugElement.style.backgroundColor = 'red';
+  debugElement.style.color = 'white';
+  debugElement.style.padding = '10px';
+  debugElement.style.margin = '10px 0';
+  document.body.appendChild(debugElement);
+
   // Load React and ReactDOM
   const script1 = document.createElement('script');
   script1.src = 'https://unpkg.com/react@17/umd/react.production.min.js';
