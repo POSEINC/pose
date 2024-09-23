@@ -28,17 +28,17 @@
   modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
   modal.style.display = 'none'; // Hidden by default
   modal.style.zIndex = '1000'; // Ensure it appears above other content
+  modal.style.display = 'flex';
+  modal.style.alignItems = 'center';
+  modal.style.justifyContent = 'center';
 
   const modalContent = document.createElement('div');
   modalContent.style.backgroundColor = 'white';
-  modalContent.style.margin = 'auto';
   modalContent.style.padding = '20px';
   modalContent.style.border = '1px solid #888';
   modalContent.style.width = '80%';
   modalContent.style.maxWidth = '600px';
   modalContent.style.position = 'relative';
-  modalContent.style.top = '50%';
-  modalContent.style.transform = 'translateY(-50%)';
 
   const closeButton = document.createElement('button');
   closeButton.innerHTML = '&times;';
