@@ -39,7 +39,7 @@
   modalContent.innerHTML = `
     <h2>Upload Your Photo</h2>
     <input type="file" id="photoUpload" accept="image/*">
-    <button id="submitPhoto">Try On</button>
+    <button id="submitPhoto">Try On This Item</button>
     <div id="tryOnResult"></div>
   `;
 
