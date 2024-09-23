@@ -29,16 +29,16 @@ export default async function handler(req, res) {
       auth: process.env.REPLICATE_API_TOKEN,
     });
 
+    const input = {
+      garm_img: garmImg,
+      human_img: humanImg,
+      garment_des: garmentDes,
+      category: "upper_body", // You might want to make this dynamic based on the product
+    };
+
     const output = await replicate.run(
       "cuuupid/idm-vton:c871bb9b046607b680449ecbae55fd8c6d945e0a1948644bf2361b3d021d3ff4",
-      {
-        input: {
-          garm_img: garmImg,
-          human_img: humanImg,
-          garment_des: garmentDes,
-          category: "upper_body", // You might want to make this dynamic based on the product
-        }
-      }
+      { input }
     );
 
     res.status(200).json({ output });
