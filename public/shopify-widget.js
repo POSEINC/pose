@@ -78,7 +78,6 @@
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Origin': window.location.origin
             },
             body: JSON.stringify({ garmImg, humanImg, garmentDes }),
           });
