@@ -220,19 +220,12 @@ console.log('Shopify try-on widget script started');
   }
 
   async function callReplicateAPI(garmImg, humanImg, garmentDes) {
-    console.log('Calling Replicate API with:');
-    console.log('Garment Image:', garmImg);
-    console.log('Human Image:', humanImg);
-    console.log('Garment Description:', garmentDes);
+    console.log('Calling Replicate API...');
     
     try {
       // Make sure the images are valid URLs or base64 strings
-      const garmImgUrl = garmImg && garmImg.startsWith('data:') ? garmImg : (garmImg ? new URL(garmImg, window.location.origin).href : '');
-      const humanImgUrl = humanImg && humanImg.startsWith('data:') ? humanImg : (humanImg ? new URL(humanImg, window.location.origin).href : '');
-
-      if (!garmImgUrl || !humanImgUrl) {
-        throw new Error('Missing garment or human image');
-      }
+      const garmImgUrl = garmImg.startsWith('data:') ? garmImg : new URL(garmImg, window.location.origin).href;
+      const humanImgUrl = humanImg.startsWith('data:') ? humanImg : new URL(humanImg, window.location.origin).href;
 
       // Make a POST request to your API endpoint
       const response = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
@@ -248,43 +241,68 @@ console.log('Shopify try-on widget script started');
       });
 
       if (!response.ok) {
-        throw new Error('API request failed');
+        throw new Error(`API request failed with status ${response.status}`);
       }
 
       const data = await response.json();
       console.log('API Response:', data);
 
       if (data.status === 'processing') {
-        // Start polling for job status
+        console.log('Starting polling for job:', data.jobId);
         pollJobStatus(data.jobId);
       } else {
-        console.error('Unexpected response from API');
+        console.error('Unexpected response from API:', data);
+        displayResult('Error: Unexpected response from server');
       }
     } catch (error) {
       console.error('Error calling API:', error);
-      // Display error message to user
       displayResult(`Error: ${error.message}`);
     }
   }
 
   function pollJobStatus(jobId) {
+    console.log('Polling started for job:', jobId);
+    let pollCount = 0;
+    const maxPolls = 60; // 5 minutes maximum polling time
+
     const pollInterval = setInterval(async () => {
+      pollCount++;
+      console.log(`Polling attempt ${pollCount} for job ${jobId}`);
+
       try {
         const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
+        
+        if (!response.ok) {
+          throw new Error(`Polling request failed with status ${response.status}`);
+        }
+
         const data = await response.json();
+        console.log('Polling response:', data);
 
         if (data.status === 'completed') {
           clearInterval(pollInterval);
+          console.log('Job completed successfully:', data.output);
           displayResult(data.output);
         } else if (data.status === 'failed') {
           clearInterval(pollInterval);
-          displayResult('Error: Processing failed');
+          console.error('Processing failed:', data.error);
+          displayResult(`Error: Processing failed - ${data.error}`);
+        } else if (data.status === 'processing') {
+          console.log('Still processing...');
+          if (pollCount >= maxPolls) {
+            clearInterval(pollInterval);
+            console.error('Polling timeout reached');
+            displayResult('Error: Processing timeout');
+          }
+        } else {
+          clearInterval(pollInterval);
+          console.error('Unexpected status:', data.status);
+          displayResult('Error: Unexpected response from server');
         }
-        // If still processing, continue polling
       } catch (error) {
         console.error('Error polling job status:', error);
         clearInterval(pollInterval);
-        displayResult('Error: Unable to get processing status');
+        displayResult(`Error: Unable to get processing status - ${error.message}`);
       }
     }, 5000); // Poll every 5 seconds
   }
