@@ -42,7 +42,7 @@ export const TryOnWidget: React.FC<TryOnWidgetProps> = ({
         disabled={isLoading}
         className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:bg-blue-300"
       >
-        {isLoading ? 'Processing...' : 'Try On Virtually'}
+        {isLoading ? 'Processing...' : 'See This Item On You'}
       </button>
     </div>
   );
