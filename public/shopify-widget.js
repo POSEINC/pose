@@ -25,10 +25,26 @@ console.log('Shopify try-on widget script started');
   let productTitle = productTitleElement ? productTitleElement.textContent.trim() : 'Product';
   let productImage = '';
 
-  if (productImageElement && productImageElement.src) {
-    productImage = productImageElement.src;
+  // Try to find the product image gallery container
+  const imageGallery = document.querySelector('.product__images, .product-single__photos, #ProductPhotos, .product-images');
+
+  if (imageGallery) {
+    // If we found a gallery, select the first image inside it
+    const firstImage = imageGallery.querySelector('img');
+    if (firstImage && firstImage.src) {
+      productImage = firstImage.src;
+      console.log('Selected first product image:', productImage);
+    } else {
+      console.error('No images found in the product gallery');
+    }
   } else {
-    console.error('Product image element not found. Please check the page structure and update the selector.');
+    // If we couldn't find a gallery, fall back to the previous method
+    if (productImageElement && productImageElement.src) {
+      productImage = productImageElement.src;
+      console.log('Selected product image:', productImage);
+    } else {
+      console.error('Product image element not found. Please check the page structure and update the selector.');
+    }
   }
 
   console.log('Product Title:', productTitle);
@@ -52,7 +68,7 @@ console.log('Shopify try-on widget script started');
   // Section title
   const sectionTitle = document.createElement('h2');
   sectionTitle.className = 'section-header__title';
-  sectionTitle.textContent = 'See how this looks on you';
+  sectionTitle.textContent = 'See It on Yourself';
   sectionTitle.style.textAlign = 'center';
   sectionTitle.style.marginBottom = '30px';
 
