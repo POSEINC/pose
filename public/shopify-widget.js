@@ -68,7 +68,7 @@ console.log('Shopify try-on widget script started');
   // Section title
   const sectionTitle = document.createElement('h2');
   sectionTitle.className = 'section-header__title';
-  sectionTitle.textContent = 'See It on Yourself';
+  sectionTitle.textContent = 'See how this looks on you';
   sectionTitle.style.textAlign = 'center';
   sectionTitle.style.marginBottom = '30px';
 
@@ -93,7 +93,7 @@ console.log('Shopify try-on widget script started');
 
   // Create a paragraph element for the text
   const uploadText = document.createElement('p');
-  uploadText.textContent = 'Click here to add photo of yourself';
+  uploadText.textContent = 'Click or drag to add photo of yourself';
   uploadText.style.margin = '0'; // Remove default margins
   uploadText.style.padding = '10px'; // Add some padding for better appearance
   uploadText.style.maxWidth = '100%'; // Ensure text doesn't overflow
@@ -175,6 +175,12 @@ console.log('Shopify try-on widget script started');
   resultImage.appendChild(resultText);
   resultContainer.appendChild(resultImage);
 
+  const waitingMessageElement = document.createElement('p');
+  waitingMessageElement.id = 'waitingMessage';
+  waitingMessageElement.style.textAlign = 'center';
+  waitingMessageElement.style.marginTop = '10px';
+  resultContainer.appendChild(waitingMessageElement);
+
   widgetContainer.appendChild(resultContainer);
 
   // Append the container to the section
@@ -226,8 +232,6 @@ console.log('Shopify try-on widget script started');
         photoUpload.click();
       });
       uploadBox.appendChild(replaceButton);
-
-      // Removed: Green color change and success message
     };
     reader.onerror = function(error) {
       console.error('Error reading file:', error);
@@ -283,6 +287,23 @@ console.log('Shopify try-on widget script started');
     }
   }
 
+  const waitingMessages = [
+    "This will be worth the wait.",
+    "You're going to look great in this.",
+    "Stitching pixels... almost there!",
+    "Prepare to be amazed by your new style.",
+    "Excitement is just a few seconds away...",
+    "Fashion magic in progress...",
+    "Transforming pixels into your perfect look.",
+    "You're about to see yourself in a whole new light.",
+    "Your mirror's about to get jealous.",
+    "Hold onto your socks, if you're still wearing any.",
+    "Ironing out the virtual wrinkles.",
+    "Preparing to make your reflection jealous.",
+    "Channeling your inner supermodel...",
+    "Summoning the style gods..."
+  ];
+
   function pollJobStatus(jobId) {
     console.log('Polling started for job:', jobId);
     let pollCount = 0;
@@ -291,6 +312,9 @@ console.log('Shopify try-on widget script started');
     const pollInterval = setInterval(async () => {
       pollCount++;
       console.log(`Polling attempt ${pollCount} for job ${jobId}`);
+
+      // Update message
+      updateWaitingMessage(pollCount);
 
       try {
         const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
@@ -330,17 +354,35 @@ console.log('Shopify try-on widget script started');
     }, 5000); // Poll every 5 seconds
   }
 
+  function updateWaitingMessage(pollCount) {
+    const messageIndex = (pollCount - 1) % waitingMessages.length;
+    const message = waitingMessages[messageIndex];
+    displayWaitingMessage(message);
+  }
+
+  function displayWaitingMessage(message) {
+    const waitingMessageElement = document.getElementById('waitingMessage');
+    if (waitingMessageElement) {
+      waitingMessageElement.textContent = message;
+    }
+  }
+
   function displayResult(output) {
     const resultImage = document.getElementById('resultImage');
+    const waitingMessageElement = document.getElementById('waitingMessage');
+
     if (typeof output === 'string' && output.startsWith('http')) {
       resultImage.innerHTML = `<img src="${output}" alt="Try-on result" style="max-width: 100%; max-height: 200px;">`;
+      waitingMessageElement.textContent = "Look how good you look!";
     } else if (Array.isArray(output) && output.length > 0 && output[0].startsWith('http')) {
-      // The API might return an array of URLs
       resultImage.innerHTML = `<img src="${output[0]}" alt="Try-on result" style="max-width: 100%; max-height: 200px;">`;
+      waitingMessageElement.textContent = "Look how good you look!";
     } else if (typeof output === 'object' && output.error) {
       resultImage.innerHTML = `<p>Error: ${output.error}</p>`;
+      waitingMessageElement.textContent = "Oops, something went wrong. Please try again.";
     } else {
       resultImage.innerHTML = `<p>${JSON.stringify(output)}</p>`;
+      waitingMessageElement.textContent = "Hmm, that didn't work as expected. Let's try again!";
     }
   }
 
