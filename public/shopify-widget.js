@@ -142,6 +142,7 @@ console.log('Shopify try-on widget script started');
       return;
     }
 
+    displayInitialWaitingMessage();
     callReplicateAPI(productImage, humanImg, productTitle);
   });
 
@@ -250,6 +251,8 @@ console.log('Shopify try-on widget script started');
     console.log('Garment Description:', garmentDes);
     
     try {
+      displayWaitingMessage("Sending your fashion request to our AI stylist...");
+      
       // Make sure the images are valid URLs or base64 strings
       const garmImgUrl = garmImg.startsWith('data:') ? garmImg : new URL(garmImg, window.location.origin).href;
       const humanImgUrl = humanImg.startsWith('data:') ? humanImg : new URL(humanImg, window.location.origin).href;
@@ -384,6 +387,15 @@ console.log('Shopify try-on widget script started');
       resultImage.innerHTML = `<p>${JSON.stringify(output)}</p>`;
       waitingMessageElement.textContent = "Hmm, that didn't work as expected. Let's try again!";
     }
+  }
+
+  function displayInitialWaitingMessage() {
+    const initialMessage = "Starting the fashion magic...";
+    displayWaitingMessage(initialMessage);
+    
+    // Clear the result image and show a loading indicator
+    const resultImage = document.getElementById('resultImage');
+    resultImage.innerHTML = '<p>Preparing your virtual fitting room...</p>';
   }
 
   console.log('Try-on widget fully initialized');
