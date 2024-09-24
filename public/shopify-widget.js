@@ -221,6 +221,9 @@ console.log('Shopify try-on widget script started');
 
   async function callReplicateAPI(garmImg, humanImg, garmentDes) {
     console.log('Calling Replicate API...');
+    console.log('Garment Image:', garmImg);
+    console.log('Human Image:', humanImg);
+    console.log('Garment Description:', garmentDes);
     
     try {
       // Make sure the images are valid URLs or base64 strings
