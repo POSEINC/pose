@@ -11,23 +11,28 @@ console.log('Shopify try-on widget script started');
   imagePreview.style.display = 'none'; // Hidden by default
 
   // Update these selectors to match your page structure
-  const productTitleElement = document.querySelector('.product-single__title');
-  const productImageElement = document.querySelector('.product__image');
+  const productTitleElement = document.querySelector('.product-single__title, .product__title, h1.title');
+  let productImageElement = document.querySelector('.product__image, .product-single__image, .featured-image');
 
-  let productTitle = 'Product';
+  if (!productImageElement) {
+    // If we couldn't find the image with common class names, try to find any image within the product container
+    const productContainer = document.querySelector('.product, .product-single, #product-container');
+    if (productContainer) {
+      productImageElement = productContainer.querySelector('img');
+    }
+  }
+
+  let productTitle = productTitleElement ? productTitleElement.textContent.trim() : 'Product';
   let productImage = '';
 
-  if (productTitleElement) {
-    productTitle = productTitleElement.textContent;
-  } else {
-    console.warn('Product title element not found');
-  }
-
-  if (productImageElement) {
+  if (productImageElement && productImageElement.src) {
     productImage = productImageElement.src;
   } else {
-    console.warn('Product image element not found');
+    console.error('Product image element not found. Please check the page structure and update the selector.');
   }
+
+  console.log('Product Title:', productTitle);
+  console.log('Product Image:', productImage);
 
   // Create the widget section
   const widgetSection = document.createElement('section');
@@ -111,11 +116,20 @@ console.log('Shopify try-on widget script started');
   tryItOnButton.style.marginTop = '10px';
   tryItOnButton.disabled = true; // Initially disabled
   tryItOnButton.addEventListener('click', () => {
-    const garmImg = productImage.src;
-    const humanImg = imagePreview.src;
-    const garmentDes = productTitle.textContent;
+    if (!productImage) {
+      console.error('Product image not found. Unable to proceed with try-on.');
+      displayResult('Error: Product image not found. Please refresh the page or contact support.');
+      return;
+    }
 
-    callReplicateAPI(garmImg, humanImg, garmentDes);
+    const humanImg = imagePreview.src;
+    if (!humanImg) {
+      console.error('Human image not uploaded');
+      displayResult('Error: Please upload an image first');
+      return;
+    }
+
+    callReplicateAPI(productImage, humanImg, productTitle);
   });
 
   uploadSection.appendChild(uploadBox);
@@ -206,12 +220,19 @@ console.log('Shopify try-on widget script started');
   }
 
   async function callReplicateAPI(garmImg, humanImg, garmentDes) {
-    console.log('Calling Replicate API...');
+    console.log('Calling Replicate API with:');
+    console.log('Garment Image:', garmImg);
+    console.log('Human Image:', humanImg);
+    console.log('Garment Description:', garmentDes);
     
     try {
       // Make sure the images are valid URLs or base64 strings
-      const garmImgUrl = garmImg.startsWith('data:') ? garmImg : new URL(garmImg, window.location.origin).href;
-      const humanImgUrl = humanImg.startsWith('data:') ? humanImg : new URL(humanImg, window.location.origin).href;
+      const garmImgUrl = garmImg && garmImg.startsWith('data:') ? garmImg : (garmImg ? new URL(garmImg, window.location.origin).href : '');
+      const humanImgUrl = humanImg && humanImg.startsWith('data:') ? humanImg : (humanImg ? new URL(humanImg, window.location.origin).href : '');
+
+      if (!garmImgUrl || !humanImgUrl) {
+        throw new Error('Missing garment or human image');
+      }
 
       // Make a POST request to your API endpoint
       const response = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
@@ -242,7 +263,7 @@ console.log('Shopify try-on widget script started');
     } catch (error) {
       console.error('Error calling API:', error);
       // Display error message to user
-      displayResult('Error: Unable to process image');
+      displayResult(`Error: ${error.message}`);
     }
   }
 
