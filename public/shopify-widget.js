@@ -272,19 +272,26 @@ console.log('Shopify try-on widget script started');
       try {
         const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
         const data = await response.json();
+        console.log('Polling response:', data);  // Add this line
 
         if (data.status === 'completed') {
           clearInterval(pollInterval);
           displayResult(data.output);
         } else if (data.status === 'failed') {
           clearInterval(pollInterval);
-          displayResult('Error: Processing failed');
+          console.error('Processing failed:', data.error);  // Add this line
+          displayResult(`Error: Processing failed - ${data.error}`);
+        } else if (data.status === 'processing') {
+          console.log('Still processing...');  // Add this line
+        } else {
+          console.error('Unexpected status:', data.status);  // Add this line
+          clearInterval(pollInterval);
+          displayResult('Error: Unexpected response from server');
         }
-        // If still processing, continue polling
       } catch (error) {
         console.error('Error polling job status:', error);
         clearInterval(pollInterval);
-        displayResult('Error: Unable to get processing status');
+        displayResult(`Error: Unable to get processing status - ${error.message}`);
       }
     }, 5000); // Poll every 5 seconds
   }
