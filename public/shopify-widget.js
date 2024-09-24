@@ -52,28 +52,13 @@ console.log('Shopify try-on widget script started');
   // Section title
   const sectionTitle = document.createElement('h2');
   sectionTitle.className = 'section-header__title';
-  sectionTitle.textContent = 'Virtual Try-On';
+  sectionTitle.textContent = 'See how this looks on you';
   sectionTitle.style.textAlign = 'center';
   sectionTitle.style.marginBottom = '30px';
 
-  // Left side: Example images
-  const exampleImages = document.createElement('div');
-  exampleImages.style.width = '30%';
-  exampleImages.innerHTML = `
-    <div style="text-align: center; margin-bottom: 20px;">
-      <img src="/images/before-example.jpg" alt="Before Example" style="max-width: 100%; height: auto; margin-bottom: 10px;">
-      <p>Before</p>
-    </div>
-    <div style="text-align: center;">
-      <img src="/images/after-example.jpg" alt="After Example" style="max-width: 100%; height: auto; margin-bottom: 10px;">
-      <p>After</p>
-    </div>
-  `;
-  widgetContainer.appendChild(exampleImages);
-
-  // Middle: Upload box and Try it on button
+  // Upload box and Try it on button
   const uploadSection = document.createElement('div');
-  uploadSection.style.width = '30%';
+  uploadSection.style.width = '45%';
   uploadSection.style.display = 'flex';
   uploadSection.style.flexDirection = 'column';
   uploadSection.style.alignItems = 'center';
@@ -133,14 +118,14 @@ console.log('Shopify try-on widget script started');
   });
 
   uploadSection.appendChild(uploadBox);
-  uploadSection.appendChild(photoUpload); // Ensure this line is present
+  uploadSection.appendChild(photoUpload);
   uploadSection.appendChild(tryItOnButton);
   widgetContainer.appendChild(uploadSection);
 
-  // Right side: Result container
+  // Result container
   const resultContainer = document.createElement('div');
   resultContainer.id = 'resultContainer';
-  resultContainer.style.width = '30%';
+  resultContainer.style.width = '45%';
   resultContainer.innerHTML = '<h3>Result</h3><div id="resultImage" style="width: 100%; height: 200px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;"><p>Result will appear here</p></div>';
   widgetContainer.appendChild(resultContainer);
 
