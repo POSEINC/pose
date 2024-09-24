@@ -52,7 +52,7 @@ console.log('Shopify try-on widget script started');
   // Section title
   const sectionTitle = document.createElement('h2');
   sectionTitle.className = 'section-header__title';
-  sectionTitle.textContent = 'See how this looks on you';
+  sectionTitle.textContent = 'See How This Looks on You';
   sectionTitle.style.textAlign = 'center';
   sectionTitle.style.marginBottom = '30px';
 
@@ -67,13 +67,25 @@ console.log('Shopify try-on widget script started');
   uploadBox.id = 'uploadBox';
   uploadBox.style.width = '100%';
   uploadBox.style.height = '200px';
-  uploadBox.style.border = '2px dashed #4CAF50';
+  uploadBox.style.border = '2px dashed #808080'; // Changed to a medium gray
   uploadBox.style.display = 'flex';
   uploadBox.style.alignItems = 'center';
   uploadBox.style.justifyContent = 'center';
   uploadBox.style.cursor = 'pointer';
   uploadBox.style.position = 'relative';
-  uploadBox.innerHTML = '<p>Click to upload or drag and drop an image here</p>';
+  uploadBox.style.textAlign = 'center'; // Ensure text is centered horizontally
+
+  // Create a paragraph element for the text
+  const uploadText = document.createElement('p');
+  uploadText.textContent = 'Click or drag to add photo of yourself';
+  uploadText.style.margin = '0'; // Remove default margins
+  uploadText.style.padding = '10px'; // Add some padding for better appearance
+  uploadText.style.maxWidth = '100%'; // Ensure text doesn't overflow
+  uploadText.style.wordWrap = 'break-word'; // Allow long words to break
+
+  // Add the text to the upload box
+  uploadBox.appendChild(uploadText);
+
   uploadBox.addEventListener('click', () => {
     console.log('Upload box clicked'); // Debug log
     photoUpload.click();
@@ -126,7 +138,27 @@ console.log('Shopify try-on widget script started');
   const resultContainer = document.createElement('div');
   resultContainer.id = 'resultContainer';
   resultContainer.style.width = '45%';
-  resultContainer.innerHTML = '<h3>Result</h3><div id="resultImage" style="width: 100%; height: 200px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;"><p>Result will appear here</p></div>';
+
+  const resultImage = document.createElement('div');
+  resultImage.id = 'resultImage';
+  resultImage.style.width = '100%';
+  resultImage.style.height = '200px';
+  resultImage.style.backgroundColor = '#f0f0f0';
+  resultImage.style.display = 'flex';
+  resultImage.style.alignItems = 'center';
+  resultImage.style.justifyContent = 'center';
+  resultImage.style.textAlign = 'center';
+
+  const resultText = document.createElement('p');
+  resultText.textContent = 'Your virtual try-on will show here';
+  resultText.style.margin = '0';
+  resultText.style.padding = '10px';
+  resultText.style.maxWidth = '100%';
+  resultText.style.wordWrap = 'break-word';
+
+  resultImage.appendChild(resultText);
+  resultContainer.appendChild(resultImage);
+
   widgetContainer.appendChild(resultContainer);
 
   // Append the container to the section
