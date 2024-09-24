@@ -167,6 +167,16 @@ console.log('Shopify try-on widget script started');
       // Add visual feedback
       uploadBox.style.border = '2px solid #4CAF50';
       uploadBox.style.backgroundColor = '#e8f5e9';
+
+      // Add confirmation message
+      const confirmationMessage = document.createElement('p');
+      confirmationMessage.textContent = 'Image uploaded successfully!';
+      confirmationMessage.style.color = '#4CAF50';
+      confirmationMessage.style.position = 'absolute';
+      confirmationMessage.style.bottom = '10px';
+      confirmationMessage.style.left = '50%';
+      confirmationMessage.style.transform = 'translateX(-50%)';
+      uploadBox.appendChild(confirmationMessage);
     };
     reader.onerror = function(error) {
       console.error('Error reading file:', error); // Debug log for errors
