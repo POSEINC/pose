@@ -93,7 +93,7 @@ console.log('Shopify try-on widget script started');
 
   // Create a paragraph element for the text
   const uploadText = document.createElement('p');
-  uploadText.textContent = 'Click or drag to add photo of yourself';
+  uploadText.textContent = 'Click here to add photo of yourself';
   uploadText.style.margin = '0'; // Remove default margins
   uploadText.style.padding = '10px'; // Add some padding for better appearance
   uploadText.style.maxWidth = '100%'; // Ensure text doesn't overflow
