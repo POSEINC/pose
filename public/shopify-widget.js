@@ -3,6 +3,32 @@ console.log('Shopify try-on widget script started');
 (function() {
   console.log('Shopify try-on widget script started');
 
+  // Move imagePreview declaration to the top
+  const imagePreview = document.createElement('img');
+  imagePreview.id = 'imagePreview';
+  imagePreview.style.maxWidth = '100%';
+  imagePreview.style.maxHeight = '200px';
+  imagePreview.style.display = 'none'; // Hidden by default
+
+  // Update these selectors to match your page structure
+  const productTitleElement = document.querySelector('.product-single__title');
+  const productImageElement = document.querySelector('.product__image');
+
+  let productTitle = 'Product';
+  let productImage = '';
+
+  if (productTitleElement) {
+    productTitle = productTitleElement.textContent;
+  } else {
+    console.warn('Product title element not found');
+  }
+
+  if (productImageElement) {
+    productImage = productImageElement.src;
+  } else {
+    console.warn('Product image element not found');
+  }
+
   // Create the widget section
   const widgetSection = document.createElement('section');
   widgetSection.className = 'try-on-widget';
@@ -118,15 +144,6 @@ console.log('Shopify try-on widget script started');
     console.error('Could not find the product form');
     return;
   }
-
-  const productTitle = document.querySelector('.product-single__title').textContent;
-  const productImage = document.querySelector('.product__image').src;
-
-  const imagePreview = document.createElement('img');
-  imagePreview.id = 'imagePreview';
-  imagePreview.style.maxWidth = '100%';
-  imagePreview.style.maxHeight = '200px';
-  imagePreview.style.display = 'none'; // Hidden by default
 
   function handleFileUpload(file) {
     console.log('handleFileUpload function called'); // Debug log
