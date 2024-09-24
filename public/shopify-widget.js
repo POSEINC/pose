@@ -3,6 +3,27 @@ console.log('Shopify try-on widget script started');
 (function() {
   console.log('Shopify try-on widget script started');
 
+  // Add this at the beginning of the function
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(0,0,0,.1);
+      border-radius: 50%;
+      border-top-color: #333;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+  `;
+  document.head.appendChild(style);
+
   // Move imagePreview declaration to the top
   const imagePreview = document.createElement('img');
   imagePreview.id = 'imagePreview';
@@ -366,7 +387,13 @@ console.log('Shopify try-on widget script started');
   function displayWaitingMessage(message) {
     const waitingMessageElement = document.getElementById('waitingMessage');
     if (waitingMessageElement) {
-      waitingMessageElement.textContent = message;
+      waitingMessageElement.innerHTML = `
+        <div class="spinner"></div>
+        <span>${message}</span>
+      `;
+      waitingMessageElement.style.display = 'flex';
+      waitingMessageElement.style.alignItems = 'center';
+      waitingMessageElement.style.justifyContent = 'center';
     }
   }
 
@@ -376,16 +403,16 @@ console.log('Shopify try-on widget script started');
 
     if (typeof output === 'string' && output.startsWith('http')) {
       resultImage.innerHTML = `<img src="${output}" alt="Try-on result" style="max-width: 100%; max-height: 200px;">`;
-      waitingMessageElement.textContent = "Look how good you look!";
+      waitingMessageElement.innerHTML = "Look how good you look!";
     } else if (Array.isArray(output) && output.length > 0 && output[0].startsWith('http')) {
       resultImage.innerHTML = `<img src="${output[0]}" alt="Try-on result" style="max-width: 100%; max-height: 200px;">`;
-      waitingMessageElement.textContent = "Look how good you look!";
+      waitingMessageElement.innerHTML = "Look how good you look!";
     } else if (typeof output === 'object' && output.error) {
       resultImage.innerHTML = `<p>Error: ${output.error}</p>`;
-      waitingMessageElement.textContent = "Oops, something went wrong. Please try again.";
+      waitingMessageElement.innerHTML = "Oops, something went wrong. Please try again.";
     } else {
       resultImage.innerHTML = `<p>${JSON.stringify(output)}</p>`;
-      waitingMessageElement.textContent = "Hmm, that didn't work as expected. Let's try again!";
+      waitingMessageElement.innerHTML = "Hmm, that didn't work as expected. Let's try again!";
     }
   }
 
