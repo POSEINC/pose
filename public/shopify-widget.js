@@ -56,11 +56,11 @@ console.log('Shopify try-on widget script started');
   exampleImages.style.width = '30%';
   exampleImages.innerHTML = `
     <div style="text-align: center; margin-bottom: 20px;">
-      <img src="https://shopify-virtual-tryon-app.vercel.app/images/before-example.jpg" alt="Before Example" style="max-width: 100%; height: auto; margin-bottom: 10px;">
+      <img src="/images/before-example.jpg" alt="Before Example" style="max-width: 100%; height: auto; margin-bottom: 10px;">
       <p>Before</p>
     </div>
     <div style="text-align: center;">
-      <img src="https://shopify-virtual-tryon-app.vercel.app/images/after-example.jpg" alt="After Example" style="max-width: 100%; height: auto; margin-bottom: 10px;">
+      <img src="/images/after-example.jpg" alt="After Example" style="max-width: 100%; height: auto; margin-bottom: 10px;">
       <p>After</p>
     </div>
   `;
@@ -135,17 +135,14 @@ console.log('Shopify try-on widget script started');
   widgetSection.appendChild(sectionTitle);
   widgetSection.appendChild(widgetContainer);
 
-  // Add these debug logs
-  console.log('Product form found:', !!productForm);
-  console.log('Product form parent:', productForm ? productForm.parentNode : 'Not found');
-
-  // Then replace the existing widget insertion code with this:
+  // Insert the widget section after the product form
+  const productForm = document.querySelector('.product-form');
   if (productForm && productForm.parentNode) {
     productForm.parentNode.insertBefore(widgetSection, productForm.nextSibling);
     console.log('Try-on widget section inserted into DOM');
   } else {
-    console.error('Could not find the product form. Inserting widget at the end of the body.');
-    document.body.appendChild(widgetSection);
+    console.error('Could not find the product form');
+    return;
   }
 
   function handleFileUpload(file) {
