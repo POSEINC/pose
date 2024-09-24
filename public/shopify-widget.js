@@ -52,7 +52,7 @@ console.log('Shopify try-on widget script started');
   // Section title
   const sectionTitle = document.createElement('h2');
   sectionTitle.className = 'section-header__title';
-  sectionTitle.textContent = 'See How This Looks on You';
+  sectionTitle.textContent = 'See how this looks on you';
   sectionTitle.style.textAlign = 'center';
   sectionTitle.style.marginBottom = '30px';
 
@@ -176,26 +176,26 @@ console.log('Shopify try-on widget script started');
   }
 
   function handleFileUpload(file) {
-    console.log('handleFileUpload function called'); // Debug log
+    console.log('handleFileUpload function called');
     const reader = new FileReader();
     reader.onload = function(e) {
-      console.log('FileReader onload event triggered'); // Debug log
+      console.log('FileReader onload event triggered');
       const humanImg = e.target.result;
-      console.log('Image uploaded:', humanImg.substring(0, 50) + '...'); // Log first 50 chars of base64 string
+      console.log('Image uploaded:', humanImg.substring(0, 50) + '...');
 
       // Display the uploaded image preview
       imagePreview.src = humanImg;
       imagePreview.style.display = 'block';
       imagePreview.style.maxWidth = '100%';
-      imagePreview.style.maxHeight = '180px'; // Adjust this value as needed
+      imagePreview.style.maxHeight = '180px';
       imagePreview.style.objectFit = 'contain';
-      tryItOnButton.disabled = false; // Enable the "Try it on" button
+      tryItOnButton.disabled = false;
       
       // Clear the upload box and add the preview
       uploadBox.innerHTML = '';
       uploadBox.appendChild(imagePreview);
 
-      console.log('Image preview added to uploadBox'); // Debug log
+      console.log('Image preview added to uploadBox');
 
       // Add a "Replace Image" button
       const replaceButton = document.createElement('button');
@@ -204,30 +204,17 @@ console.log('Shopify try-on widget script started');
       replaceButton.style.position = 'absolute';
       replaceButton.style.top = '10px';
       replaceButton.style.right = '10px';
-      replaceButton.style.zIndex = '10'; // Ensure the button is above the image
+      replaceButton.style.zIndex = '10';
       replaceButton.addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevent triggering uploadBox click
+        e.stopPropagation();
         photoUpload.click();
       });
       uploadBox.appendChild(replaceButton);
 
-      // Add visual feedback
-      uploadBox.style.border = '2px solid #4CAF50';
-      uploadBox.style.backgroundColor = '#e8f5e9';
-
-      // Add confirmation message
-      const confirmationMessage = document.createElement('p');
-      confirmationMessage.textContent = 'Image uploaded successfully!';
-      confirmationMessage.style.color = '#4CAF50';
-      confirmationMessage.style.position = 'absolute';
-      confirmationMessage.style.bottom = '10px';
-      confirmationMessage.style.left = '50%';
-      confirmationMessage.style.transform = 'translateX(-50%)';
-      confirmationMessage.style.zIndex = '10'; // Ensure the message is above the image
-      uploadBox.appendChild(confirmationMessage);
+      // Removed: Green color change and success message
     };
     reader.onerror = function(error) {
-      console.error('Error reading file:', error); // Debug log for errors
+      console.error('Error reading file:', error);
       // Add visual feedback for error
       uploadBox.style.border = '2px solid #f44336';
       uploadBox.style.backgroundColor = '#ffebee';
