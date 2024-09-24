@@ -110,13 +110,12 @@ console.log('Shopify try-on widget script started');
   tryItOnButton.className = 'btn';
   tryItOnButton.style.marginTop = '10px';
   tryItOnButton.disabled = true; // Initially disabled
-  tryItOnButton.addEventListener('click', async function() {
+  tryItOnButton.addEventListener('click', () => {
+    const garmImg = productImage.src;
     const humanImg = imagePreview.src;
-    if (humanImg) {
-      await callReplicateAPI(productImage, humanImg, productTitle);
-    } else {
-      alert('Please upload an image first.');
-    }
+    const garmentDes = productTitle.textContent;
+
+    callReplicateAPI(garmImg, humanImg, garmentDes);
   });
 
   uploadSection.appendChild(uploadBox);
@@ -207,22 +206,67 @@ console.log('Shopify try-on widget script started');
   }
 
   async function callReplicateAPI(garmImg, humanImg, garmentDes) {
-    // Placeholder for API call
     console.log('Calling Replicate API...');
-    console.log('Garment Image:', garmImg);
-    console.log('Human Image:', humanImg);
-    console.log('Garment Description:', garmentDes);
     
-    // Simulating API call delay
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Placeholder result - replace this with actual API call when ready
-    displayResult(humanImg); // Using uploaded image as placeholder result
+    try {
+      // Make a POST request to your API endpoint
+      const response = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ garmImg, humanImg, garmentDes }),
+      });
+
+      if (!response.ok) {
+        throw new Error('API request failed');
+      }
+
+      const data = await response.json();
+      console.log('API Response:', data);
+
+      if (data.status === 'processing') {
+        // Start polling for job status
+        pollJobStatus(data.jobId);
+      } else {
+        console.error('Unexpected response from API');
+      }
+    } catch (error) {
+      console.error('Error calling API:', error);
+      // Display error message to user
+      displayResult('Error: Unable to process image');
+    }
+  }
+
+  function pollJobStatus(jobId) {
+    const pollInterval = setInterval(async () => {
+      try {
+        const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
+        const data = await response.json();
+
+        if (data.status === 'completed') {
+          clearInterval(pollInterval);
+          displayResult(data.output);
+        } else if (data.status === 'failed') {
+          clearInterval(pollInterval);
+          displayResult('Error: Processing failed');
+        }
+        // If still processing, continue polling
+      } catch (error) {
+        console.error('Error polling job status:', error);
+        clearInterval(pollInterval);
+        displayResult('Error: Unable to get processing status');
+      }
+    }, 5000); // Poll every 5 seconds
   }
 
   function displayResult(outputUrl) {
     const resultImage = document.getElementById('resultImage');
-    resultImage.innerHTML = `<img src="${outputUrl}" alt="Try-on result" style="max-width: 100%; max-height: 200px;">`;
+    if (typeof outputUrl === 'string' && outputUrl.startsWith('http')) {
+      resultImage.innerHTML = `<img src="${outputUrl}" alt="Try-on result" style="max-width: 100%; max-height: 200px;">`;
+    } else {
+      resultImage.innerHTML = `<p>${outputUrl}</p>`;
+    }
   }
 
   console.log('Try-on widget fully initialized');
