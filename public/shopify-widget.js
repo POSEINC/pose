@@ -363,23 +363,23 @@ console.log('Shopify try-on widget script started');
 
     if (typeof output === 'string' && output.startsWith('http')) {
       resultImage.innerHTML = `
-        <img src="${output}" alt="Try-on result" style="max-width: 100%; max-height: 200px;">
-        <p>Look how good you look!</p>
+        <img src="${output}" alt="Try-on result" style="max-width: 100%; max-height: 200px; display: block; margin: 0 auto;">
+        <p style="margin-top: 10px; text-align: center;">Look how good you look!</p>
       `;
     } else if (Array.isArray(output) && output.length > 0 && output[0].startsWith('http')) {
       resultImage.innerHTML = `
-        <img src="${output[0]}" alt="Try-on result" style="max-width: 100%; max-height: 200px;">
-        <p>Look how good you look!</p>
+        <img src="${output[0]}" alt="Try-on result" style="max-width: 100%; max-height: 200px; display: block; margin: 0 auto;">
+        <p style="margin-top: 10px; text-align: center;">Look how good you look!</p>
       `;
     } else if (typeof output === 'object' && output.error) {
       resultImage.innerHTML = `
-        <p>Error: ${output.error}</p>
-        <p>Oops, something went wrong. Please try again.</p>
+        <p style="color: red; text-align: center;">Error: ${output.error}</p>
+        <p style="text-align: center;">Oops, something went wrong. Please try again.</p>
       `;
     } else {
       resultImage.innerHTML = `
-        <p>${JSON.stringify(output)}</p>
-        <p>Hmm, that didn't work as expected. Let's try again!</p>
+        <p style="text-align: center;">${JSON.stringify(output)}</p>
+        <p style="text-align: center;">Hmm, that didn't work as expected. Let's try again!</p>
       `;
     }
   }
