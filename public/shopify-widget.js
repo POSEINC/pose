@@ -94,7 +94,7 @@ console.log('Shopify try-on widget script started');
   });
 
   uploadSection.appendChild(uploadBox);
-  uploadSection.appendChild(photoUpload);
+  uploadSection.appendChild(photoUpload); // Ensure this line is present
   uploadSection.appendChild(tryItOnButton);
   widgetContainer.appendChild(uploadSection);
 
@@ -139,9 +139,14 @@ console.log('Shopify try-on widget script started');
       // Display the uploaded image preview
       imagePreview.src = humanImg;
       imagePreview.style.display = 'block';
+      imagePreview.style.maxWidth = '100%';
+      imagePreview.style.maxHeight = '180px'; // Adjust this value as needed
+      imagePreview.style.objectFit = 'contain';
       tryItOnButton.disabled = false; // Enable the "Try it on" button
-      uploadBox.innerHTML = ''; // Clear the upload box
-      uploadBox.appendChild(imagePreview); // Add the preview to the upload box
+      
+      // Clear the upload box and add the preview
+      uploadBox.innerHTML = '';
+      uploadBox.appendChild(imagePreview);
 
       console.log('Image preview added to uploadBox'); // Debug log
 
@@ -152,17 +157,12 @@ console.log('Shopify try-on widget script started');
       replaceButton.style.position = 'absolute';
       replaceButton.style.top = '10px';
       replaceButton.style.right = '10px';
-      replaceButton.style.opacity = '0';
-      replaceButton.style.transition = 'opacity 0.3s';
+      replaceButton.style.zIndex = '10'; // Ensure the button is above the image
       replaceButton.addEventListener('click', (e) => {
         e.stopPropagation(); // Prevent triggering uploadBox click
         photoUpload.click();
       });
       uploadBox.appendChild(replaceButton);
-
-      // Show/hide replace button on hover
-      uploadBox.addEventListener('mouseenter', () => replaceButton.style.opacity = '1');
-      uploadBox.addEventListener('mouseleave', () => replaceButton.style.opacity = '0');
 
       // Add visual feedback
       uploadBox.style.border = '2px solid #4CAF50';
@@ -176,6 +176,7 @@ console.log('Shopify try-on widget script started');
       confirmationMessage.style.bottom = '10px';
       confirmationMessage.style.left = '50%';
       confirmationMessage.style.transform = 'translateX(-50%)';
+      confirmationMessage.style.zIndex = '10'; // Ensure the message is above the image
       uploadBox.appendChild(confirmationMessage);
     };
     reader.onerror = function(error) {
