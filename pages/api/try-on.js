@@ -38,30 +38,40 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  try {
-    const body = await json(req, { limit: '10mb' });
-    const { garmImg, humanImg, garmentDes } = body;
+  if (req.method === 'POST') {
+    try {
+      const body = await json(req, { limit: '10mb' });
+      const { garm_img, human_img, garment_des } = body;
 
-    if (!process.env.REPLICATE_API_TOKEN) {
-      throw new Error('REPLICATE_API_TOKEN is not set');
+      if (!garm_img || !human_img) {
+        throw new Error('Missing required input: garm_img or human_img');
+      }
+
+      if (!process.env.REPLICATE_API_TOKEN) {
+        throw new Error('REPLICATE_API_TOKEN is not set');
+      }
+
+      const jobId = Date.now().toString();
+      jobStatus.set(jobId, { status: 'processing' });
+
+      // Start processing asynchronously
+      processImage(jobId, garm_img, human_img, garment_des);
+
+      res.status(202).json({ status: 'processing', jobId });
+    } catch (error) {
+      console.error('Error starting try-on request:', error);
+      res.status(500).json({ message: 'Error starting try-on request', error: error.message });
     }
-
-    const jobId = Date.now().toString();
-    jobStatus.set(jobId, { status: 'processing' });
-
-    // Start processing asynchronously
-    processImage(jobId, garmImg, humanImg, garmentDes);
-
-    res.status(202).json({ status: 'processing', jobId });
-  } catch (error) {
-    console.error('Error starting try-on request:', error);
-    res.status(500).json({ message: 'Error starting try-on request', error: error.message });
   }
 }
 
 async function processImage(jobId, garmImg, humanImg, garmentDes) {
   try {
     console.log(`Starting processing for job ${jobId}`);
+    console.log('Garment Image:', garmImg);
+    console.log('Human Image:', humanImg);
+    console.log('Garment Description:', garmentDes);
+
     const replicate = new Replicate({
       auth: process.env.REPLICATE_API_TOKEN,
     });
