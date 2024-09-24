@@ -73,6 +73,8 @@ async function processImage(jobId, garmImg, humanImg, garmentDes) {
       category: "upper_body",
     };
 
+    console.log('Input data:', JSON.stringify(input));
+
     const output = await replicate.run(
       "cuuupid/idm-vton:c871bb9b046607b680449ecbae55fd8c6d945e0a1948644bf2361b3d021d3ff4",
       { input }

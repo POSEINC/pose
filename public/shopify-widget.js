@@ -209,13 +209,21 @@ console.log('Shopify try-on widget script started');
     console.log('Calling Replicate API...');
     
     try {
+      // Make sure the images are valid URLs or base64 strings
+      const garmImgUrl = garmImg.startsWith('data:') ? garmImg : new URL(garmImg, window.location.origin).href;
+      const humanImgUrl = humanImg.startsWith('data:') ? humanImg : new URL(humanImg, window.location.origin).href;
+
       // Make a POST request to your API endpoint
       const response = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ garmImg, humanImg, garmentDes }),
+        body: JSON.stringify({ 
+          garm_img: garmImgUrl, 
+          human_img: humanImgUrl, 
+          garment_des: garmentDes 
+        }),
       });
 
       if (!response.ok) {
@@ -260,12 +268,17 @@ console.log('Shopify try-on widget script started');
     }, 5000); // Poll every 5 seconds
   }
 
-  function displayResult(outputUrl) {
+  function displayResult(output) {
     const resultImage = document.getElementById('resultImage');
-    if (typeof outputUrl === 'string' && outputUrl.startsWith('http')) {
-      resultImage.innerHTML = `<img src="${outputUrl}" alt="Try-on result" style="max-width: 100%; max-height: 200px;">`;
+    if (typeof output === 'string' && output.startsWith('http')) {
+      resultImage.innerHTML = `<img src="${output}" alt="Try-on result" style="max-width: 100%; max-height: 200px;">`;
+    } else if (Array.isArray(output) && output.length > 0 && output[0].startsWith('http')) {
+      // The API might return an array of URLs
+      resultImage.innerHTML = `<img src="${output[0]}" alt="Try-on result" style="max-width: 100%; max-height: 200px;">`;
+    } else if (typeof output === 'object' && output.error) {
+      resultImage.innerHTML = `<p>Error: ${output.error}</p>`;
     } else {
-      resultImage.innerHTML = `<p>${outputUrl}</p>`;
+      resultImage.innerHTML = `<p>${JSON.stringify(output)}</p>`;
     }
   }
 
