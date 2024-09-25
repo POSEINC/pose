@@ -29,7 +29,9 @@ console.log('Shopify try-on widget script started');
       // Replace newlines and extra spaces with a single space
       .replace(/\s+/g, ' ')
       // Trim leading and trailing whitespace
-      .trim();
+      .trim()
+      // Split by spaces and take the first two words (assuming "Red T-Shirt" is the correct title)
+      .split(' ').slice(0, 2).join(' ');
   }
 
   // If we still don't have a title, use a default
