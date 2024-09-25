@@ -378,6 +378,12 @@ console.log('Shopify try-on widget script started');
     const resultImage = document.getElementById('resultImage');
     const resultContainer = document.getElementById('resultContainer');
 
+    // Clear any existing message
+    const existingMessage = resultContainer.querySelector('p');
+    if (existingMessage) {
+      existingMessage.remove();
+    }
+
     if (typeof output === 'string' && output.startsWith('http')) {
       resultImage.innerHTML = `
         <img src="${output}" alt="Try-on result" style="max-width: 100%; max-height: 200px; display: block; margin: 0 auto;">
@@ -387,7 +393,10 @@ console.log('Shopify try-on widget script started');
       messageParagraph.textContent = 'Look how good you look!';
       messageParagraph.style.textAlign = 'center';
       messageParagraph.style.marginTop = '10px';
-      messageParagraph.style.fontWeight = 'bold';
+      messageParagraph.style.fontFamily = getComputedStyle(tryItOnButton).fontFamily;
+      messageParagraph.style.fontSize = getComputedStyle(tryItOnButton).fontSize;
+      messageParagraph.style.fontWeight = getComputedStyle(tryItOnButton).fontWeight;
+      messageParagraph.style.color = getComputedStyle(tryItOnButton).color;
       // Append the message to the resultContainer instead of the resultImage
       resultContainer.appendChild(messageParagraph);
     } else if (Array.isArray(output) && output.length > 0 && output[0].startsWith('http')) {
@@ -399,7 +408,10 @@ console.log('Shopify try-on widget script started');
       messageParagraph.textContent = 'Look how good you look!';
       messageParagraph.style.textAlign = 'center';
       messageParagraph.style.marginTop = '10px';
-      messageParagraph.style.fontWeight = 'bold';
+      messageParagraph.style.fontFamily = getComputedStyle(tryItOnButton).fontFamily;
+      messageParagraph.style.fontSize = getComputedStyle(tryItOnButton).fontSize;
+      messageParagraph.style.fontWeight = getComputedStyle(tryItOnButton).fontWeight;
+      messageParagraph.style.color = getComputedStyle(tryItOnButton).color;
       // Append the message to the resultContainer instead of the resultImage
       resultContainer.appendChild(messageParagraph);
     } else if (typeof output === 'object' && output.error) {
