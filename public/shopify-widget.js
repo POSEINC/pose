@@ -57,6 +57,7 @@ console.log('Shopify try-on widget script started');
   widgetSection.style.margin = '40px 0';
   widgetSection.style.borderTop = '1px solid #e8e8e8';
   widgetSection.style.borderBottom = '1px solid #e8e8e8';
+  widgetSection.style.lineHeight = '1'; // Add this line to set consistent line spacing
 
   // Create a container for the widget content
   const widgetContainer = document.createElement('div');
@@ -106,7 +107,7 @@ console.log('Shopify try-on widget script started');
 
   // Create a paragraph element for the text
   const uploadText = document.createElement('p');
-  uploadText.textContent = 'Click or drag to add photo of yourself';
+  uploadText.textContent = 'Click to add a photo of yourself';
   uploadText.style.margin = '0'; // Remove default margins
   uploadText.style.padding = '10px'; // Add some padding for better appearance
   uploadText.style.maxWidth = '100%'; // Ensure text doesn't overflow
