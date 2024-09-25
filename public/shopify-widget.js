@@ -197,6 +197,8 @@ console.log('Shopify try-on widget script started');
   resultImage.style.alignItems = 'center';
   resultImage.style.justifyContent = 'center';
   resultImage.style.textAlign = 'center';
+  resultImage.style.padding = '20px'; // Add padding
+  resultImage.style.boxSizing = 'border-box'; // Ensure padding doesn't increase overall size
 
   const resultText = document.createElement('p');
   resultText.textContent = 'Your virtual try-on will show here';
@@ -448,8 +450,8 @@ console.log('Shopify try-on widget script started');
   function displayInitialWaitingMessage() {
     const resultImage = document.getElementById('resultImage');
     resultImage.innerHTML = `
-      <p style="text-align: center;">
-        Your image is being generated. This may take 45-60 seconds.<br>
+      <p style="text-align: center; margin: 0;">
+        Image generation may take 45-60 seconds.<br>
         Feel free to browse, but please stay on this product page.
       </p>
     `;
