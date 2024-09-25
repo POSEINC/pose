@@ -24,20 +24,17 @@ console.log('Shopify try-on widget script started');
 
   let productTitle = '';
   if (productTitleElement) {
-    // Try to get the text content directly
-    productTitle = productTitleElement.textContent.trim();
+    // Try to get only the direct text content
+    const directTextNodes = Array.from(productTitleElement.childNodes)
+      .filter(node => node.nodeType === Node.TEXT_NODE)
+      .map(node => node.textContent.trim())
+      .filter(text => text.length > 0);
     
-    // If that doesn't work, try to get it from the first text node
-    if (!productTitle) {
-      const textNodes = Array.from(productTitleElement.childNodes).filter(node => node.nodeType === Node.TEXT_NODE);
-      if (textNodes.length > 0) {
-        productTitle = textNodes[0].textContent.trim();
-      }
-    }
-    
-    // If we still don't have a title, try to get it from the first element child
-    if (!productTitle && productTitleElement.firstElementChild) {
-      productTitle = productTitleElement.firstElementChild.textContent.trim();
+    if (directTextNodes.length > 0) {
+      productTitle = directTextNodes.join(' ');
+    } else {
+      // If no direct text content, fall back to full textContent
+      productTitle = productTitleElement.textContent.trim();
     }
   }
 
