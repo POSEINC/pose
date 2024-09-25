@@ -57,7 +57,7 @@ console.log('Shopify try-on widget script started');
   widgetSection.style.margin = '40px 0';
   widgetSection.style.borderTop = '1px solid #e8e8e8';
   widgetSection.style.borderBottom = '1px solid #e8e8e8';
-  widgetSection.style.lineHeight = '1'; // Add this line to set consistent line spacing
+  widgetSection.style.lineHeight = '1.25'; // Add this line to set consistent line spacing
 
   // Create a container for the widget content
   const widgetContainer = document.createElement('div');
@@ -380,10 +380,12 @@ console.log('Shopify try-on widget script started');
     if (typeof output === 'string' && output.startsWith('http')) {
       resultImage.innerHTML = `
         <img src="${output}" alt="Try-on result" style="max-width: 100%; max-height: 200px; display: block; margin: 0 auto;">
+        <p style="text-align: center; margin-top: 10px; font-weight: bold;">Look how good you look!</p>
       `;
     } else if (Array.isArray(output) && output.length > 0 && output[0].startsWith('http')) {
       resultImage.innerHTML = `
         <img src="${output[0]}" alt="Try-on result" style="max-width: 100%; max-height: 200px; display: block; margin: 0 auto;">
+        <p style="text-align: center; margin-top: 10px; font-weight: bold;">Look how good you look!</p>
       `;
     } else if (typeof output === 'object' && output.error) {
       resultImage.innerHTML = `
