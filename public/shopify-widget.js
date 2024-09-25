@@ -22,7 +22,7 @@ console.log('Shopify try-on widget script started');
     }
   }
 
-  let productTitle = productTitleElement ? productTitleElement.textContent.trim() : 'Product';
+  let productTitle = productTitleElement ? productTitleElement.firstChild.textContent.trim() : 'Product';
   let productImage = '';
 
   // Try to find the product image gallery container
@@ -254,7 +254,7 @@ console.log('Shopify try-on widget script started');
   async function callReplicateAPI(garmImg, humanImg, garmentDes) {
     console.log('Calling Replicate API...');
     console.log('Garment Image:', garmImg);
-    console.log('Human Image:', humanImg);
+    console.log('Human Image:', humanImg.substring(0, 50) + '...'); // Log only the first 50 characters of the base64 string
     console.log('Garment Description:', garmentDes);
     
     try {
@@ -405,7 +405,7 @@ console.log('Shopify try-on widget script started');
       `;
       // Create a new paragraph for the message
       const messageParagraph = document.createElement('p');
-      messageParagraph.textContent = 'Look how good you look!';
+      messageParagraph.textContent = 'Look how great you look!';
       messageParagraph.style.textAlign = 'center';
       messageParagraph.style.marginTop = '10px';
       messageParagraph.style.fontFamily = getComputedStyle(tryItOnButton).fontFamily;
