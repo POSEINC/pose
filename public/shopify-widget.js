@@ -68,9 +68,22 @@ console.log('Shopify try-on widget script started');
   // Section title
   const sectionTitle = document.createElement('h2');
   sectionTitle.className = 'section-header__title';
-  sectionTitle.textContent = 'See how this looks on you';
+  sectionTitle.textContent = 'See Yourself Wearing It';
   sectionTitle.style.textAlign = 'center';
-  sectionTitle.style.marginBottom = '30px';
+  sectionTitle.style.marginBottom = '10px'; // Reduced margin to accommodate subtext
+
+  // Add subtext
+  const sectionSubtext = document.createElement('p');
+  sectionSubtext.className = 'section-header__subtext';
+  sectionSubtext.textContent = 'Upload a photo and see how this item looks on you, no dressing room required';
+  sectionSubtext.style.textAlign = 'center';
+  sectionSubtext.style.marginBottom = '20px';
+  sectionSubtext.style.fontSize = '0.9em';
+  sectionSubtext.style.color = '#666';
+
+  // Append the title and subtext to the widget section
+  widgetSection.appendChild(sectionTitle);
+  widgetSection.appendChild(sectionSubtext);
 
   // Upload box and Try it on button
   const uploadSection = document.createElement('div');
@@ -179,7 +192,6 @@ console.log('Shopify try-on widget script started');
   widgetContainer.appendChild(resultContainer);
 
   // Append the container to the section
-  widgetSection.appendChild(sectionTitle);
   widgetSection.appendChild(widgetContainer);
 
   // Insert the widget section after the product form
