@@ -142,7 +142,7 @@ console.log('Shopify try-on widget script started');
       return;
     }
 
-    displayInitialWaitingMessage();
+    displayInitialWaitingMessage(); // Move this here
     callReplicateAPI(productImage, humanImg, productTitle);
   });
 
@@ -245,7 +245,7 @@ console.log('Shopify try-on widget script started');
     console.log('Garment Description:', garmentDes);
     
     try {
-      displayInitialWaitingMessage();
+      // Remove displayInitialWaitingMessage() from here
       
       // Make sure the images are valid URLs or base64 strings
       const garmImgUrl = garmImg.startsWith('data:') ? garmImg : new URL(garmImg, window.location.origin).href;
