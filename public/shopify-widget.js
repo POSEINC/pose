@@ -447,8 +447,12 @@ console.log('Shopify try-on widget script started');
 
   function displayInitialWaitingMessage() {
     const resultImage = document.getElementById('resultImage');
-    resultImage.innerHTML = '<p>Preparing your virtual fitting room...</p>';
-    // Remove the immediate call to updateWaitingMessage
+    resultImage.innerHTML = `
+      <p style="text-align: center;">
+        Your image is being generated. This may take 45-60 seconds.<br>
+        Feel free to browse, but please stay on this product page.
+      </p>
+    `;
   }
 
   console.log('Try-on widget fully initialized');
