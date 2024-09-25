@@ -76,7 +76,7 @@ console.log('Shopify try-on widget script started');
   // Add subtext
   const sectionSubtext = document.createElement('p');
   sectionSubtext.className = 'section-header__subtext';
-  sectionSubtext.textContent = 'Upload a photo and see how this item looks on you, no dressing room required';
+  sectionSubtext.textContent = 'Upload a photo and see how this item looks on you, no dressing room required.';
   sectionSubtext.style.textAlign = 'center';
   sectionSubtext.style.marginBottom = '20px';
   sectionSubtext.style.fontSize = '0.9em';
@@ -376,17 +376,32 @@ console.log('Shopify try-on widget script started');
 
   function displayResult(output) {
     const resultImage = document.getElementById('resultImage');
+    const resultContainer = document.getElementById('resultContainer');
 
     if (typeof output === 'string' && output.startsWith('http')) {
       resultImage.innerHTML = `
         <img src="${output}" alt="Try-on result" style="max-width: 100%; max-height: 200px; display: block; margin: 0 auto;">
-        <p style="text-align: center; margin-top: 10px; font-weight: bold;">Look how good you look!</p>
       `;
+      // Create a new paragraph for the message
+      const messageParagraph = document.createElement('p');
+      messageParagraph.textContent = 'Look how good you look!';
+      messageParagraph.style.textAlign = 'center';
+      messageParagraph.style.marginTop = '10px';
+      messageParagraph.style.fontWeight = 'bold';
+      // Append the message to the resultContainer instead of the resultImage
+      resultContainer.appendChild(messageParagraph);
     } else if (Array.isArray(output) && output.length > 0 && output[0].startsWith('http')) {
       resultImage.innerHTML = `
         <img src="${output[0]}" alt="Try-on result" style="max-width: 100%; max-height: 200px; display: block; margin: 0 auto;">
-        <p style="text-align: center; margin-top: 10px; font-weight: bold;">Look how good you look!</p>
       `;
+      // Create a new paragraph for the message
+      const messageParagraph = document.createElement('p');
+      messageParagraph.textContent = 'Look how good you look!';
+      messageParagraph.style.textAlign = 'center';
+      messageParagraph.style.marginTop = '10px';
+      messageParagraph.style.fontWeight = 'bold';
+      // Append the message to the resultContainer instead of the resultImage
+      resultContainer.appendChild(messageParagraph);
     } else if (typeof output === 'object' && output.error) {
       resultImage.innerHTML = `
         <p style="color: red; text-align: center;">Error: ${output.error}</p>
