@@ -24,18 +24,12 @@ console.log('Shopify try-on widget script started');
 
   let productTitle = '';
   if (productTitleElement) {
-    // Try to get only the direct text content
-    const directTextNodes = Array.from(productTitleElement.childNodes)
-      .filter(node => node.nodeType === Node.TEXT_NODE)
-      .map(node => node.textContent.trim())
-      .filter(text => text.length > 0);
-    
-    if (directTextNodes.length > 0) {
-      productTitle = directTextNodes.join(' ');
-    } else {
-      // If no direct text content, fall back to full textContent
-      productTitle = productTitleElement.textContent.trim();
-    }
+    // Get all text content, including nested elements
+    productTitle = productTitleElement.textContent
+      // Replace newlines and extra spaces with a single space
+      .replace(/\s+/g, ' ')
+      // Trim leading and trailing whitespace
+      .trim();
   }
 
   // If we still don't have a title, use a default
@@ -43,6 +37,8 @@ console.log('Shopify try-on widget script started');
     productTitle = 'Product';
     console.warn('Could not find product title. Using default.');
   }
+
+  console.log('Product Title:', productTitle);
 
   let productImage = '';
 
@@ -68,7 +64,6 @@ console.log('Shopify try-on widget script started');
     }
   }
 
-  console.log('Product Title:', productTitle);
   console.log('Product Image:', productImage);
 
   // Create the widget section
@@ -276,7 +271,7 @@ console.log('Shopify try-on widget script started');
     console.log('Calling Replicate API...');
     console.log('Garment Image:', garmImg);
     console.log('Human Image:', humanImg.substring(0, 50) + '...'); // Log only the first 50 characters of the base64 string
-    console.log('Garment Description:', garmentDes);
+    console.log('Garment Description:', JSON.stringify(garmentDes)); // Use JSON.stringify to see exact string content
     
     try {
       // Remove displayInitialWaitingMessage() from here
