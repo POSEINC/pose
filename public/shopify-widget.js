@@ -306,49 +306,52 @@ console.log('Shopify try-on widget script started');
     let pollCount = 0;
     const maxPolls = 60; // 5 minutes maximum polling time
 
-    const pollInterval = setInterval(async () => {
-      pollCount++;
-      console.log(`Polling attempt ${pollCount} for job ${jobId}`);
+    // Add a delay before starting to show cycling messages
+    setTimeout(() => {
+      const pollInterval = setInterval(async () => {
+        pollCount++;
+        console.log(`Polling attempt ${pollCount} for job ${jobId}`);
 
-      // Update message
-      updateWaitingMessage(pollCount);
+        // Update message
+        updateWaitingMessage(pollCount - 1); // Subtract 1 to start from the first message
 
-      try {
-        const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
-        
-        if (!response.ok) {
-          throw new Error(`Polling request failed with status ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log('Polling response:', data);
-
-        if (data.status === 'completed') {
-          clearInterval(pollInterval);
-          console.log('Job completed successfully:', data.output);
-          displayResult(data.output);
-        } else if (data.status === 'failed') {
-          clearInterval(pollInterval);
-          console.error('Processing failed:', data.error);
-          displayResult(`Error: Processing failed - ${data.error}`);
-        } else if (data.status === 'processing') {
-          console.log('Still processing...');
-          if (pollCount >= maxPolls) {
-            clearInterval(pollInterval);
-            console.error('Polling timeout reached');
-            displayResult('Error: Processing timeout');
+        try {
+          const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
+          
+          if (!response.ok) {
+            throw new Error(`Polling request failed with status ${response.status}`);
           }
-        } else {
+
+          const data = await response.json();
+          console.log('Polling response:', data);
+
+          if (data.status === 'completed') {
+            clearInterval(pollInterval);
+            console.log('Job completed successfully:', data.output);
+            displayResult(data.output);
+          } else if (data.status === 'failed') {
+            clearInterval(pollInterval);
+            console.error('Processing failed:', data.error);
+            displayResult(`Error: Processing failed - ${data.error}`);
+          } else if (data.status === 'processing') {
+            console.log('Still processing...');
+            if (pollCount >= maxPolls) {
+              clearInterval(pollInterval);
+              console.error('Polling timeout reached');
+              displayResult('Error: Processing timeout');
+            }
+          } else {
+            clearInterval(pollInterval);
+            console.error('Unexpected status:', data.status);
+            displayResult('Error: Unexpected response from server');
+          }
+        } catch (error) {
+          console.error('Error polling job status:', error);
           clearInterval(pollInterval);
-          console.error('Unexpected status:', data.status);
-          displayResult('Error: Unexpected response from server');
+          displayResult(`Error: Unable to get processing status - ${error.message}`);
         }
-      } catch (error) {
-        console.error('Error polling job status:', error);
-        clearInterval(pollInterval);
-        displayResult(`Error: Unable to get processing status - ${error.message}`);
-      }
-    }, 5000); // Poll every 5 seconds
+      }, 5000); // Poll every 5 seconds
+    }, 3000); // Wait for 3 seconds before starting to cycle messages
   }
 
   function updateWaitingMessage(pollCount) {
@@ -385,7 +388,7 @@ console.log('Shopify try-on widget script started');
   function displayInitialWaitingMessage() {
     const resultImage = document.getElementById('resultImage');
     resultImage.innerHTML = '<p>Preparing your virtual fitting room...</p>';
-    updateWaitingMessage(0); // Start with the first waiting message
+    // Remove the immediate call to updateWaitingMessage
   }
 
   console.log('Try-on widget fully initialized');
