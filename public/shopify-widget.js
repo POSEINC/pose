@@ -502,6 +502,18 @@ console.log('Shopify try-on widget script started');
 
   function displayInitialWaitingMessage() {
     const resultImage = document.getElementById('resultImage');
+    const resultContainer = document.getElementById('resultContainer');
+
+    // Clear any existing content in resultImage
+    resultImage.innerHTML = '';
+
+    // Clear any existing messages in resultContainer
+    const existingMessage = resultContainer.querySelector('p');
+    if (existingMessage) {
+      existingMessage.remove();
+    }
+
+    // Display the new waiting message
     resultImage.innerHTML = `
       <p style="text-align: center; margin: 0;">
         Image generation may take 45-60 seconds.<br>
