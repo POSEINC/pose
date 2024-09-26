@@ -486,7 +486,7 @@ console.log('Shopify try-on widget script started');
     const resultImage = document.getElementById('resultImage');
     resultImage.innerHTML = `
       <p style="text-align: center; margin: 0;">
-        Your image is being generated. This may take 45-60 seconds.<br>
+        Image generation may take 45-60 seconds.<br>
         Feel free to browse, but please stay on this product page.
       </p>
     `;
