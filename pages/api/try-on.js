@@ -20,24 +20,6 @@ export default async function handler(req, res) {
     return;
   }
 
-  if (req.method === 'GET') {
-    const { jobId } = req.query;
-    console.log(`Checking status for job ${jobId}`);
-    const status = jobStatus.get(jobId);
-    if (status) {
-      console.log(`Status for job ${jobId}:`, status);
-      res.status(200).json(status);
-    } else {
-      console.log(`Job ${jobId} not found`);
-      res.status(404).json({ message: 'Job not found' });
-    }
-    return;
-  }
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' });
-  }
-
   if (req.method === 'POST') {
     try {
       const body = await json(req, { limit: '10mb' });
@@ -62,6 +44,19 @@ export default async function handler(req, res) {
       console.error('Error starting try-on request:', error);
       res.status(500).json({ message: 'Error starting try-on request', error: error.message });
     }
+  } else if (req.method === 'GET') {
+    const { jobId } = req.query;
+    console.log(`Checking status for job ${jobId}`);
+    const status = jobStatus.get(jobId);
+    if (status) {
+      console.log(`Status for job ${jobId}:`, status);
+      res.status(200).json(status);
+    } else {
+      console.log(`Job ${jobId} not found`);
+      res.status(404).json({ message: 'Job not found' });
+    }
+  } else {
+    res.status(405).json({ message: 'Method not allowed' });
   }
 }
 
