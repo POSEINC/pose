@@ -380,18 +380,21 @@ console.log('Shopify try-on widget script started');
     reader.readAsDataURL(file);
   }
 
-  function initiateTryOn(productImage, humanImg, productTitle) {
-    const jobId = Date.now().toString();
-    localStorage.setItem('tryOnRequest', JSON.stringify({
-      jobId,
-      productImage,
-      humanImage: humanImg,
-      productTitle,
-      status: 'processing'
-    }));
-    
-    callReplicateAPI(productImage, humanImg, productTitle, jobId);
-    startPolling(jobId);
+  async function initiateTryOn(productImage, humanImg, productTitle) {
+    try {
+      const jobId = await callReplicateAPI(productImage, humanImg, productTitle);
+      localStorage.setItem('tryOnRequest', JSON.stringify({
+        jobId,
+        productImage,
+        humanImage: humanImg,
+        productTitle,
+        status: 'processing'
+      }));
+      startPolling(jobId);
+    } catch (error) {
+      console.error('Failed to initiate try-on:', error);
+      displayResult('Failed to start try-on process. Please try again.');
+    }
   }
 
   async function callReplicateAPI(garmImg, humanImg, garmentDes, jobId) {
@@ -402,15 +405,24 @@ console.log('Shopify try-on widget script started');
         body: JSON.stringify({ garm_img: garmImg, human_img: humanImg, garment_des: garmentDes, jobId }),
       });
       
+      console.log('Full API response:', response);
+      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
       const result = await response.json();
-      console.log('API response:', result);
+      console.log('API response body:', result);
+      
+      if (!result.jobId) {
+        throw new Error('No jobId returned from API');
+      }
+      
+      return result.jobId;
     } catch (error) {
       console.error('Error calling Replicate API:', error);
       displayResult('Error: ' + error.message);
+      throw error;
     }
   }
 
@@ -418,7 +430,14 @@ console.log('Shopify try-on widget script started');
     const pollInterval = setInterval(async () => {
       try {
         const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
+        console.log('Polling response:', data);
+        
         if (data.status === 'completed') {
           clearInterval(pollInterval);
           const tryOnRequest = JSON.parse(localStorage.getItem('tryOnRequest'));
@@ -433,6 +452,8 @@ console.log('Shopify try-on widget script started');
         }
       } catch (error) {
         console.error('Error polling job status:', error);
+        clearInterval(pollInterval);
+        displayResult('Error polling for results: ' + error.message);
       }
     }, 5000);
   }
