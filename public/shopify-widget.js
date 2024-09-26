@@ -457,28 +457,19 @@ console.log('Shopify try-on widget script started');
       return result.jobId;
     } catch (error) {
       console.error('Error calling Replicate API:', error);
+      displayResult(`Error: ${error.message}`);
       throw error;
     }
   }
 
   async function startPolling(jobId) {
     console.log(`Starting polling for job ${jobId}`);
-    const pollInterval = 2000; // 2 seconds
+    const pollInterval = 5000; // 5 seconds
+    const initialDelay = 2000; // 2 seconds
+
+    await new Promise(resolve => setTimeout(resolve, initialDelay));
 
     const poll = async () => {
-      const tryOnRequest = JSON.parse(localStorage.getItem('tryOnRequest'));
-      if (!tryOnRequest || tryOnRequest.jobId !== jobId) {
-        console.log(`Polling stopped for job ${jobId}`);
-        return;
-      }
-
-      if (Date.now() - tryOnRequest.startTime > 5 * 60 * 1000) { // 5 minutes timeout
-        console.log(`Polling timed out for job ${jobId}`);
-        localStorage.removeItem('tryOnRequest');
-        displayResult('Timeout: Image generation took too long. Please try again.');
-        return;
-      }
-
       try {
         const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
         console.log(`Polling response status: ${response.status}`);
@@ -492,7 +483,7 @@ console.log('Shopify try-on widget script started');
 
         if (result.status === 'completed') {
           displayResult(`<img src="${result.output}" alt="Try-on result" style="max-width: 100%; height: auto;">`);
-          localStorage.setItem('tryOnRequest', JSON.stringify({ ...tryOnRequest, status: 'completed', output: result.output }));
+          localStorage.setItem('tryOnRequest', JSON.stringify({ ...JSON.parse(localStorage.getItem('tryOnRequest')), status: 'completed', output: result.output }));
         } else if (result.status === 'failed') {
           displayResult(`Error: ${result.error || 'Unknown error occurred'}`);
           localStorage.removeItem('tryOnRequest');
