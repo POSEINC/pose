@@ -407,8 +407,9 @@ console.log('Shopify try-on widget script started');
     if (typeof output === 'string' && output.startsWith('http')) {
       resultImage.style.padding = '0'; // Remove padding for images
       resultImage.innerHTML = `
-        <img src="${output}" alt="Try-on result" style="max-width: 100%; max-height: 200px; display: block; margin: 0 auto;">
+        <img src="${output}" alt="Try-on result" style="max-width: 100%; max-height: 200px; display: block; margin: 0 auto; cursor: pointer;">
       `;
+      resultImage.querySelector('img').addEventListener('click', () => createLightbox(output));
       // Create a new paragraph for the message
       const messageParagraph = document.createElement('p');
       messageParagraph.textContent = 'Look how good you look!';
@@ -423,8 +424,9 @@ console.log('Shopify try-on widget script started');
     } else if (Array.isArray(output) && output.length > 0 && output[0].startsWith('http')) {
       resultImage.style.padding = '0'; // Remove padding for images
       resultImage.innerHTML = `
-        <img src="${output[0]}" alt="Try-on result" style="max-width: 100%; max-height: 200px; display: block; margin: 0 auto;">
+        <img src="${output[0]}" alt="Try-on result" style="max-width: 100%; max-height: 200px; display: block; margin: 0 auto; cursor: pointer;">
       `;
+      resultImage.querySelector('img').addEventListener('click', () => createLightbox(output[0]));
       // Create a new paragraph for the message
       const messageParagraph = document.createElement('p');
       messageParagraph.textContent = 'Look how great you look!';
@@ -452,11 +454,39 @@ console.log('Shopify try-on widget script started');
     }
   }
 
+  function createLightbox(imageSrc) {
+    const lightbox = document.createElement('div');
+    lightbox.style.position = 'fixed';
+    lightbox.style.top = '0';
+    lightbox.style.left = '0';
+    lightbox.style.width = '100%';
+    lightbox.style.height = '100%';
+    lightbox.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    lightbox.style.display = 'flex';
+    lightbox.style.alignItems = 'center';
+    lightbox.style.justifyContent = 'center';
+    lightbox.style.zIndex = '9999';
+
+    const img = document.createElement('img');
+    img.src = imageSrc;
+    img.style.maxWidth = '90%';
+    img.style.maxHeight = '90%';
+    img.style.objectFit = 'contain';
+
+    lightbox.appendChild(img);
+
+    lightbox.addEventListener('click', () => {
+      document.body.removeChild(lightbox);
+    });
+
+    document.body.appendChild(lightbox);
+  }
+
   function displayInitialWaitingMessage() {
     const resultImage = document.getElementById('resultImage');
     resultImage.innerHTML = `
       <p style="text-align: center; margin: 0;">
-        Image generation may take 45-60 seconds.<br>
+        Your image is being generated. This may take 45-60 seconds.<br>
         Feel free to browse, but please stay on this product page.
       </p>
     `;
