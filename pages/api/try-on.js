@@ -23,9 +23,11 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
       const body = await json(req, { limit: '10mb' });
+      console.log('Received POST request with body:', body);
       const { garm_img, human_img, garment_des, category } = body;
 
       if (!garm_img || !human_img) {
+        console.error('Missing required input:', { garm_img: !!garm_img, human_img: !!human_img });
         throw new Error('Missing required input: garm_img or human_img');
       }
 
@@ -41,7 +43,7 @@ export default async function handler(req, res) {
 
       res.status(202).json({ status: 'processing', jobId });
     } catch (error) {
-      console.error('Error starting try-on request:', error);
+      console.error('Error processing POST request:', error);
       res.status(500).json({ message: 'Error starting try-on request', error: error.message });
     }
   } else if (req.method === 'GET') {
