@@ -68,6 +68,10 @@ export default async function handler(req, res) {
 async function processImage(jobId, garmImg, humanImg, garmentDes, category) {
   try {
     console.log(`Starting processing for job ${jobId}`);
+    console.log('Garment Image:', garmImg);
+    console.log('Human Image:', humanImg ? 'Present' : 'Missing');
+    console.log('Garment Description:', garmentDes);
+    console.log('Category:', category);
     
     const replicate = new Replicate({
       auth: process.env.REPLICATE_API_TOKEN,

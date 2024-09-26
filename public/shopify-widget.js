@@ -392,6 +392,9 @@ console.log('Shopify try-on widget script started');
         humanImg: humanImg ? 'Present' : 'Missing', 
         productTitle 
       });
+      if (!productImage) {
+        throw new Error('Product image is missing');
+      }
       const jobId = await callReplicateAPI(productImage, humanImg, productTitle);
       localStorage.setItem('tryOnRequest', JSON.stringify({
         jobId,
@@ -418,21 +421,18 @@ console.log('Shopify try-on widget script started');
         throw new Error('Invalid garment image URL');
       }
 
-      // Convert base64 human image to a blob URL
-      const humanImgBlob = await fetch(humanImg).then(r => r.blob());
-      const humanImgUrl = URL.createObjectURL(humanImgBlob);
-
       const input = {
         garm_img: garmImg,
-        human_img: humanImgUrl,
-        garment_des: garmentDes || 'T-shirt', // Provide a default if not specified
-        category: 'upper_body', // Default category
-        crop: true, // Enable cropping in case the image is not 3:4
+        human_img: humanImg, // Use the original data URL
+        garment_des: garmentDes || 'T-shirt',
+        category: 'upper_body',
+        crop: true,
       };
 
       console.log('Calling API with:', {
         ...input,
-        human_img: input.human_img ? 'Present (Blob URL)' : 'Missing',
+        garm_img: input.garm_img,
+        human_img: input.human_img ? 'Present (Data URL)' : 'Missing',
       });
 
       const response = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
@@ -472,6 +472,7 @@ console.log('Shopify try-on widget script started');
           throw new Error('Polling timeout reached');
         }
 
+        console.log(`Polling attempt ${attempts} for job ${jobId}`);
         const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
         
         if (!response.ok) {
