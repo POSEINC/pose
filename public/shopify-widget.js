@@ -401,7 +401,8 @@ console.log('Shopify try-on widget script started');
         productImage,
         humanImage: humanImg,
         productTitle,
-        status: 'processing'
+        status: 'processing',
+        startTime: Date.now()
       }));
       startPolling(jobId);
     } catch (error) {
@@ -462,19 +463,21 @@ console.log('Shopify try-on widget script started');
 
   async function startPolling(jobId) {
     console.log(`Starting polling for job ${jobId}`);
-    let attempts = 0;
-    const maxAttempts = 30;
     const pollInterval = 2000; // 2 seconds
 
     const poll = async () => {
-      if (attempts >= maxAttempts) {
-        console.log(`Polling stopped after ${maxAttempts} attempts`);
-        displayResult('Timeout: Image generation is taking longer than expected. Please try again.');
+      const tryOnRequest = JSON.parse(localStorage.getItem('tryOnRequest'));
+      if (!tryOnRequest || tryOnRequest.jobId !== jobId) {
+        console.log(`Polling stopped for job ${jobId}`);
         return;
       }
 
-      attempts++;
-      console.log(`Polling attempt ${attempts} for job ${jobId}`);
+      if (Date.now() - tryOnRequest.startTime > 5 * 60 * 1000) { // 5 minutes timeout
+        console.log(`Polling timed out for job ${jobId}`);
+        localStorage.removeItem('tryOnRequest');
+        displayResult('Timeout: Image generation took too long. Please try again.');
+        return;
+      }
 
       try {
         const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
@@ -489,9 +492,10 @@ console.log('Shopify try-on widget script started');
 
         if (result.status === 'completed') {
           displayResult(`<img src="${result.output}" alt="Try-on result" style="max-width: 100%; height: auto;">`);
-          localStorage.setItem('tryOnRequest', JSON.stringify({ ...JSON.parse(localStorage.getItem('tryOnRequest')), status: 'completed' }));
+          localStorage.setItem('tryOnRequest', JSON.stringify({ ...tryOnRequest, status: 'completed', output: result.output }));
         } else if (result.status === 'failed') {
           displayResult(`Error: ${result.error || 'Unknown error occurred'}`);
+          localStorage.removeItem('tryOnRequest');
         } else {
           setTimeout(poll, pollInterval);
         }
@@ -599,17 +603,67 @@ console.log('Shopify try-on widget script started');
     const tryOnRequest = JSON.parse(localStorage.getItem('tryOnRequest'));
     if (tryOnRequest) {
       if (tryOnRequest.status === 'processing') {
+        displayInitialWaitingMessage();
         startPolling(tryOnRequest.jobId);
       } else if (tryOnRequest.status === 'completed') {
-        showNotification('Your try-on image is ready! Click here to view it.');
+        displayResult(`<img src="${tryOnRequest.output}" alt="Try-on result" style="max-width: 100%; height: auto;">`);
       }
     }
   });
 
   console.log('Try-on widget fully initialized');
 
-  function displayResult(message) {
+  function displayResult(content) {
     const resultImage = document.getElementById('resultImage');
-    resultImage.innerHTML = `<p style="color: red;">${message}</p>`;
+    if (content.startsWith('<img')) {
+      resultImage.style.padding = '0';
+      resultImage.style.backgroundColor = 'transparent';
+      resultImage.innerHTML = content;
+      
+      // Add expand icon
+      const expandIcon = document.createElement('div');
+      expandIcon.innerHTML = '&#x26F6;'; // Unicode for expand icon
+      expandIcon.style.position = 'absolute';
+      expandIcon.style.top = '10px';
+      expandIcon.style.right = '10px';
+      expandIcon.style.fontSize = '24px';
+      expandIcon.style.color = 'white';
+      expandIcon.style.textShadow = '1px 1px 2px black';
+      expandIcon.style.cursor = 'pointer';
+      resultImage.appendChild(expandIcon);
+
+      // Make image expandable
+      resultImage.onclick = () => {
+        openLightbox(content.match(/src="([^"]+)"/)[1]);
+      };
+    } else {
+      resultImage.style.padding = '20px';
+      resultImage.style.backgroundColor = '#f0f0f0';
+      resultImage.innerHTML = `<p style="color: red;">${content}</p>`;
+    }
+  }
+
+  function openLightbox(imageSrc) {
+    const lightbox = document.createElement('div');
+    lightbox.style.position = 'fixed';
+    lightbox.style.top = '0';
+    lightbox.style.left = '0';
+    lightbox.style.width = '100%';
+    lightbox.style.height = '100%';
+    lightbox.style.backgroundColor = 'rgba(0,0,0,0.8)';
+    lightbox.style.display = 'flex';
+    lightbox.style.alignItems = 'center';
+    lightbox.style.justifyContent = 'center';
+    lightbox.style.zIndex = '9999';
+
+    const img = document.createElement('img');
+    img.src = imageSrc;
+    img.style.maxWidth = '90%';
+    img.style.maxHeight = '90%';
+    img.style.objectFit = 'contain';
+
+    lightbox.appendChild(img);
+    lightbox.onclick = () => document.body.removeChild(lightbox);
+    document.body.appendChild(lightbox);
   }
 })();
