@@ -427,8 +427,17 @@ console.log('Shopify try-on widget script started');
   }
 
   function startPolling(jobId) {
+    let pollCount = 0;
+    const maxPolls = 60; // 5 minutes at 5-second intervals
+
     const pollInterval = setInterval(async () => {
       try {
+        pollCount++;
+        if (pollCount > maxPolls) {
+          clearInterval(pollInterval);
+          throw new Error('Polling timeout reached');
+        }
+
         const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
         
         if (!response.ok) {
@@ -449,6 +458,9 @@ console.log('Shopify try-on widget script started');
         } else if (data.status === 'failed') {
           clearInterval(pollInterval);
           displayResult('Error: ' + data.error);
+        } else {
+          // Update waiting message
+          updateWaitingMessage(pollCount);
         }
       } catch (error) {
         console.error('Error polling job status:', error);
@@ -456,6 +468,19 @@ console.log('Shopify try-on widget script started');
         displayResult('Error polling for results: ' + error.message);
       }
     }, 5000);
+  }
+
+  function updateWaitingMessage(pollCount) {
+    const resultImage = document.getElementById('resultImage');
+    const minutes = Math.floor(pollCount / 12);
+    const seconds = (pollCount % 12) * 5;
+    resultImage.innerHTML = `
+      <p style="text-align: center; margin: 0;">
+        Image generation in progress...<br>
+        Time elapsed: ${minutes} minutes ${seconds} seconds<br>
+        Please wait or feel free to browse other pages.
+      </p>
+    `;
   }
 
   function showNotification(message) {
