@@ -421,9 +421,14 @@ console.log('Shopify try-on widget script started');
         throw new Error('Invalid garment image URL');
       }
 
+      // Convert the humanImg data URL to a Blob and create a temporary URL
+      const response = await fetch(humanImg);
+      const blob = await response.blob();
+      const humanImgUrl = URL.createObjectURL(blob);
+
       const input = {
         garm_img: garmImg,
-        human_img: humanImg, // Use the original data URL
+        human_img: humanImgUrl,
         garment_des: garmentDes || 'T-shirt',
         category: 'upper_body',
         crop: true,
@@ -432,26 +437,29 @@ console.log('Shopify try-on widget script started');
       console.log('Calling API with:', {
         ...input,
         garm_img: input.garm_img,
-        human_img: input.human_img ? 'Present (Data URL)' : 'Missing',
+        human_img: 'Blob URL created',
       });
 
-      const response = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
+      const apiResponse = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(input),
       });
       
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      if (!apiResponse.ok) {
+        const errorText = await apiResponse.text();
+        throw new Error(`HTTP error! status: ${apiResponse.status}, message: ${errorText}`);
       }
       
-      const result = await response.json();
+      const result = await apiResponse.json();
       console.log('Full API response:', result);
       
       if (!result.jobId) {
         throw new Error('No jobId returned from API');
       }
+      
+      // Clean up the temporary URL
+      URL.revokeObjectURL(humanImgUrl);
       
       return result.jobId;
     } catch (error) {
