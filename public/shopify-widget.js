@@ -502,7 +502,17 @@ console.log('Shopify try-on widget script started');
     const messageIndex = pollCount % waitingMessages.length;
     const message = waitingMessages[messageIndex];
     const resultImage = document.getElementById('resultImage');
-    resultImage.innerHTML = `<p>${message}</p>`;
+    
+    // Reset styles for resultImage
+    resultImage.style.padding = '20px';
+    resultImage.style.backgroundColor = '#f0f0f0';
+    resultImage.style.display = 'flex';
+    resultImage.style.alignItems = 'center';
+    resultImage.style.justifyContent = 'center';
+    resultImage.style.textAlign = 'center';
+    resultImage.style.boxSizing = 'border-box';
+
+    resultImage.innerHTML = `<p style="margin: 0;">${message}</p>`;
   }
 
   function displayResult(output) {
@@ -568,16 +578,24 @@ console.log('Shopify try-on widget script started');
       // Append the message to the resultContainer instead of the resultImage
       resultContainer.appendChild(messageParagraph);
     } else {
-      resultImage.style.padding = '20px'; // Keep padding for text content
+      // Reset styles for text content
+      resultImage.style.padding = '20px';
+      resultImage.style.backgroundColor = '#f0f0f0';
+      resultImage.style.display = 'flex';
+      resultImage.style.alignItems = 'center';
+      resultImage.style.justifyContent = 'center';
+      resultImage.style.textAlign = 'center';
+      resultImage.style.boxSizing = 'border-box';
+
       if (typeof output === 'object' && output.error) {
         resultImage.innerHTML = `
-          <p style="color: red; text-align: center;">Error: ${output.error}</p>
-          <p style="text-align: center;">Oops, something went wrong. Please try again.</p>
+          <p style="color: red; text-align: center; margin: 0;">Error: ${output.error}</p>
+          <p style="text-align: center; margin: 10px 0 0 0;">Oops, something went wrong. Please try again.</p>
         `;
       } else {
         resultImage.innerHTML = `
-          <p style="text-align: center;">${JSON.stringify(output)}</p>
-          <p style="text-align: center;">Hmm, that didn't work as expected. Let's try again!</p>
+          <p style="text-align: center; margin: 0;">${JSON.stringify(output)}</p>
+          <p style="text-align: center; margin: 10px 0 0 0;">Hmm, that didn't work as expected. Let's try again!</p>
         `;
       }
     }
@@ -614,6 +632,15 @@ console.log('Shopify try-on widget script started');
   function displayInitialWaitingMessage() {
     const resultImage = document.getElementById('resultImage');
     const resultContainer = document.getElementById('resultContainer');
+
+    // Reset styles for resultImage
+    resultImage.style.padding = '20px';
+    resultImage.style.backgroundColor = '#f0f0f0';
+    resultImage.style.display = 'flex';
+    resultImage.style.alignItems = 'center';
+    resultImage.style.justifyContent = 'center';
+    resultImage.style.textAlign = 'center';
+    resultImage.style.boxSizing = 'border-box';
 
     // Clear any existing content in resultImage
     resultImage.innerHTML = '';
