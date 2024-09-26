@@ -39,7 +39,10 @@ export default async function handler(req, res) {
       jobStatus.set(jobId, { status: 'processing' });
 
       // Start processing asynchronously
-      processImage(jobId, garm_img, human_img, garment_des, category);
+      processImage(jobId, garm_img, human_img, garment_des, category).catch(error => {
+        console.error(`Async processing error for job ${jobId}:`, error);
+        jobStatus.set(jobId, { status: 'failed', error: error.message });
+      });
 
       res.status(202).json({ status: 'processing', jobId });
     } catch (error) {
@@ -84,10 +87,20 @@ async function processImage(jobId, garmImg, humanImg, garmentDes, category) {
       category: category || "upper_body",
     });
 
-    const output = await replicate.run(
-      "cuuupid/idm-vton:c871bb9b046607b680449ecbae55fd8c6d945e0a1948644bf2361b3d021d3ff4",
-      { input }
-    );
+    let output;
+    try {
+      output = await replicate.run(
+        "cuuupid/idm-vton:c871bb9b046607b680449ecbae55fd8c6d945e0a1948644bf2361b3d021d3ff4",
+        { input }
+      );
+    } catch (replicateError) {
+      console.error(`Replicate API error for job ${jobId}:`, replicateError);
+      throw new Error(`Replicate API error: ${replicateError.message}`);
+    }
+
+    if (!output) {
+      throw new Error('No output received from Replicate API');
+    }
 
     console.log(`Processing completed for job ${jobId}. Output:`, output);
     jobStatus.set(jobId, { status: 'completed', output });

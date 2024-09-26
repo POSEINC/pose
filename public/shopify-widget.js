@@ -486,6 +486,7 @@ console.log('Shopify try-on widget script started');
         console.error('Error polling job status:', error);
         clearInterval(pollInterval);
         localStorage.removeItem('tryOnRequest');
+        displayResult(`Error: ${error.message}. Please try again.`);
         showNotification('Error: ' + error.message + '. Please try again.');
       }
     }, 5000);
