@@ -407,9 +407,17 @@ console.log('Shopify try-on widget script started');
     if (typeof output === 'string' && output.startsWith('http')) {
       resultImage.style.padding = '0'; // Remove padding for images
       resultImage.innerHTML = `
-        <img src="${output}" alt="Try-on result" style="max-width: 100%; max-height: 200px; display: block; margin: 0 auto; cursor: pointer;">
+        <div style="position: relative; display: inline-block;">
+          <img src="${output}" alt="Try-on result" style="max-width: 100%; max-height: 200px; display: block; margin: 0 auto; cursor: pointer;">
+          <div class="expand-icon" style="position: absolute; top: 10px; right: 10px; background-color: rgba(255, 255, 255, 0.7); border-radius: 50%; padding: 5px; cursor: pointer;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"></path>
+            </svg>
+          </div>
+        </div>
       `;
       resultImage.querySelector('img').addEventListener('click', () => createLightbox(output));
+      resultImage.querySelector('.expand-icon').addEventListener('click', () => createLightbox(output));
       // Create a new paragraph for the message
       const messageParagraph = document.createElement('p');
       messageParagraph.textContent = 'Look how good you look!';
@@ -424,9 +432,17 @@ console.log('Shopify try-on widget script started');
     } else if (Array.isArray(output) && output.length > 0 && output[0].startsWith('http')) {
       resultImage.style.padding = '0'; // Remove padding for images
       resultImage.innerHTML = `
-        <img src="${output[0]}" alt="Try-on result" style="max-width: 100%; max-height: 200px; display: block; margin: 0 auto; cursor: pointer;">
+        <div style="position: relative; display: inline-block;">
+          <img src="${output[0]}" alt="Try-on result" style="max-width: 100%; max-height: 200px; display: block; margin: 0 auto; cursor: pointer;">
+          <div class="expand-icon" style="position: absolute; top: 10px; right: 10px; background-color: rgba(255, 255, 255, 0.7); border-radius: 50%; padding: 5px; cursor: pointer;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"></path>
+            </svg>
+          </div>
+        </div>
       `;
       resultImage.querySelector('img').addEventListener('click', () => createLightbox(output[0]));
+      resultImage.querySelector('.expand-icon').addEventListener('click', () => createLightbox(output[0]));
       // Create a new paragraph for the message
       const messageParagraph = document.createElement('p');
       messageParagraph.textContent = 'Look how great you look!';
