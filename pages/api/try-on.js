@@ -23,7 +23,7 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     try {
       const body = await json(req, { limit: '10mb' });
-      const { garm_img, human_img, garment_des } = body;
+      const { garm_img, human_img, garment_des, category } = body;
 
       if (!garm_img || !human_img) {
         throw new Error('Missing required input: garm_img or human_img');
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
       jobStatus.set(jobId, { status: 'processing' });
 
       // Start processing asynchronously
-      processImage(jobId, garm_img, human_img, garment_des);
+      processImage(jobId, garm_img, human_img, garment_des, category);
 
       res.status(202).json({ status: 'processing', jobId });
     } catch (error) {
@@ -60,7 +60,7 @@ export default async function handler(req, res) {
   }
 }
 
-async function processImage(jobId, garmImg, humanImg, garmentDes) {
+async function processImage(jobId, garmImg, humanImg, garmentDes, category) {
   try {
     console.log(`Starting processing for job ${jobId}`);
     
@@ -72,7 +72,7 @@ async function processImage(jobId, garmImg, humanImg, garmentDes) {
       garm_img: garmImg,
       human_img: humanImg,
       garment_des: garmentDes,
-      category: "upper_body",
+      category: category || "upper_body",
     };
 
     console.log(`Input data for job ${jobId}:`, JSON.stringify(input));

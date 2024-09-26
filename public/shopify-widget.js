@@ -399,14 +399,28 @@ console.log('Shopify try-on widget script started');
 
   async function callReplicateAPI(garmImg, humanImg, garmentDes) {
     try {
+      if (!garmImg || !humanImg) {
+        throw new Error('Both garment and human images are required');
+      }
+
+      // Convert base64 to blob and upload to temporary storage
+      const garmImgUrl = await uploadImageToStorage(garmImg);
+      const humanImgUrl = await uploadImageToStorage(humanImg);
+
       const response = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ garm_img: garmImg, human_img: humanImg, garment_des: garmentDes }),
+        body: JSON.stringify({
+          garm_img: garmImgUrl,
+          human_img: humanImgUrl,
+          garment_des: garmentDes,
+          category: 'upper_body', // Add this line
+        }),
       });
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
       }
       
       const result = await response.json();
@@ -421,6 +435,11 @@ console.log('Shopify try-on widget script started');
       console.error('Error calling Replicate API:', error);
       throw error;
     }
+  }
+
+  async function uploadImageToStorage(imageData) {
+    // Implement this function to upload the image to temporary storage
+    // and return the URL
   }
 
   function startPolling(jobId) {
