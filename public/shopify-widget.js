@@ -233,21 +233,21 @@ console.log('Shopify try-on widget script started');
     if (document.getElementById('dontShowAgain').checked) {
       localStorage.setItem('dontShowTryOnTips', 'true');
     }
+    // Trigger file upload dialog after closing the modal
+    photoUpload.click();
   });
 
   // Show modal on first interaction, if not disabled
   let modalShown = false;
-  uploadBox.addEventListener('click', () => {
+  uploadBox.addEventListener('click', (e) => {
+    e.preventDefault(); // Prevent default click behavior
     if (!modalShown && localStorage.getItem('dontShowTryOnTips') !== 'true') {
       modal.style.display = 'block';
       modalShown = true;
+    } else {
+      // If modal has been shown before or is disabled, directly trigger file upload
+      photoUpload.click();
     }
-    photoUpload.click();
-  });
-
-  uploadBox.addEventListener('click', () => {
-    console.log('Upload box clicked'); // Debug log
-    photoUpload.click();
   });
 
   const photoUpload = document.createElement('input');
