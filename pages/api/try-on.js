@@ -37,7 +37,10 @@ export default async function handler(req, res) {
       jobStatus.set(jobId, { status: 'processing' });
 
       // Start processing asynchronously
-      processImage(jobId, garm_img, human_img, garment_des);
+      processImage(jobId, garm_img, human_img, garment_des).catch(error => {
+        console.error(`Async processing error for job ${jobId}:`, error);
+        jobStatus.set(jobId, { status: 'failed', error: error.message });
+      });
 
       res.status(202).json({ status: 'processing', jobId });
     } catch (error) {
