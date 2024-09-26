@@ -421,15 +421,10 @@ console.log('Shopify try-on widget script started');
         throw new Error('Invalid garment image URL');
       }
 
-      // Convert the humanImg data URL to a Blob and create a temporary URL
-      const response = await fetch(humanImg);
-      const blob = await response.blob();
-      const humanImgUrl = URL.createObjectURL(blob);
-
       const input = {
         garm_img: garmImg,
-        human_img: humanImgUrl,
-        garment_des: garmentDes || 'T-shirt',
+        human_img: humanImg,
+        garment_des: garmentDes, // Use the provided garmentDes (productTitle) directly
         category: 'upper_body',
         crop: true,
       };
@@ -437,7 +432,7 @@ console.log('Shopify try-on widget script started');
       console.log('Calling API with:', {
         ...input,
         garm_img: input.garm_img,
-        human_img: 'Blob URL created',
+        human_img: input.human_img ? 'Present (Data URL)' : 'Missing',
       });
 
       const apiResponse = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
@@ -458,9 +453,6 @@ console.log('Shopify try-on widget script started');
         throw new Error('No jobId returned from API');
       }
       
-      // Clean up the temporary URL
-      URL.revokeObjectURL(humanImgUrl);
-      
       return result.jobId;
     } catch (error) {
       console.error('Error calling Replicate API:', error);
@@ -468,47 +460,48 @@ console.log('Shopify try-on widget script started');
     }
   }
 
-  function startPolling(jobId) {
+  async function startPolling(jobId) {
+    console.log(`Starting polling for job ${jobId}`);
     let attempts = 0;
-    const maxAttempts = 30; // 2.5 minutes at 5-second intervals
+    const maxAttempts = 30;
+    const pollInterval = 2000; // 2 seconds
 
-    const pollInterval = setInterval(async () => {
+    const poll = async () => {
+      if (attempts >= maxAttempts) {
+        console.log(`Polling stopped after ${maxAttempts} attempts`);
+        displayResult('Timeout: Image generation is taking longer than expected. Please try again.');
+        return;
+      }
+
+      attempts++;
+      console.log(`Polling attempt ${attempts} for job ${jobId}`);
+
       try {
-        attempts++;
-        if (attempts > maxAttempts) {
-          clearInterval(pollInterval);
-          throw new Error('Polling timeout reached');
-        }
-
-        console.log(`Polling attempt ${attempts} for job ${jobId}`);
         const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
+        console.log(`Polling response status: ${response.status}`);
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
-        const data = await response.json();
-        console.log('Polling response:', data);
-        
-        if (data.status === 'completed') {
-          clearInterval(pollInterval);
-          const tryOnRequest = JSON.parse(localStorage.getItem('tryOnRequest'));
-          tryOnRequest.status = 'completed';
-          tryOnRequest.result = data.output;
-          localStorage.setItem('tryOnRequest', JSON.stringify(tryOnRequest));
-          showNotification('Your try-on image is ready! Click here to view it.');
-        } else if (data.status === 'failed') {
-          clearInterval(pollInterval);
-          throw new Error(data.error || 'Try-on process failed');
+
+        const result = await response.json();
+        console.log(`Polling response:`, result);
+
+        if (result.status === 'completed') {
+          displayResult(`<img src="${result.output}" alt="Try-on result" style="max-width: 100%; height: auto;">`);
+          localStorage.setItem('tryOnRequest', JSON.stringify({ ...JSON.parse(localStorage.getItem('tryOnRequest')), status: 'completed' }));
+        } else if (result.status === 'failed') {
+          displayResult(`Error: ${result.error || 'Unknown error occurred'}`);
+        } else {
+          setTimeout(poll, pollInterval);
         }
       } catch (error) {
-        console.error('Error polling job status:', error);
-        clearInterval(pollInterval);
-        localStorage.removeItem('tryOnRequest');
-        displayResult(`Error: ${error.message}. Please try again.`);
-        showNotification('Error: ' + error.message + '. Please try again.');
+        console.error(`Error polling job status:`, error);
+        displayResult(`Error: ${error.message}`);
       }
-    }, 5000);
+    };
+
+    poll();
   }
 
   function showNotification(message) {
