@@ -405,6 +405,7 @@ console.log('Shopify try-on widget script started');
     }
 
     if (typeof output === 'string' && output.startsWith('http')) {
+      resultImage.style.padding = '0'; // Remove padding for images
       resultImage.innerHTML = `
         <img src="${output}" alt="Try-on result" style="max-width: 100%; max-height: 200px; display: block; margin: 0 auto;">
       `;
@@ -420,6 +421,7 @@ console.log('Shopify try-on widget script started');
       // Append the message to the resultContainer instead of the resultImage
       resultContainer.appendChild(messageParagraph);
     } else if (Array.isArray(output) && output.length > 0 && output[0].startsWith('http')) {
+      resultImage.style.padding = '0'; // Remove padding for images
       resultImage.innerHTML = `
         <img src="${output[0]}" alt="Try-on result" style="max-width: 100%; max-height: 200px; display: block; margin: 0 auto;">
       `;
@@ -434,16 +436,19 @@ console.log('Shopify try-on widget script started');
       messageParagraph.style.color = getComputedStyle(tryItOnButton).color;
       // Append the message to the resultContainer instead of the resultImage
       resultContainer.appendChild(messageParagraph);
-    } else if (typeof output === 'object' && output.error) {
-      resultImage.innerHTML = `
-        <p style="color: red; text-align: center;">Error: ${output.error}</p>
-        <p style="text-align: center;">Oops, something went wrong. Please try again.</p>
-      `;
     } else {
-      resultImage.innerHTML = `
-        <p style="text-align: center;">${JSON.stringify(output)}</p>
-        <p style="text-align: center;">Hmm, that didn't work as expected. Let's try again!</p>
-      `;
+      resultImage.style.padding = '20px'; // Keep padding for text content
+      if (typeof output === 'object' && output.error) {
+        resultImage.innerHTML = `
+          <p style="color: red; text-align: center;">Error: ${output.error}</p>
+          <p style="text-align: center;">Oops, something went wrong. Please try again.</p>
+        `;
+      } else {
+        resultImage.innerHTML = `
+          <p style="text-align: center;">${JSON.stringify(output)}</p>
+          <p style="text-align: center;">Hmm, that didn't work as expected. Let's try again!</p>
+        `;
+      }
     }
   }
 
