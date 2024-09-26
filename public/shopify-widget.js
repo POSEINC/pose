@@ -283,7 +283,11 @@ console.log('Shopify try-on widget script started');
       return;
     }
 
-    console.log('Try-on button clicked with:', { productImage, humanImg, productTitle });
+    console.log('Try-on button clicked with:', { 
+      productImage, 
+      humanImg: humanImg ? 'Present' : 'Missing', 
+      productTitle 
+    });
     displayInitialWaitingMessage();
     initiateTryOn(productImage, humanImg, productTitle);
   });
@@ -383,7 +387,11 @@ console.log('Shopify try-on widget script started');
 
   async function initiateTryOn(productImage, humanImg, productTitle) {
     try {
-      console.log('Initiating try-on with:', { productImage, humanImg, productTitle });
+      console.log('Initiating try-on with:', { 
+        productImage, 
+        humanImg: humanImg ? 'Present' : 'Missing', 
+        productTitle 
+      });
       const jobId = await callReplicateAPI(productImage, humanImg, productTitle);
       localStorage.setItem('tryOnRequest', JSON.stringify({
         jobId,
@@ -405,18 +413,19 @@ console.log('Shopify try-on widget script started');
         throw new Error('Both garment and human images are required');
       }
 
-      // We're not actually uploading to storage, so let's use the images directly
-      const garmImgUrl = garmImg;
-      const humanImgUrl = humanImg;
-
-      console.log('Sending API request with:', { garmImgUrl, humanImgUrl, garmentDes });
+      console.log('Calling API with:', {
+        garm_img: garmImg,
+        human_img: humanImg.substring(0, 100) + '...', // Log only the first 100 characters of the base64 string
+        garment_des: garmentDes,
+        category: 'upper_body'
+      });
 
       const response = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          garm_img: garmImgUrl,
-          human_img: humanImgUrl,
+          garm_img: garmImg,
+          human_img: humanImg,
           garment_des: garmentDes,
           category: 'upper_body',
         }),
@@ -440,12 +449,6 @@ console.log('Shopify try-on widget script started');
       throw error;
     }
   }
-
-  // Remove or comment out the uploadImageToStorage function as it's not implemented
-  // async function uploadImageToStorage(imageData) {
-  //   // Implement this function to upload the image to temporary storage
-  //   // and return the URL
-  // }
 
   function startPolling(jobId) {
     let attempts = 0;
