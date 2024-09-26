@@ -382,10 +382,27 @@ console.log('Shopify try-on widget script started');
 
   async function initiateTryOn(productImage, humanImg, productTitle) {
     try {
+      const jobId = await callReplicateAPI(productImage, humanImg, productTitle);
+      localStorage.setItem('tryOnRequest', JSON.stringify({
+        jobId,
+        productImage,
+        humanImage: humanImg,
+        productTitle,
+        status: 'processing'
+      }));
+      startPolling(jobId);
+    } catch (error) {
+      console.error('Error initiating try-on:', error);
+      displayResult('Error: ' + error.message);
+    }
+  }
+
+  async function callReplicateAPI(garmImg, humanImg, garmentDes) {
+    try {
       const response = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ garm_img: productImage, human_img: humanImg, garment_des: productTitle }),
+        body: JSON.stringify({ garm_img: garmImg, human_img: humanImg, garment_des: garmentDes }),
       });
       
       if (!response.ok) {
@@ -393,29 +410,31 @@ console.log('Shopify try-on widget script started');
       }
       
       const result = await response.json();
-      console.log('API response:', result);
+      console.log('Full API response:', result);
       
-      if (result.jobId) {
-        localStorage.setItem('tryOnRequest', JSON.stringify({
-          jobId: result.jobId,
-          productImage,
-          humanImage: humanImg,
-          productTitle,
-          status: 'processing'
-        }));
-        startPolling(result.jobId);
-      } else {
+      if (!result.jobId) {
         throw new Error('No jobId returned from API');
       }
+      
+      return result.jobId;
     } catch (error) {
       console.error('Error calling Replicate API:', error);
-      displayResult('Error: ' + error.message);
+      throw error;
     }
   }
 
   function startPolling(jobId) {
+    let attempts = 0;
+    const maxAttempts = 30; // 2.5 minutes at 5-second intervals
+
     const pollInterval = setInterval(async () => {
       try {
+        attempts++;
+        if (attempts > maxAttempts) {
+          clearInterval(pollInterval);
+          throw new Error('Polling timeout reached');
+        }
+
         const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
         
         if (!response.ok) {
@@ -434,14 +453,13 @@ console.log('Shopify try-on widget script started');
           showNotification('Your try-on image is ready! Click here to view it.');
         } else if (data.status === 'failed') {
           clearInterval(pollInterval);
-          localStorage.removeItem('tryOnRequest');
-          showNotification('Error generating try-on image. Please try again.');
+          throw new Error(data.error || 'Try-on process failed');
         }
       } catch (error) {
         console.error('Error polling job status:', error);
         clearInterval(pollInterval);
         localStorage.removeItem('tryOnRequest');
-        showNotification('Error checking try-on status. Please try again.');
+        showNotification('Error: ' + error.message + '. Please try again.');
       }
     }, 5000);
   }

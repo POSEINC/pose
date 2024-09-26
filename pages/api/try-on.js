@@ -37,10 +37,7 @@ export default async function handler(req, res) {
       jobStatus.set(jobId, { status: 'processing' });
 
       // Start processing asynchronously
-      processImage(jobId, garm_img, human_img, garment_des).catch(error => {
-        console.error(`Async processing error for job ${jobId}:`, error);
-        jobStatus.set(jobId, { status: 'failed', error: error.message });
-      });
+      processImage(jobId, garm_img, human_img, garment_des);
 
       res.status(202).json({ status: 'processing', jobId });
     } catch (error) {
@@ -66,10 +63,7 @@ export default async function handler(req, res) {
 async function processImage(jobId, garmImg, humanImg, garmentDes) {
   try {
     console.log(`Starting processing for job ${jobId}`);
-    console.log('Garment Image:', garmImg);
-    console.log('Human Image:', humanImg);
-    console.log('Garment Description:', garmentDes);
-
+    
     const replicate = new Replicate({
       auth: process.env.REPLICATE_API_TOKEN,
     });
@@ -81,7 +75,7 @@ async function processImage(jobId, garmImg, humanImg, garmentDes) {
       category: "upper_body",
     };
 
-    console.log('Input data:', JSON.stringify(input));
+    console.log(`Input data for job ${jobId}:`, JSON.stringify(input));
 
     const output = await replicate.run(
       "cuuupid/idm-vton:c871bb9b046607b680449ecbae55fd8c6d945e0a1948644bf2361b3d021d3ff4",
