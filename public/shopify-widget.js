@@ -161,11 +161,10 @@ console.log('Shopify try-on widget script started');
   tooltip.innerHTML = `
     <p style="margin: 0 0 10px 0; font-weight: bold;">Photo Tips:</p>
     <ul style="margin: 0; padding-left: 20px;">
-      <li>Use a full-body photo, from head to toe</li>
-      <li>Choose an image with good lighting and a plain background</li>
-      <li>Wear fitted clothing that shows your body shape</li>
-      <li>Stand in a natural, relaxed pose facing the camera</li>
       <li>Ensure you're the only person in the photo</li>
+      <li>Use a full-body photo, from head to toe</li>
+      <li>Stand in a natural, relaxed pose facing the camera</li>
+      <li>Wear fitted clothing that shows your body shape</li>
     </ul>
   `;
 
@@ -210,11 +209,10 @@ console.log('Shopify try-on widget script started');
   modalContent.innerHTML = `
     <h2 style="text-align: center;">Tips for the Best Try-On Experience</h2>
     <ul>
-      <li>Use a full-body photo, from head to toe</li>
-      <li>Choose an image with good lighting and a plain background</li>
-      <li>Wear fitted clothing that shows your body shape</li>
-      <li>Stand in a natural, relaxed pose facing the camera</li>
       <li>Ensure you're the only person in the photo</li>
+      <li>Use a full-body photo, from head to toe</li>
+      <li>Stand in a natural, relaxed pose facing the camera</li>
+      <li>Wear fitted clothing that shows your body shape</li>
     </ul>
     <div style="text-align: center; margin-top: 20px;">
       <button id="closeModal" style="padding: 10px 20px; cursor: pointer;">Got it!</button>
