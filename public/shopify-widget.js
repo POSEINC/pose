@@ -531,7 +531,7 @@ console.log('Shopify try-on widget script started');
       <p style="text-align: center; margin: 0;">
         Your try-on image is being generated.<br>
         You'll be notified when it's ready.<br>
-        Feel free to continue browsing.
+        Feel free to continue browsing!
       </p>
     `;
   }
