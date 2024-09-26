@@ -382,62 +382,40 @@ console.log('Shopify try-on widget script started');
 
   async function initiateTryOn(productImage, humanImg, productTitle) {
     try {
-      const jobId = await callReplicateAPI(productImage, humanImg, productTitle);
-      localStorage.setItem('tryOnRequest', JSON.stringify({
-        jobId,
-        productImage,
-        humanImage: humanImg,
-        productTitle,
-        status: 'processing'
-      }));
-      startPolling(jobId);
-    } catch (error) {
-      console.error('Failed to initiate try-on:', error);
-      displayResult('Failed to start try-on process. Please try again.');
-    }
-  }
-
-  async function callReplicateAPI(garmImg, humanImg, garmentDes, jobId) {
-    try {
       const response = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ garm_img: garmImg, human_img: humanImg, garment_des: garmentDes, jobId }),
+        body: JSON.stringify({ garm_img: productImage, human_img: humanImg, garment_des: productTitle }),
       });
-      
-      console.log('Full API response:', response);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
       const result = await response.json();
-      console.log('API response body:', result);
+      console.log('API response:', result);
       
-      if (!result.jobId) {
+      if (result.jobId) {
+        localStorage.setItem('tryOnRequest', JSON.stringify({
+          jobId: result.jobId,
+          productImage,
+          humanImage: humanImg,
+          productTitle,
+          status: 'processing'
+        }));
+        startPolling(result.jobId);
+      } else {
         throw new Error('No jobId returned from API');
       }
-      
-      return result.jobId;
     } catch (error) {
       console.error('Error calling Replicate API:', error);
       displayResult('Error: ' + error.message);
-      throw error;
     }
   }
 
   function startPolling(jobId) {
-    let pollCount = 0;
-    const maxPolls = 60; // 5 minutes at 5-second intervals
-
     const pollInterval = setInterval(async () => {
       try {
-        pollCount++;
-        if (pollCount > maxPolls) {
-          clearInterval(pollInterval);
-          throw new Error('Polling timeout reached');
-        }
-
         const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
         
         if (!response.ok) {
@@ -454,135 +432,48 @@ console.log('Shopify try-on widget script started');
           tryOnRequest.result = data.output;
           localStorage.setItem('tryOnRequest', JSON.stringify(tryOnRequest));
           showNotification('Your try-on image is ready! Click here to view it.');
-          displayResult(data.output);
         } else if (data.status === 'failed') {
           clearInterval(pollInterval);
-          displayResult('Error: ' + data.error);
-        } else {
-          // Update waiting message
-          updateWaitingMessage(pollCount);
+          localStorage.removeItem('tryOnRequest');
+          showNotification('Error generating try-on image. Please try again.');
         }
       } catch (error) {
         console.error('Error polling job status:', error);
         clearInterval(pollInterval);
-        displayResult('Error polling for results: ' + error.message);
+        localStorage.removeItem('tryOnRequest');
+        showNotification('Error checking try-on status. Please try again.');
       }
     }, 5000);
   }
 
-  function updateWaitingMessage(pollCount) {
-    const resultImage = document.getElementById('resultImage');
-    const minutes = Math.floor(pollCount / 12);
-    const seconds = (pollCount % 12) * 5;
-    resultImage.innerHTML = `
-      <p style="text-align: center; margin: 0;">
-        Image generation in progress...<br>
-        Time elapsed: ${minutes} minutes ${seconds} seconds<br>
-        Please wait or feel free to browse other pages.
-      </p>
-    `;
-  }
-
   function showNotification(message) {
-    if (Notification.permission === 'granted') {
-      const notification = new Notification(message);
-      notification.onclick = () => {
-        // Redirect to the original product page or display the result
-        displayResult(JSON.parse(localStorage.getItem('tryOnRequest')).result);
-      };
-    } else if (Notification.permission !== 'denied') {
-      Notification.requestPermission().then(permission => {
-        if (permission === 'granted') {
-          showNotification(message);
-        }
-      });
-    }
-  }
+    const notification = document.createElement('div');
+    notification.style.position = 'fixed';
+    notification.style.bottom = '20px';
+    notification.style.right = '20px';
+    notification.style.backgroundColor = '#333';
+    notification.style.color = '#fff';
+    notification.style.padding = '10px';
+    notification.style.borderRadius = '5px';
+    notification.style.cursor = 'pointer';
+    notification.style.zIndex = '9999';
+    notification.textContent = message;
 
-  function displayResult(output) {
-    const resultImage = document.getElementById('resultImage');
-    const resultContainer = document.getElementById('resultContainer');
-
-    // Clear any existing message
-    const existingMessage = resultContainer.querySelector('p');
-    if (existingMessage) {
-      existingMessage.remove();
-    }
-
-    if (typeof output === 'string' && output.startsWith('http')) {
-      resultImage.style.padding = '0'; // Remove padding for images
-      resultImage.innerHTML = `
-        <div style="position: relative; display: inline-block;">
-          <img src="${output}" alt="Try-on result" style="max-width: 100%; max-height: 200px; display: block; margin: 0 auto; cursor: pointer;">
-          <div class="expand-icon" style="position: absolute; top: 10px; right: 10px; background-color: rgba(255, 255, 255, 0.7); border-radius: 50%; padding: 5px; cursor: pointer;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="15 3 21 3 21 9"></polyline>
-              <polyline points="9 21 3 21 3 15"></polyline>
-            </svg>
-          </div>
-        </div>
-      `;
-      resultImage.querySelector('img').addEventListener('click', () => createLightbox(output));
-      resultImage.querySelector('.expand-icon').addEventListener('click', () => createLightbox(output));
-      // Create a new paragraph for the message
-      const messageParagraph = document.createElement('p');
-      messageParagraph.textContent = 'Look how good you look!';
-      messageParagraph.style.textAlign = 'center';
-      messageParagraph.style.marginTop = '10px';
-      messageParagraph.style.fontFamily = getComputedStyle(tryItOnButton).fontFamily;
-      messageParagraph.style.fontSize = getComputedStyle(tryItOnButton).fontSize;
-      messageParagraph.style.fontWeight = getComputedStyle(tryItOnButton).fontWeight;
-      messageParagraph.style.color = getComputedStyle(tryItOnButton).color;
-      // Append the message to the resultContainer instead of the resultImage
-      resultContainer.appendChild(messageParagraph);
-    } else if (Array.isArray(output) && output.length > 0 && output[0].startsWith('http')) {
-      resultImage.style.padding = '0'; // Remove padding for images
-      resultImage.innerHTML = `
-        <div style="position: relative; display: inline-block;">
-          <img src="${output[0]}" alt="Try-on result" style="max-width: 100%; max-height: 200px; display: block; margin: 0 auto; cursor: pointer;">
-          <div class="expand-icon" style="position: absolute; top: 10px; right: 10px; background-color: rgba(255, 255, 255, 0.7); border-radius: 50%; padding: 5px; cursor: pointer;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="15 3 21 3 21 9"></polyline>
-              <polyline points="9 21 3 21 3 15"></polyline>
-            </svg>
-          </div>
-        </div>
-      `;
-      resultImage.querySelector('img').addEventListener('click', () => createLightbox(output[0]));
-      resultImage.querySelector('.expand-icon').addEventListener('click', () => createLightbox(output[0]));
-      // Create a new paragraph for the message
-      const messageParagraph = document.createElement('p');
-      messageParagraph.textContent = 'Look how great you look!';
-      messageParagraph.style.textAlign = 'center';
-      messageParagraph.style.marginTop = '10px';
-      messageParagraph.style.fontFamily = getComputedStyle(tryItOnButton).fontFamily;
-      messageParagraph.style.fontSize = getComputedStyle(tryItOnButton).fontSize;
-      messageParagraph.style.fontWeight = getComputedStyle(tryItOnButton).fontWeight;
-      messageParagraph.style.color = getComputedStyle(tryItOnButton).color;
-      // Append the message to the resultContainer instead of the resultImage
-      resultContainer.appendChild(messageParagraph);
-    } else {
-      // Reset styles for text content
-      resultImage.style.padding = '20px';
-      resultImage.style.backgroundColor = '#f0f0f0';
-      resultImage.style.display = 'flex';
-      resultImage.style.alignItems = 'center';
-      resultImage.style.justifyContent = 'center';
-      resultImage.style.textAlign = 'center';
-      resultImage.style.boxSizing = 'border-box';
-
-      if (typeof output === 'object' && output.error) {
-        resultImage.innerHTML = `
-          <p style="color: red; text-align: center; margin: 0;">Error: ${output.error}</p>
-          <p style="text-align: center; margin: 10px 0 0 0;">Oops, something went wrong. Please try again.</p>
-        `;
-      } else {
-        resultImage.innerHTML = `
-          <p style="text-align: center; margin: 0;">${JSON.stringify(output)}</p>
-          <p style="text-align: center; margin: 10px 0 0 0;">Hmm, that didn't work as expected. Let's try again!</p>
-        `;
+    notification.addEventListener('click', () => {
+      const tryOnRequest = JSON.parse(localStorage.getItem('tryOnRequest'));
+      if (tryOnRequest && tryOnRequest.status === 'completed') {
+        createLightbox(tryOnRequest.result);
       }
-    }
+      document.body.removeChild(notification);
+    });
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      if (document.body.contains(notification)) {
+        document.body.removeChild(notification);
+      }
+    }, 10000);
   }
 
   function createLightbox(imageSrc) {
@@ -638,8 +529,9 @@ console.log('Shopify try-on widget script started');
     // Display the new waiting message
     resultImage.innerHTML = `
       <p style="text-align: center; margin: 0;">
-        Image generation may take 45-60 seconds.<br>
-        Feel free to browse, but please stay on this product page.
+        Your try-on image is being generated.<br>
+        You'll be notified when it's ready.<br>
+        Feel free to continue browsing.
       </p>
     `;
   }
@@ -647,11 +539,12 @@ console.log('Shopify try-on widget script started');
   // Add this at the end of the script
   document.addEventListener('DOMContentLoaded', () => {
     const tryOnRequest = JSON.parse(localStorage.getItem('tryOnRequest'));
-    if (tryOnRequest && tryOnRequest.status === 'processing') {
-      displayInitialWaitingMessage();
-      startPolling(tryOnRequest.jobId);
-    } else if (tryOnRequest && tryOnRequest.status === 'completed') {
-      displayResult(tryOnRequest.result);
+    if (tryOnRequest) {
+      if (tryOnRequest.status === 'processing') {
+        startPolling(tryOnRequest.jobId);
+      } else if (tryOnRequest.status === 'completed') {
+        showNotification('Your try-on image is ready! Click here to view it.');
+      }
     }
   });
 
