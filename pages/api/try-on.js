@@ -77,7 +77,12 @@ async function processImage(jobId, garmImg, humanImg, garmentDes, category) {
       category: category || "upper_body",
     };
 
-    console.log(`Input data for job ${jobId}:`, JSON.stringify(input));
+    console.log(`Input data for job ${jobId}:`, {
+      garm_img: garmImg,
+      human_img: humanImg ? 'Present' : 'Missing',
+      garment_des: garmentDes,
+      category: category || "upper_body",
+    });
 
     const output = await replicate.run(
       "cuuupid/idm-vton:c871bb9b046607b680449ecbae55fd8c6d945e0a1948644bf2361b3d021d3ff4",
