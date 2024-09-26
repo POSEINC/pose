@@ -413,22 +413,32 @@ console.log('Shopify try-on widget script started');
         throw new Error('Both garment and human images are required');
       }
 
-      console.log('Calling API with:', {
+      // Ensure garmImg is a valid URL
+      if (!garmImg.startsWith('http://') && !garmImg.startsWith('https://')) {
+        throw new Error('Invalid garment image URL');
+      }
+
+      // Convert base64 human image to a blob URL
+      const humanImgBlob = await fetch(humanImg).then(r => r.blob());
+      const humanImgUrl = URL.createObjectURL(humanImgBlob);
+
+      const input = {
         garm_img: garmImg,
-        human_img: humanImg.substring(0, 100) + '...', // Log only the first 100 characters of the base64 string
-        garment_des: garmentDes,
-        category: 'upper_body'
+        human_img: humanImgUrl,
+        garment_des: garmentDes || 'T-shirt', // Provide a default if not specified
+        category: 'upper_body', // Default category
+        crop: true, // Enable cropping in case the image is not 3:4
+      };
+
+      console.log('Calling API with:', {
+        ...input,
+        human_img: input.human_img ? 'Present (Blob URL)' : 'Missing',
       });
 
       const response = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          garm_img: garmImg,
-          human_img: humanImg,
-          garment_des: garmentDes,
-          category: 'upper_body',
-        }),
+        body: JSON.stringify(input),
       });
       
       if (!response.ok) {

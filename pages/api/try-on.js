@@ -76,15 +76,14 @@ async function processImage(jobId, garmImg, humanImg, garmentDes, category) {
     const input = {
       garm_img: garmImg,
       human_img: humanImg,
-      garment_des: garmentDes,
+      garment_des: garmentDes || 'T-shirt',
       category: category || "upper_body",
+      crop: true,
     };
 
     console.log(`Input data for job ${jobId}:`, {
-      garm_img: garmImg,
-      human_img: humanImg ? 'Present' : 'Missing',
-      garment_des: garmentDes,
-      category: category || "upper_body",
+      ...input,
+      human_img: input.human_img ? 'Present' : 'Missing',
     });
 
     let output;
