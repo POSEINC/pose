@@ -77,15 +77,9 @@ async function processImage(jobId, garmImg, humanImg, garmentDes, category) {
       auth: process.env.REPLICATE_API_TOKEN,
     });
 
-    // Fetch the human image and convert it to base64
-    const humanImgResponse = await fetch(humanImg);
-    const humanImgBuffer = await humanImgResponse.arrayBuffer();
-    const humanImgBase64 = Buffer.from(humanImgBuffer).toString('base64');
-    const humanImgDataUrl = `data:${humanImgResponse.headers.get('content-type')};base64,${humanImgBase64}`;
-
     const input = {
       garm_img: garmImg,
-      human_img: humanImgDataUrl,
+      human_img: humanImg,
       garment_des: garmentDes || 'T-shirt',
       category: category || "upper_body",
       crop: true,
@@ -93,15 +87,17 @@ async function processImage(jobId, garmImg, humanImg, garmentDes, category) {
 
     console.log(`Input data for job ${jobId}:`, {
       ...input,
-      human_img: input.human_img ? 'Present (Data URL)' : 'Missing',
+      human_img: input.human_img ? 'Present' : 'Missing',
     });
 
     let output;
     try {
+      console.log(`Calling Replicate API for job ${jobId}`);
       output = await replicate.run(
         "cuuupid/idm-vton:c871bb9b046607b680449ecbae55fd8c6d945e0a1948644bf2361b3d021d3ff4",
         { input }
       );
+      console.log(`Replicate API call successful for job ${jobId}`);
     } catch (replicateError) {
       console.error(`Replicate API error for job ${jobId}:`, replicateError);
       throw new Error(`Replicate API error: ${replicateError.message}`);
