@@ -68,14 +68,24 @@ export default async function handler(req, res) {
 async function processImage(jobId, garmImg, humanImg, garmentDes, category) {
   try {
     console.log(`Starting processing for job ${jobId}`);
+    console.log('Garment Image:', garmImg);
+    console.log('Human Image:', humanImg ? 'Present (URL)' : 'Missing');
+    console.log('Garment Description:', garmentDes);
+    console.log('Category:', category);
     
     const replicate = new Replicate({
       auth: process.env.REPLICATE_API_TOKEN,
     });
 
+    // Fetch the human image and convert it to base64
+    const humanImgResponse = await fetch(humanImg);
+    const humanImgBuffer = await humanImgResponse.arrayBuffer();
+    const humanImgBase64 = Buffer.from(humanImgBuffer).toString('base64');
+    const humanImgDataUrl = `data:${humanImgResponse.headers.get('content-type')};base64,${humanImgBase64}`;
+
     const input = {
       garm_img: garmImg,
-      human_img: humanImg,
+      human_img: humanImgDataUrl,
       garment_des: garmentDes || 'T-shirt',
       category: category || "upper_body",
       crop: true,
@@ -83,7 +93,7 @@ async function processImage(jobId, garmImg, humanImg, garmentDes, category) {
 
     console.log(`Input data for job ${jobId}:`, {
       ...input,
-      human_img: input.human_img ? 'Present' : 'Missing',
+      human_img: input.human_img ? 'Present (Data URL)' : 'Missing',
     });
 
     let output;
