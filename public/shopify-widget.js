@@ -56,14 +56,17 @@ console.log('Shopify try-on widget script started');
       if (data.status === 'completed') {
         console.log('Job completed, updating status and showing notification');
         updateStoredJobStatus('completed', data.output);
+        updateStatusIndicator('completed');
         showNotification('Your virtual try-on is ready!', data.output);
       } else if (data.status === 'failed') {
         console.log('Job failed, updating status and showing notification');
         updateStoredJobStatus('failed');
+        updateStatusIndicator('none');
         showNotification('Virtual try-on processing failed. Please try again.');
       }
     } catch (error) {
       console.error('Error checking job status:', error);
+      updateStatusIndicator('none');
     }
   }
 
@@ -196,6 +199,7 @@ console.log('Shopify try-on widget script started');
     closeButton.onclick = () => {
       notification.remove();
       localStorage.setItem('notificationClosed', 'true');
+      updateStatusIndicator('none');
     };
     notification.appendChild(closeButton);
 
@@ -213,7 +217,9 @@ console.log('Shopify try-on widget script started');
     const jobInfo = getStoredJobInformation();
     const notificationClosed = localStorage.getItem('notificationClosed') === 'true';
     
-    if (jobInfo && jobInfo.status === 'completed' && !notificationClosed && !document.getElementById('try-on-notification')) {
+    if (jobInfo && jobInfo.status === 'processing') {
+      updateStatusIndicator('processing');
+    } else if (jobInfo && jobInfo.status === 'completed' && !notificationClosed && !document.getElementById('try-on-notification')) {
       showNotification('Your virtual try-on is ready!', jobInfo.output);
     }
 
@@ -223,10 +229,14 @@ console.log('Shopify try-on widget script started');
       console.log('Checking stored job information:', jobInfo);
       if (jobInfo && jobInfo.status === 'processing') {
         console.log('Found processing job, checking status');
+        updateStatusIndicator('processing');
         checkJobStatus(jobInfo.jobId);
       } else if (jobInfo && jobInfo.status === 'completed' && !notificationClosed && !document.getElementById('try-on-notification')) {
         console.log('Found completed job, showing notification');
+        updateStatusIndicator('completed');
         showNotification('Your virtual try-on is ready!', jobInfo.output);
+      } else {
+        updateStatusIndicator('none');
       }
     }, 5000); // Check every 5 seconds
   }
@@ -276,6 +286,39 @@ console.log('Shopify try-on widget script started');
         document.body.removeChild(a);
       })
       .catch(error => console.error('Error downloading image:', error));
+  }
+
+  // Add these functions outside of the isProductPage() check, so they're available globally
+
+  function createStatusIndicator() {
+    const indicator = document.createElement('div');
+    indicator.id = 'try-on-status-indicator';
+    indicator.style.position = 'fixed';
+    indicator.style.bottom = '20px';
+    indicator.style.left = '20px';
+    indicator.style.backgroundColor = '#333';
+    indicator.style.color = 'white';
+    indicator.style.padding = '10px';
+    indicator.style.borderRadius = '5px';
+    indicator.style.zIndex = '9998';
+    indicator.style.display = 'none';
+    
+    const statusText = document.createElement('span');
+    statusText.textContent = 'Try-on in progress...';
+    indicator.appendChild(statusText);
+    
+    document.body.appendChild(indicator);
+    return indicator;
+  }
+
+  function updateStatusIndicator(status) {
+    const indicator = document.getElementById('try-on-status-indicator') || createStatusIndicator();
+    
+    if (status === 'processing') {
+      indicator.style.display = 'block';
+    } else {
+      indicator.style.display = 'none';
+    }
   }
 
   // Only proceed with product-specific code if we're on a product page
