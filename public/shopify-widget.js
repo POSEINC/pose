@@ -111,7 +111,30 @@ console.log('Shopify try-on widget script started');
       image.style.borderRadius = '3px';
       image.style.cursor = 'pointer';
 
+      // Add expand icon
+      const expandIcon = document.createElement('div');
+      expandIcon.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 3 21 3 21 9"></polyline>
+          <polyline points="9 21 3 21 3 15"></polyline>
+        </svg>
+      `;
+      expandIcon.style.position = 'absolute';
+      expandIcon.style.top = '5px';
+      expandIcon.style.right = '5px';
+      expandIcon.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+      expandIcon.style.borderRadius = '50%';
+      expandIcon.style.padding = '5px';
+      expandIcon.style.cursor = 'pointer';
+
+      image.addEventListener('click', () => createLightbox(output));
+      expandIcon.addEventListener('click', (e) => {
+        e.stopPropagation();
+        createLightbox(output);
+      });
+
       imageContainer.appendChild(image);
+      imageContainer.appendChild(expandIcon);
       notification.appendChild(imageContainer);
 
       // Create button container
@@ -189,13 +212,20 @@ console.log('Shopify try-on widget script started');
   // Global status checker (runs on all pages)
   function startGlobalStatusChecker() {
     console.log('Starting global status checker');
+    
+    // Check immediately on page load
+    const jobInfo = getStoredJobInformation();
+    if (jobInfo && jobInfo.status === 'completed' && !document.getElementById('try-on-notification')) {
+      showNotification('Your virtual try-on is ready!', jobInfo.output);
+    }
+
     setInterval(() => {
       const jobInfo = getStoredJobInformation();
       console.log('Checking stored job information:', jobInfo);
       if (jobInfo && jobInfo.status === 'processing') {
         console.log('Found processing job, checking status');
         checkJobStatus(jobInfo.jobId);
-      } else if (jobInfo && jobInfo.status === 'completed' && !jobInfo.notified) {
+      } else if (jobInfo && jobInfo.status === 'completed' && !document.getElementById('try-on-notification')) {
         console.log('Found completed job, showing notification');
         showNotification('Your virtual try-on is ready!', jobInfo.output);
       }
@@ -233,7 +263,6 @@ console.log('Shopify try-on widget script started');
 
   // Function to save image
   function saveImage(imageSrc) {
-    // Create a temporary anchor element
     const link = document.createElement('a');
     link.href = imageSrc;
     link.download = 'virtual-try-on.jpg';
