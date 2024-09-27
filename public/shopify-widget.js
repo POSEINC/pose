@@ -92,11 +92,13 @@ console.log('Shopify try-on widget script started');
     notification.style.borderRadius = '5px';
     notification.style.zIndex = '9999';
     notification.style.maxWidth = '300px';
+    notification.style.textAlign = 'center'; // Center all content
 
     // Add message to notification
     const messageElement = document.createElement('p');
     messageElement.textContent = message;
     messageElement.style.margin = '0 0 10px 0';
+    messageElement.style.fontWeight = 'bold'; // Make the message stand out
     notification.appendChild(messageElement);
 
     // If we have output, add the image and buttons to the notification
