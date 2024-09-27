@@ -1026,6 +1026,24 @@ console.log('Shopify try-on widget script started');
     }
 
     console.log('Try-on widget fully initialized');
+
+    // Function to update product image based on selected variant
+    function updateProductImage(variant) {
+      if (variant && variant.featured_image) {
+        productImage = variant.featured_image.src;
+        console.log('Updated product image:', productImage);
+      }
+    }
+
+    // Add event listener for variant changes
+    document.addEventListener('variant:changed', function(event) {
+      const variant = event.detail.variant;
+      updateProductImage(variant);
+    });
+
+    // Initial update with the default variant
+    const defaultVariant = JSON.parse(document.getElementById('ProductJson-product-template').textContent).variants[0];
+    updateProductImage(defaultVariant);
   }
 
   // Start the global status checker on all pages
