@@ -1015,4 +1015,4 @@ console.log('Shopify try-on widget script started');
   startGlobalStatusChecker();
 
   console.log('Try-on widget script initialization complete');
-})();
+)();
