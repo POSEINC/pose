@@ -20,14 +20,30 @@ export default async function handler(req, res) {
     return;
   }
 
+  if (req.method === 'GET') {
+    const { jobId } = req.query;
+    console.log(`Checking status for job ${jobId}`);
+    const status = jobStatus.get(jobId);
+    if (status) {
+      console.log(`Status for job ${jobId}:`, status);
+      res.status(200).json(status);
+    } else {
+      console.log(`Job ${jobId} not found`);
+      res.status(404).json({ message: 'Job not found' });
+    }
+    return;
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method not allowed' });
+  }
+
   if (req.method === 'POST') {
     try {
       const body = await json(req, { limit: '10mb' });
-      console.log('Received POST request with body:', body);
-      const { garm_img, human_img, garment_des, category } = body;
+      const { garm_img, human_img, garment_des } = body;
 
       if (!garm_img || !human_img) {
-        console.error('Missing required input:', { garm_img: !!garm_img, human_img: !!human_img });
         throw new Error('Missing required input: garm_img or human_img');
       }
 
@@ -39,41 +55,23 @@ export default async function handler(req, res) {
       jobStatus.set(jobId, { status: 'processing' });
 
       // Start processing asynchronously
-      processImage(jobId, garm_img, human_img, garment_des, category).catch(error => {
-        console.error(`Async processing error for job ${jobId}:`, error);
-        jobStatus.set(jobId, { status: 'failed', error: error.message });
-      });
+      processImage(jobId, garm_img, human_img, garment_des);
 
       res.status(202).json({ status: 'processing', jobId });
     } catch (error) {
-      console.error('Error processing POST request:', error);
+      console.error('Error starting try-on request:', error);
       res.status(500).json({ message: 'Error starting try-on request', error: error.message });
     }
-  } else if (req.method === 'GET') {
-    const { jobId } = req.query;
-    console.log(`Checking status for job ${jobId}`);
-    console.log('Current jobStatus map:', Array.from(jobStatus.entries()));
-    const status = jobStatus.get(jobId);
-    if (status) {
-      console.log(`Status for job ${jobId}:`, status);
-      res.status(200).json(status);
-    } else {
-      console.log(`Job ${jobId} not found`);
-      res.status(404).json({ message: 'Job not found' });
-    }
-  } else {
-    res.status(405).json({ message: 'Method not allowed' });
   }
 }
 
-async function processImage(jobId, garmImg, humanImg, garmentDes, category) {
+async function processImage(jobId, garmImg, humanImg, garmentDes) {
   try {
     console.log(`Starting processing for job ${jobId}`);
     console.log('Garment Image:', garmImg);
-    console.log('Human Image:', humanImg ? 'Present (URL)' : 'Missing');
+    console.log('Human Image:', humanImg);
     console.log('Garment Description:', garmentDes);
-    console.log('Category:', category);
-    
+
     const replicate = new Replicate({
       auth: process.env.REPLICATE_API_TOKEN,
     });
@@ -81,36 +79,16 @@ async function processImage(jobId, garmImg, humanImg, garmentDes, category) {
     const input = {
       garm_img: garmImg,
       human_img: humanImg,
-      garment_des: garmentDes || 'T-shirt',
-      category: category || "upper_body",
-      crop: true,
+      garment_des: garmentDes,
+      category: "upper_body",
     };
 
-    console.log(`Input data for job ${jobId}:`, {
-      ...input,
-      human_img: input.human_img ? 'Present' : 'Missing',
-    });
+    console.log('Input data:', JSON.stringify(input));
 
-    jobStatus.set(jobId, { status: 'processing' }); // Set initial status
-
-    let output;
-    try {
-      console.log(`Calling Replicate API for job ${jobId}`);
-      output = await replicate.run(
-        "cuuupid/idm-vton:c871bb9b046607b680449ecbae55fd8c6d945e0a1948644bf2361b3d021d3ff4",
-        { input }
-      );
-      console.log(`Replicate API call successful for job ${jobId}`);
-    } catch (replicateError) {
-      console.error(`Replicate API error for job ${jobId}:`, replicateError);
-      jobStatus.set(jobId, { status: 'failed', error: replicateError.message });
-      return;
-    }
-
-    if (!output) {
-      jobStatus.set(jobId, { status: 'failed', error: 'No output received from Replicate API' });
-      return;
-    }
+    const output = await replicate.run(
+      "cuuupid/idm-vton:c871bb9b046607b680449ecbae55fd8c6d945e0a1948644bf2361b3d021d3ff4",
+      { input }
+    );
 
     console.log(`Processing completed for job ${jobId}. Output:`, output);
     jobStatus.set(jobId, { status: 'completed', output });
