@@ -94,19 +94,43 @@ console.log('Shopify try-on widget script started');
     messageElement.style.margin = '0 0 10px 0';
     notification.appendChild(messageElement);
 
-    // If we have output, add a link to view results
-    if (output) {
-      const jobInfo = getStoredJobInformation();
-      if (jobInfo && jobInfo.productTitle) {
-        const link = document.createElement('a');
-        link.href = `/products/${jobInfo.productTitle.toLowerCase().replace(/\s+/g, '-')}`;
-        link.textContent = 'View Results';
-        link.style.color = 'white';
-        link.style.textDecoration = 'underline';
-        link.style.display = 'block';
-        link.style.marginBottom = '10px';
-        notification.appendChild(link);
-      }
+    // If we have output, add the image to the notification
+    if (output && typeof output === 'string' && output.startsWith('http')) {
+      const imageContainer = document.createElement('div');
+      imageContainer.style.position = 'relative';
+      imageContainer.style.width = '100%';
+      imageContainer.style.marginBottom = '10px';
+
+      const image = document.createElement('img');
+      image.src = output;
+      image.alt = 'Try-on result';
+      image.style.width = '100%';
+      image.style.height = 'auto';
+      image.style.borderRadius = '3px';
+
+      const expandIcon = document.createElement('div');
+      expandIcon.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 3 21 3 21 9"></polyline>
+          <polyline points="9 21 3 21 3 15"></polyline>
+        </svg>
+      `;
+      expandIcon.style.position = 'absolute';
+      expandIcon.style.top = '5px';
+      expandIcon.style.right = '5px';
+      expandIcon.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+      expandIcon.style.borderRadius = '50%';
+      expandIcon.style.padding = '5px';
+      expandIcon.style.cursor = 'pointer';
+
+      expandIcon.addEventListener('click', (e) => {
+        e.stopPropagation();
+        createLightbox(output);
+      });
+
+      imageContainer.appendChild(image);
+      imageContainer.appendChild(expandIcon);
+      notification.appendChild(imageContainer);
     }
 
     // Add close button
@@ -125,8 +149,8 @@ console.log('Shopify try-on widget script started');
     // Add notification to page
     document.body.appendChild(notification);
 
-    // Remove notification after 10 seconds
-    setTimeout(() => notification.remove(), 10000);
+    // Remove notification after 30 seconds (increased from 10 seconds)
+    setTimeout(() => notification.remove(), 30000);
   }
 
   // Global status checker (runs on all pages)
