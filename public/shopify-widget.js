@@ -659,7 +659,15 @@ console.log('Shopify try-on widget script started');
       console.log('Try-on widget section inserted into DOM');
     } else {
       console.error('Could not find the product form');
-      return;
+      // Remove the return statement and handle the error differently
+      // For example, you could try an alternative insertion method:
+      const productContainer = document.querySelector('.product, .product-single, #product-container');
+      if (productContainer) {
+        productContainer.appendChild(widgetSection);
+        console.log('Try-on widget section inserted into product container');
+      } else {
+        console.error('Could not find a suitable location to insert the widget');
+      }
     }
 
     function handleFileUpload(file) {
