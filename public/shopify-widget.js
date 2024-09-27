@@ -193,18 +193,14 @@ console.log('Shopify try-on widget script started');
     closeButton.style.border = 'none';
     closeButton.style.color = 'white';
     closeButton.style.cursor = 'pointer';
-    closeButton.onclick = () => notification.remove();
+    closeButton.onclick = () => {
+      notification.remove();
+      localStorage.setItem('notificationClosed', 'true');
+    };
     notification.appendChild(closeButton);
 
     // Add notification to page
     document.body.appendChild(notification);
-
-    // Mark the job as notified
-    const jobInfo = getStoredJobInformation();
-    if (jobInfo) {
-      jobInfo.notified = true;
-      localStorage.setItem('currentTryOnJob', JSON.stringify(jobInfo));
-    }
 
     console.log('Notification added to page');
   }
@@ -215,17 +211,20 @@ console.log('Shopify try-on widget script started');
     
     // Check immediately on page load
     const jobInfo = getStoredJobInformation();
-    if (jobInfo && jobInfo.status === 'completed' && !document.getElementById('try-on-notification')) {
+    const notificationClosed = localStorage.getItem('notificationClosed') === 'true';
+    
+    if (jobInfo && jobInfo.status === 'completed' && !notificationClosed && !document.getElementById('try-on-notification')) {
       showNotification('Your virtual try-on is ready!', jobInfo.output);
     }
 
     setInterval(() => {
       const jobInfo = getStoredJobInformation();
+      const notificationClosed = localStorage.getItem('notificationClosed') === 'true';
       console.log('Checking stored job information:', jobInfo);
       if (jobInfo && jobInfo.status === 'processing') {
         console.log('Found processing job, checking status');
         checkJobStatus(jobInfo.jobId);
-      } else if (jobInfo && jobInfo.status === 'completed' && !document.getElementById('try-on-notification')) {
+      } else if (jobInfo && jobInfo.status === 'completed' && !notificationClosed && !document.getElementById('try-on-notification')) {
         console.log('Found completed job, showing notification');
         showNotification('Your virtual try-on is ready!', jobInfo.output);
       }
@@ -263,12 +262,20 @@ console.log('Shopify try-on widget script started');
 
   // Function to save image
   function saveImage(imageSrc) {
-    const link = document.createElement('a');
-    link.href = imageSrc;
-    link.download = 'virtual-try-on.jpg';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    fetch(imageSrc)
+      .then(response => response.blob())
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'virtual-try-on.jpg';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      })
+      .catch(error => console.error('Error downloading image:', error));
   }
 
   // Only proceed with product-specific code if we're on a product page
