@@ -1035,15 +1035,45 @@ console.log('Shopify try-on widget script started');
       }
     }
 
+    // Function to get the current variant
+    function getCurrentVariant() {
+      // Try to get the variant from the URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const variantId = urlParams.get('variant');
+      
+      // If we have a variant ID in the URL, find it in the product JSON
+      if (variantId) {
+        const productJson = document.querySelector('[data-product-json]');
+        if (productJson) {
+          const productData = JSON.parse(productJson.textContent);
+          return productData.variants.find(v => v.id.toString() === variantId);
+        }
+      }
+      
+      // If we couldn't find a variant, return null
+      return null;
+    }
+
     // Add event listener for variant changes
     document.addEventListener('variant:changed', function(event) {
       const variant = event.detail.variant;
       updateProductImage(variant);
+      updateSubtext(variant);
     });
 
-    // Initial update with the default variant
-    const defaultVariant = JSON.parse(document.getElementById('ProductJson-product-template').textContent).variants[0];
-    updateProductImage(defaultVariant);
+    // Initial update with the current variant
+    const initialVariant = getCurrentVariant();
+    if (initialVariant) {
+      updateProductImage(initialVariant);
+      updateSubtext(initialVariant);
+    }
+
+    // Function to update subtext based on selected variant
+    function updateSubtext(variant) {
+      const variantTitle = variant ? variant.title : '';
+      const fullProductTitle = `${productTitle} in ${variantTitle}`;
+      sectionSubtext.textContent = `Upload a photo and see how this ${fullProductTitle} looks on you, no dressing room required.`;
+    }
   }
 
   // Start the global status checker on all pages
