@@ -57,7 +57,7 @@ console.log('Shopify try-on widget script started');
         console.log('Job completed, updating status and showing notification');
         updateStoredJobStatus('completed', data.output);
         updateStatusIndicator('completed');
-        showNotification('Your virtual try-on is ready!', data.output);
+        showNotification('Look how great you look!', data.output);
       } else if (data.status === 'failed') {
         console.log('Job failed, updating status and showing notification');
         updateStoredJobStatus('failed');
@@ -220,7 +220,7 @@ console.log('Shopify try-on widget script started');
     if (jobInfo && jobInfo.status === 'processing') {
       updateStatusIndicator('processing');
     } else if (jobInfo && jobInfo.status === 'completed' && !notificationClosed && !document.getElementById('try-on-notification')) {
-      showNotification('Your virtual try-on is ready!', jobInfo.output);
+      showNotification('Look how great you look!', jobInfo.output);
     }
 
     setInterval(() => {
@@ -234,7 +234,7 @@ console.log('Shopify try-on widget script started');
       } else if (jobInfo && jobInfo.status === 'completed' && !notificationClosed && !document.getElementById('try-on-notification')) {
         console.log('Found completed job, showing notification');
         updateStatusIndicator('completed');
-        showNotification('Your virtual try-on is ready!', jobInfo.output);
+        showNotification('Look how great you look!', jobInfo.output);
       } else {
         updateStatusIndicator('none');
       }
@@ -829,7 +829,7 @@ console.log('Shopify try-on widget script started');
       "Hold onto your socks, if you're still wearing any.",
       "Ironing out the virtual wrinkles.",
       "This will be worth the wait.",
-      "Preparing to make your reflection jealous.",
+      "Prepare to be amazed by your new style.",
       "Stitching pixels... almost there!",
       "Prepare to be amazed by your new style.",
       "Excitement is just a few seconds away..."
