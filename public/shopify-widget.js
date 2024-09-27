@@ -15,7 +15,8 @@ console.log('Shopify try-on widget script started');
       productImage: productImage,
       productTitle: productTitle,
       status: 'processing',
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      notified: false  // Add this line
     };
     localStorage.setItem('currentTryOnJob', JSON.stringify(jobInfo));
     console.log('Job information stored:', jobInfo);
@@ -151,6 +152,13 @@ console.log('Shopify try-on widget script started');
     // Add notification to page
     document.body.appendChild(notification);
 
+    // Mark the job as notified
+    const jobInfo = getStoredJobInformation();
+    if (jobInfo) {
+      jobInfo.notified = true;
+      localStorage.setItem('currentTryOnJob', JSON.stringify(jobInfo));
+    }
+
     // Remove notification after 30 seconds (increased from 10 seconds)
     setTimeout(() => notification.remove(), 30000);
   }
@@ -164,7 +172,7 @@ console.log('Shopify try-on widget script started');
       if (jobInfo && jobInfo.status === 'processing') {
         console.log('Found processing job, checking status');
         checkJobStatus(jobInfo.jobId);
-      } else if (jobInfo && jobInfo.status === 'completed') {
+      } else if (jobInfo && jobInfo.status === 'completed' && !jobInfo.notified) {
         console.log('Found completed job, showing notification');
         showNotification('Your virtual try-on is ready!', jobInfo.output);
       }
