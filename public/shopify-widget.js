@@ -1027,21 +1027,23 @@ console.log('Shopify try-on widget script started');
 
     console.log('Try-on widget fully initialized');
 
-    // Function to update product image based on selected variant
-    function updateProductImage(variant) {
+    // Function to update product image and title based on selected variant
+    function updateProductInfo(variant) {
       if (variant && variant.featured_image) {
         productImage = variant.featured_image.src;
         console.log('Updated product image:', productImage);
+      }
+      if (variant && variant.title) {
+        productTitle = `${productTitleElement.textContent.trim()} - ${variant.title}`;
+        console.log('Updated product title:', productTitle);
       }
     }
 
     // Function to get the current variant
     function getCurrentVariant() {
-      // Try to get the variant from the URL parameters
       const urlParams = new URLSearchParams(window.location.search);
       const variantId = urlParams.get('variant');
       
-      // If we have a variant ID in the URL, find it in the product JSON
       if (variantId) {
         const productJson = document.querySelector('[data-product-json]');
         if (productJson) {
@@ -1050,21 +1052,20 @@ console.log('Shopify try-on widget script started');
         }
       }
       
-      // If we couldn't find a variant, return null
       return null;
     }
 
     // Add event listener for variant changes
     document.addEventListener('variant:changed', function(event) {
       const variant = event.detail.variant;
-      updateProductImage(variant);
+      updateProductInfo(variant);
       updateSubtext(variant);
     });
 
     // Initial update with the current variant
     const initialVariant = getCurrentVariant();
     if (initialVariant) {
-      updateProductImage(initialVariant);
+      updateProductInfo(initialVariant);
       updateSubtext(initialVariant);
     }
 
