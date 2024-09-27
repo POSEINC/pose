@@ -296,7 +296,7 @@ console.log('Shopify try-on widget script started');
     indicator.id = 'try-on-status-indicator';
     indicator.style.position = 'fixed';
     indicator.style.bottom = '20px';
-    indicator.style.right = '20px'; // Changed from 'left' to 'right'
+    indicator.style.right = '20px';
     indicator.style.backgroundColor = '#333';
     indicator.style.color = 'white';
     indicator.style.padding = '10px';
@@ -305,8 +305,13 @@ console.log('Shopify try-on widget script started');
     indicator.style.display = 'none';
     
     const statusText = document.createElement('span');
-    statusText.textContent = 'Try-on in progress...';
+    statusText.textContent = 'Try-on in progress ';
     indicator.appendChild(statusText);
+    
+    const ellipsis = document.createElement('span');
+    ellipsis.id = 'status-ellipsis';
+    ellipsis.textContent = '...';
+    indicator.appendChild(ellipsis);
     
     document.body.appendChild(indicator);
     return indicator;
@@ -314,11 +319,14 @@ console.log('Shopify try-on widget script started');
 
   function updateStatusIndicator(status) {
     const indicator = document.getElementById('try-on-status-indicator') || createStatusIndicator();
+    const ellipsis = document.getElementById('status-ellipsis');
     
     if (status === 'processing') {
       indicator.style.display = 'block';
+      animateEllipsis(ellipsis);
     } else {
       indicator.style.display = 'none';
+      stopEllipsisAnimation(ellipsis);
     }
   }
 
