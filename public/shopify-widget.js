@@ -39,7 +39,7 @@ console.log('Shopify try-on widget script started');
     }
   }
 
-  // Function to check job status (moved outside isProductPage condition)
+  // Function to check job status
   async function checkJobStatus(jobId) {
     try {
       const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
@@ -52,9 +52,11 @@ console.log('Shopify try-on widget script started');
       console.log(`Status check for job ${jobId}:`, data);
 
       if (data.status === 'completed') {
+        console.log('Job completed, updating status and showing notification');
         updateStoredJobStatus('completed', data.output);
-        showNotification('Your virtual try-on is ready!');
+        showNotification('Your virtual try-on is ready!', data.output);
       } else if (data.status === 'failed') {
+        console.log('Job failed, updating status and showing notification');
         updateStoredJobStatus('failed');
         showNotification('Virtual try-on processing failed. Please try again.');
       }
@@ -63,31 +65,68 @@ console.log('Shopify try-on widget script started');
     }
   }
 
-  // Function to show a notification (moved outside isProductPage condition)
-  function showNotification(message) {
-    // Check if the notification element already exists
-    let notification = document.getElementById('try-on-notification');
-    if (!notification) {
-      notification = document.createElement('div');
-      notification.id = 'try-on-notification';
-      notification.style.position = 'fixed';
-      notification.style.bottom = '20px';
-      notification.style.right = '20px';
-      notification.style.backgroundColor = '#333';
-      notification.style.color = 'white';
-      notification.style.padding = '10px';
-      notification.style.borderRadius = '5px';
-      notification.style.zIndex = '9999';
-      document.body.appendChild(notification);
+  // Function to show a notification
+  function showNotification(message, output = null) {
+    console.log('Showing notification:', message);
+    
+    // Remove any existing notification
+    const existingNotification = document.getElementById('try-on-notification');
+    if (existingNotification) {
+      existingNotification.remove();
     }
 
-    notification.textContent = message;
-    notification.style.display = 'block';
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.id = 'try-on-notification';
+    notification.style.position = 'fixed';
+    notification.style.bottom = '20px';
+    notification.style.right = '20px';
+    notification.style.backgroundColor = '#333';
+    notification.style.color = 'white';
+    notification.style.padding = '15px';
+    notification.style.borderRadius = '5px';
+    notification.style.zIndex = '9999';
+    notification.style.maxWidth = '300px';
 
-    // Hide the notification after 5 seconds
-    setTimeout(() => {
-      notification.style.display = 'none';
-    }, 5000);
+    // Add message to notification
+    const messageElement = document.createElement('p');
+    messageElement.textContent = message;
+    messageElement.style.margin = '0 0 10px 0';
+    notification.appendChild(messageElement);
+
+    // If we have output, add a link to view results
+    if (output) {
+      const jobInfo = getStoredJobInformation();
+      if (jobInfo && jobInfo.productTitle) {
+        const link = document.createElement('a');
+        link.href = `/products/${jobInfo.productTitle.toLowerCase().replace(/\s+/g, '-')}`;
+        link.textContent = 'View Results';
+        link.style.color = 'white';
+        link.style.textDecoration = 'underline';
+        link.style.display = 'block';
+        link.style.marginBottom = '10px';
+        notification.appendChild(link);
+      }
+    }
+
+    // Add close button
+    const closeButton = document.createElement('button');
+    closeButton.textContent = 'X';
+    closeButton.style.position = 'absolute';
+    closeButton.style.top = '5px';
+    closeButton.style.right = '5px';
+    closeButton.style.background = 'none';
+    closeButton.style.border = 'none';
+    closeButton.style.color = 'white';
+    closeButton.style.cursor = 'pointer';
+    closeButton.onclick = () => notification.remove();
+    notification.appendChild(closeButton);
+
+    // Add notification to page
+    document.body.appendChild(notification);
+
+    // Remove notification after 10 seconds
+    setTimeout(() => notification.remove(), 10000);
   }
 
   // Global status checker (runs on all pages)
@@ -99,8 +138,11 @@ console.log('Shopify try-on widget script started');
       if (jobInfo && jobInfo.status === 'processing') {
         console.log('Found processing job, checking status');
         checkJobStatus(jobInfo.jobId);
+      } else if (jobInfo && jobInfo.status === 'completed') {
+        console.log('Found completed job, showing notification');
+        showNotification('Your virtual try-on is ready!', jobInfo.output);
       }
-    }, 5000); // Check every 5 seconds for testing purposes
+    }, 5000); // Check every 5 seconds
   }
 
   // Only proceed with product-specific code if we're on a product page
