@@ -9,14 +9,15 @@ console.log('Shopify try-on widget script started');
   }
 
   // Function to store job information
-  function storeJobInformation(jobId, productImage, productTitle) {
+  function storeJobInformation(jobId, productImage, productTitle, productUrl) {
     const jobInfo = {
       jobId: jobId,
       productImage: productImage,
       productTitle: productTitle,
+      productUrl: productUrl,
       status: 'processing',
       timestamp: Date.now(),
-      notified: false  // Add this line
+      notified: false
     };
     localStorage.setItem('currentTryOnJob', JSON.stringify(jobInfo));
     console.log('Job information stored:', jobInfo);
@@ -134,6 +135,51 @@ console.log('Shopify try-on widget script started');
       imageContainer.appendChild(image);
       imageContainer.appendChild(expandIcon);
       notification.appendChild(imageContainer);
+
+      // Create button container
+      const buttonContainer = document.createElement('div');
+      buttonContainer.style.display = 'flex';
+      buttonContainer.style.justifyContent = 'center';
+      buttonContainer.style.marginTop = '10px';
+
+      // Create "Save image" button
+      const saveButton = document.createElement('button');
+      saveButton.textContent = 'Save image';
+      saveButton.style.marginRight = '10px';
+      saveButton.style.padding = '5px 10px';
+      saveButton.style.backgroundColor = '#4CAF50';
+      saveButton.style.color = 'white';
+      saveButton.style.border = 'none';
+      saveButton.style.borderRadius = '3px';
+      saveButton.style.cursor = 'pointer';
+      saveButton.onclick = () => {
+        saveImage(output);
+      };
+
+      // Create "View product page" button
+      const viewProductButton = document.createElement('button');
+      viewProductButton.textContent = 'View product page';
+      viewProductButton.style.padding = '5px 10px';
+      viewProductButton.style.backgroundColor = '#008CBA';
+      viewProductButton.style.color = 'white';
+      viewProductButton.style.border = 'none';
+      viewProductButton.style.borderRadius = '3px';
+      viewProductButton.style.cursor = 'pointer';
+      viewProductButton.onclick = () => {
+        const jobInfo = getStoredJobInformation();
+        if (jobInfo && jobInfo.productUrl) {
+          window.location.href = jobInfo.productUrl;
+        } else {
+          console.error('Product URL not found');
+        }
+      };
+
+      // Add buttons to the container
+      buttonContainer.appendChild(saveButton);
+      buttonContainer.appendChild(viewProductButton);
+
+      // Add button container to the notification
+      notification.appendChild(buttonContainer);
     }
 
     // Add close button
@@ -206,6 +252,17 @@ console.log('Shopify try-on widget script started');
     });
 
     document.body.appendChild(lightbox);
+  }
+
+  // Function to save image
+  function saveImage(imageSrc) {
+    // Create a temporary anchor element
+    const link = document.createElement('a');
+    link.href = imageSrc;
+    link.download = 'virtual-try-on.jpg';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   // Only proceed with product-specific code if we're on a product page
@@ -619,7 +676,7 @@ console.log('Shopify try-on widget script started');
 
         if (data.status === 'processing') {
           console.log('Starting polling for job:', data.jobId);
-          storeJobInformation(data.jobId, garmImg, garmentDes);
+          storeJobInformation(data.jobId, garmImg, garmentDes, window.location.href);
           pollJobStatus(data.jobId);
         } else {
           console.error('Unexpected response from API:', data);
