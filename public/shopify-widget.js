@@ -701,5 +701,69 @@ console.log('Shopify try-on widget script started');
     `;
   }
 
+  // Add this function to periodically check job status
+  function startGlobalStatusChecker() {
+    setInterval(() => {
+      const jobInfo = getStoredJobInformation();
+      if (jobInfo && jobInfo.status === 'processing') {
+        checkJobStatus(jobInfo.jobId);
+      }
+    }, 10000); // Check every 10 seconds
+  }
+
+  // Function to check job status
+  async function checkJobStatus(jobId) {
+    try {
+      const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
+      
+      if (!response.ok) {
+        throw new Error(`Status check failed with status ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log(`Status check for job ${jobId}:`, data);
+
+      if (data.status === 'completed') {
+        updateStoredJobStatus('completed', data.output);
+        showNotification('Your virtual try-on is ready!');
+      } else if (data.status === 'failed') {
+        updateStoredJobStatus('failed');
+        showNotification('Virtual try-on processing failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error checking job status:', error);
+    }
+  }
+
+  // Function to show a notification
+  function showNotification(message) {
+    // Check if the notification element already exists
+    let notification = document.getElementById('try-on-notification');
+    if (!notification) {
+      notification = document.createElement('div');
+      notification.id = 'try-on-notification';
+      notification.style.position = 'fixed';
+      notification.style.bottom = '20px';
+      notification.style.right = '20px';
+      notification.style.backgroundColor = '#333';
+      notification.style.color = 'white';
+      notification.style.padding = '10px';
+      notification.style.borderRadius = '5px';
+      notification.style.zIndex = '9999';
+      document.body.appendChild(notification);
+    }
+
+    notification.textContent = message;
+    notification.style.display = 'block';
+
+    // Hide the notification after 5 seconds
+    setTimeout(() => {
+      notification.style.display = 'none';
+    }, 5000);
+  }
+
+  // Start the global status checker
+  startGlobalStatusChecker();
+
   console.log('Try-on widget fully initialized');
 })();
