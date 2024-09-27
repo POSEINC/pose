@@ -107,6 +107,7 @@ console.log('Shopify try-on widget script started');
       image.style.width = '100%';
       image.style.height = 'auto';
       image.style.borderRadius = '3px';
+      image.style.cursor = 'pointer';
 
       const expandIcon = document.createElement('div');
       expandIcon.innerHTML = `
@@ -123,6 +124,7 @@ console.log('Shopify try-on widget script started');
       expandIcon.style.padding = '5px';
       expandIcon.style.cursor = 'pointer';
 
+      image.addEventListener('click', () => createLightbox(output));
       expandIcon.addEventListener('click', (e) => {
         e.stopPropagation();
         createLightbox(output);
@@ -167,6 +169,35 @@ console.log('Shopify try-on widget script started');
         showNotification('Your virtual try-on is ready!', jobInfo.output);
       }
     }, 5000); // Check every 5 seconds
+  }
+
+  // Move createLightbox function here, outside of any other function
+  function createLightbox(imageSrc) {
+    const lightbox = document.createElement('div');
+    lightbox.style.position = 'fixed';
+    lightbox.style.top = '0';
+    lightbox.style.left = '0';
+    lightbox.style.width = '100%';
+    lightbox.style.height = '100%';
+    lightbox.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    lightbox.style.display = 'flex';
+    lightbox.style.alignItems = 'center';
+    lightbox.style.justifyContent = 'center';
+    lightbox.style.zIndex = '9999';
+
+    const img = document.createElement('img');
+    img.src = imageSrc;
+    img.style.maxWidth = '90%';
+    img.style.maxHeight = '90%';
+    img.style.objectFit = 'contain';
+
+    lightbox.appendChild(img);
+
+    lightbox.addEventListener('click', () => {
+      document.body.removeChild(lightbox);
+    });
+
+    document.body.appendChild(lightbox);
   }
 
   // Only proceed with product-specific code if we're on a product page
