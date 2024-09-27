@@ -296,17 +296,41 @@ console.log('Shopify try-on widget script started');
     indicator.id = 'try-on-status-indicator';
     indicator.style.position = 'fixed';
     indicator.style.bottom = '20px';
-    indicator.style.right = '20px'; // Changed from 'left' to 'right'
+    indicator.style.right = '20px';
     indicator.style.backgroundColor = '#333';
     indicator.style.color = 'white';
     indicator.style.padding = '10px';
     indicator.style.borderRadius = '5px';
     indicator.style.zIndex = '9998';
     indicator.style.display = 'none';
+    indicator.style.alignItems = 'center'; // Add this line
+    
+    const spinner = document.createElement('div');
+    spinner.className = 'try-on-spinner';
+    spinner.style.border = '2px solid #f3f3f3';
+    spinner.style.borderTop = '2px solid #3498db';
+    spinner.style.borderRadius = '50%';
+    spinner.style.width = '16px';
+    spinner.style.height = '16px';
+    spinner.style.animation = 'spin 1s linear infinite';
+    spinner.style.marginRight = '10px';
+    spinner.style.display = 'none'; // Initially hidden
     
     const statusText = document.createElement('span');
     statusText.textContent = 'Try-on in progress...';
+    
+    indicator.appendChild(spinner);
     indicator.appendChild(statusText);
+    
+    // Add keyframe animation for the spinner
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(style);
     
     document.body.appendChild(indicator);
     return indicator;
@@ -314,11 +338,14 @@ console.log('Shopify try-on widget script started');
 
   function updateStatusIndicator(status) {
     const indicator = document.getElementById('try-on-status-indicator') || createStatusIndicator();
+    const spinner = indicator.querySelector('.try-on-spinner');
     
     if (status === 'processing') {
-      indicator.style.display = 'block';
+      indicator.style.display = 'flex'; // Change to 'flex'
+      spinner.style.display = 'block';
     } else {
       indicator.style.display = 'none';
+      spinner.style.display = 'none';
     }
   }
 
