@@ -9,14 +9,15 @@ console.log('Shopify try-on widget script started');
   }
 
   // Function to store job information
-  function storeJobInformation(jobId, productImage, productTitle) {
+  function storeJobInformation(jobId, productImage, productTitle, productUrl) {
     const jobInfo = {
       jobId: jobId,
       productImage: productImage,
       productTitle: productTitle,
+      productUrl: productUrl,
       status: 'processing',
       timestamp: Date.now(),
-      notified: false  // Add this line
+      notified: false
     };
     localStorage.setItem('currentTryOnJob', JSON.stringify(jobInfo));
     console.log('Job information stored:', jobInfo);
@@ -68,7 +69,7 @@ console.log('Shopify try-on widget script started');
 
   // Function to show a notification
   function showNotification(message, output = null) {
-    console.log('Showing notification:', message);
+    console.log('Showing notification:', message, 'Output:', output);
     
     // Remove any existing notification
     const existingNotification = document.getElementById('try-on-notification');
@@ -95,7 +96,7 @@ console.log('Shopify try-on widget script started');
     messageElement.style.margin = '0 0 10px 0';
     notification.appendChild(messageElement);
 
-    // If we have output, add the image to the notification
+    // If we have output, add the image and buttons to the notification
     if (output && typeof output === 'string' && output.startsWith('http')) {
       const imageContainer = document.createElement('div');
       imageContainer.style.position = 'relative';
@@ -110,30 +111,53 @@ console.log('Shopify try-on widget script started');
       image.style.borderRadius = '3px';
       image.style.cursor = 'pointer';
 
-      const expandIcon = document.createElement('div');
-      expandIcon.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="15 3 21 3 21 9"></polyline>
-          <polyline points="9 21 3 21 3 15"></polyline>
-        </svg>
-      `;
-      expandIcon.style.position = 'absolute';
-      expandIcon.style.top = '5px';
-      expandIcon.style.right = '5px';
-      expandIcon.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-      expandIcon.style.borderRadius = '50%';
-      expandIcon.style.padding = '5px';
-      expandIcon.style.cursor = 'pointer';
-
-      image.addEventListener('click', () => createLightbox(output));
-      expandIcon.addEventListener('click', (e) => {
-        e.stopPropagation();
-        createLightbox(output);
-      });
-
       imageContainer.appendChild(image);
-      imageContainer.appendChild(expandIcon);
       notification.appendChild(imageContainer);
+
+      // Create button container
+      const buttonContainer = document.createElement('div');
+      buttonContainer.style.display = 'flex';
+      buttonContainer.style.justifyContent = 'center';
+      buttonContainer.style.marginTop = '10px';
+
+      // Create "Save image" button
+      const saveButton = document.createElement('button');
+      saveButton.textContent = 'Save image';
+      saveButton.style.marginRight = '10px';
+      saveButton.style.padding = '5px 10px';
+      saveButton.style.backgroundColor = '#4CAF50';
+      saveButton.style.color = 'white';
+      saveButton.style.border = 'none';
+      saveButton.style.borderRadius = '3px';
+      saveButton.style.cursor = 'pointer';
+      saveButton.onclick = () => {
+        saveImage(output);
+      };
+
+      // Create "View product page" button
+      const viewProductButton = document.createElement('button');
+      viewProductButton.textContent = 'View product page';
+      viewProductButton.style.padding = '5px 10px';
+      viewProductButton.style.backgroundColor = '#008CBA';
+      viewProductButton.style.color = 'white';
+      viewProductButton.style.border = 'none';
+      viewProductButton.style.borderRadius = '3px';
+      viewProductButton.style.cursor = 'pointer';
+      viewProductButton.onclick = () => {
+        const jobInfo = getStoredJobInformation();
+        if (jobInfo && jobInfo.productUrl) {
+          window.location.href = jobInfo.productUrl;
+        } else {
+          console.error('Product URL not found');
+        }
+      };
+
+      // Add buttons to the container
+      buttonContainer.appendChild(saveButton);
+      buttonContainer.appendChild(viewProductButton);
+
+      // Add button container to the notification
+      notification.appendChild(buttonContainer);
     }
 
     // Add close button
@@ -159,8 +183,7 @@ console.log('Shopify try-on widget script started');
       localStorage.setItem('currentTryOnJob', JSON.stringify(jobInfo));
     }
 
-    // Remove notification after 30 seconds (increased from 10 seconds)
-    setTimeout(() => notification.remove(), 30000);
+    console.log('Notification added to page');
   }
 
   // Global status checker (runs on all pages)
@@ -206,6 +229,17 @@ console.log('Shopify try-on widget script started');
     });
 
     document.body.appendChild(lightbox);
+  }
+
+  // Function to save image
+  function saveImage(imageSrc) {
+    // Create a temporary anchor element
+    const link = document.createElement('a');
+    link.href = imageSrc;
+    link.download = 'virtual-try-on.jpg';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
   // Only proceed with product-specific code if we're on a product page
@@ -619,7 +653,7 @@ console.log('Shopify try-on widget script started');
 
         if (data.status === 'processing') {
           console.log('Starting polling for job:', data.jobId);
-          storeJobInformation(data.jobId, garmImg, garmentDes);
+          storeJobInformation(data.jobId, garmImg, garmentDes, window.location.href);
           pollJobStatus(data.jobId);
         } else {
           console.error('Unexpected response from API:', data);
