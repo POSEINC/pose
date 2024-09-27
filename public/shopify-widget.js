@@ -295,13 +295,15 @@ console.log('Shopify try-on widget script started');
     indicator.id = 'try-on-status-indicator';
     indicator.style.position = 'fixed';
     indicator.style.bottom = '20px';
-    indicator.style.left = '20px';
+    indicator.style.right = '20px';
     indicator.style.backgroundColor = '#333';
     indicator.style.color = 'white';
     indicator.style.padding = '10px';
     indicator.style.borderRadius = '5px';
     indicator.style.zIndex = '9998';
     indicator.style.display = 'none';
+    indicator.style.fontSize = '14px';
+    indicator.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
     
     const statusText = document.createElement('span');
     statusText.textContent = 'Try-on in progress...';
@@ -320,6 +322,12 @@ console.log('Shopify try-on widget script started');
       indicator.style.display = 'none';
     }
   }
+
+  // Start the global status checker on all pages
+  startGlobalStatusChecker();
+
+  console.log('Try-on widget script initialization complete');
+})();
 
   // Only proceed with product-specific code if we're on a product page
   if (isProductPage()) {
