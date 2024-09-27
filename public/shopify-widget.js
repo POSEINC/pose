@@ -295,15 +295,13 @@ console.log('Shopify try-on widget script started');
     indicator.id = 'try-on-status-indicator';
     indicator.style.position = 'fixed';
     indicator.style.bottom = '20px';
-    indicator.style.right = '20px';
+    indicator.style.left = '20px';
     indicator.style.backgroundColor = '#333';
     indicator.style.color = 'white';
     indicator.style.padding = '10px';
     indicator.style.borderRadius = '5px';
     indicator.style.zIndex = '9998';
     indicator.style.display = 'none';
-    indicator.style.fontSize = '14px';
-    indicator.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
     
     const statusText = document.createElement('span');
     statusText.textContent = 'Try-on in progress...';
@@ -322,12 +320,6 @@ console.log('Shopify try-on widget script started');
       indicator.style.display = 'none';
     }
   }
-
-  // Start the global status checker on all pages
-  startGlobalStatusChecker();
-
-  console.log('Try-on widget script initialization complete');
-})();
 
   // Only proceed with product-specific code if we're on a product page
   if (isProductPage()) {
@@ -659,15 +651,7 @@ console.log('Shopify try-on widget script started');
       console.log('Try-on widget section inserted into DOM');
     } else {
       console.error('Could not find the product form');
-      // Remove the return statement and handle the error differently
-      // For example, you could try an alternative insertion method:
-      const productContainer = document.querySelector('.product, .product-single, #product-container');
-      if (productContainer) {
-        productContainer.appendChild(widgetSection);
-        console.log('Try-on widget section inserted into product container');
-      } else {
-        console.error('Could not find a suitable location to insert the widget');
-      }
+      return;
     }
 
     function handleFileUpload(file) {
@@ -1015,4 +999,4 @@ console.log('Shopify try-on widget script started');
   startGlobalStatusChecker();
 
   console.log('Try-on widget script initialization complete');
-();
+})();
