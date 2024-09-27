@@ -283,13 +283,8 @@ console.log('Shopify try-on widget script started');
       return;
     }
 
-    console.log('Try-on button clicked with:', { 
-      productImage, 
-      humanImg: humanImg ? 'Present' : 'Missing', 
-      productTitle 
-    });
-    displayInitialWaitingMessage();
-    initiateTryOn(productImage, humanImg, productTitle);
+    displayInitialWaitingMessage(); // Move this here
+    callReplicateAPI(productImage, humanImg, productTitle);
   });
 
   uploadSection.appendChild(uploadBox);
@@ -385,148 +380,223 @@ console.log('Shopify try-on widget script started');
     reader.readAsDataURL(file);
   }
 
-  async function initiateTryOn(productImage, humanImg, productTitle) {
-    try {
-      console.log('Initiating try-on with:', { 
-        productImage, 
-        humanImg: humanImg ? 'Present' : 'Missing', 
-        productTitle 
-      });
-      if (!productImage) {
-        throw new Error('Product image is missing');
-      }
-      const jobId = await callReplicateAPI(productImage, humanImg, productTitle);
-      localStorage.setItem('tryOnRequest', JSON.stringify({
-        jobId,
-        productImage,
-        humanImage: humanImg,
-        productTitle,
-        status: 'processing',
-        startTime: Date.now()
-      }));
-      startPolling(jobId);
-    } catch (error) {
-      console.error('Error initiating try-on:', error);
-      displayResult('Error: ' + error.message);
-    }
-  }
-
   async function callReplicateAPI(garmImg, humanImg, garmentDes) {
+    console.log('Calling Replicate API...');
+    console.log('Garment Image:', garmImg);
+    console.log('Human Image:', humanImg.substring(0, 50) + '...'); // Log only the first 50 characters of the base64 string
+    console.log('Garment Description:', JSON.stringify(garmentDes)); // Use JSON.stringify to see exact string content
+    
     try {
-      if (!garmImg || !humanImg) {
-        throw new Error('Both garment and human images are required');
-      }
+      // Remove displayInitialWaitingMessage() from here
+      
+      // Make sure the images are valid URLs or base64 strings
+      const garmImgUrl = garmImg.startsWith('data:') ? garmImg : new URL(garmImg, window.location.origin).href;
+      const humanImgUrl = humanImg.startsWith('data:') ? humanImg : new URL(humanImg, window.location.origin).href;
 
-      // Ensure garmImg is a valid URL
-      if (!garmImg.startsWith('http://') && !garmImg.startsWith('https://')) {
-        throw new Error('Invalid garment image URL');
-      }
-
-      const input = {
-        garm_img: garmImg,
-        human_img: humanImg,
-        garment_des: garmentDes, // Use the provided garmentDes (productTitle) directly
-        category: 'upper_body',
-        crop: true,
-      };
-
-      console.log('Calling API with:', {
-        ...input,
-        garm_img: input.garm_img,
-        human_img: input.human_img ? 'Present (Data URL)' : 'Missing',
-      });
-
-      const apiResponse = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
+      // Make a POST request to your API endpoint
+      const response = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(input),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          garm_img: garmImgUrl, 
+          human_img: humanImgUrl, 
+          garment_des: garmentDes 
+        }),
       });
-      
-      if (!apiResponse.ok) {
-        const errorText = await apiResponse.text();
-        throw new Error(`HTTP error! status: ${apiResponse.status}, message: ${errorText}`);
+
+      if (!response.ok) {
+        throw new Error(`API request failed with status ${response.status}`);
       }
-      
-      const result = await apiResponse.json();
-      console.log('Full API response:', result);
-      
-      if (!result.jobId) {
-        throw new Error('No jobId returned from API');
+
+      const data = await response.json();
+      console.log('API Response:', data);
+
+      if (data.status === 'processing') {
+        console.log('Starting polling for job:', data.jobId);
+        pollJobStatus(data.jobId);
+      } else {
+        console.error('Unexpected response from API:', data);
+        displayResult('Error: Unexpected response from server');
       }
-      
-      return result.jobId;
     } catch (error) {
-      console.error('Error calling Replicate API:', error);
+      console.error('Error calling API:', error);
       displayResult(`Error: ${error.message}`);
-      throw error;
     }
   }
 
-  async function startPolling(jobId) {
-    console.log(`Starting polling for job ${jobId}`);
-    const pollInterval = 5000; // 5 seconds
-    const initialDelay = 2000; // 2 seconds
+  const waitingMessages = [
+    "This will be worth the wait.",
+    "You're going to look great in this.",
+    "Stitching pixels... almost there!",
+    "Prepare to be amazed by your new style.",
+    "Excitement is just a few seconds away...",
+    "Fashion magic in progress...",
+    "Transforming pixels into your perfect look.",
+    "You're about to see yourself in a whole new light.",
+    "Your mirror's about to get jealous.",
+    "Hold onto your socks, if you're still wearing any.",
+    "Ironing out the virtual wrinkles.",
+    "Preparing to make your reflection jealous.",
+    "Channeling your inner supermodel...",
+    "Summoning the style gods..."
+  ];
 
-    await new Promise(resolve => setTimeout(resolve, initialDelay));
+  function pollJobStatus(jobId) {
+    console.log('Polling started for job:', jobId);
+    let pollCount = 0;
+    const maxPolls = 60; // 5 minutes maximum polling time
 
-    const poll = async () => {
-      try {
-        const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
-        console.log(`Polling response status: ${response.status}`);
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+    // Add a delay before starting to show cycling messages
+    setTimeout(() => {
+      const pollInterval = setInterval(async () => {
+        pollCount++;
+        console.log(`Polling attempt ${pollCount} for job ${jobId}`);
+
+        // Update message
+        updateWaitingMessage(pollCount - 1); // Subtract 1 to start from the first message
+
+        try {
+          const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
+          
+          if (!response.ok) {
+            throw new Error(`Polling request failed with status ${response.status}`);
+          }
+
+          const data = await response.json();
+          console.log('Polling response:', data);
+
+          if (data.status === 'completed') {
+            clearInterval(pollInterval);
+            console.log('Job completed successfully:', data.output);
+            displayResult(data.output);
+          } else if (data.status === 'failed') {
+            clearInterval(pollInterval);
+            console.error('Processing failed:', data.error);
+            displayResult(`Error: Processing failed - ${data.error}`);
+          } else if (data.status === 'processing') {
+            console.log('Still processing...');
+            if (pollCount >= maxPolls) {
+              clearInterval(pollInterval);
+              console.error('Polling timeout reached');
+              displayResult('Error: Processing timeout');
+            }
+          } else {
+            clearInterval(pollInterval);
+            console.error('Unexpected status:', data.status);
+            displayResult('Error: Unexpected response from server');
+          }
+        } catch (error) {
+          console.error('Error polling job status:', error);
+          clearInterval(pollInterval);
+          displayResult(`Error: Unable to get processing status - ${error.message}`);
         }
-
-        const result = await response.json();
-        console.log(`Polling response:`, result);
-
-        if (result.status === 'completed') {
-          displayResult(`<img src="${result.output}" alt="Try-on result" style="max-width: 100%; height: auto;">`);
-          localStorage.setItem('tryOnRequest', JSON.stringify({ ...JSON.parse(localStorage.getItem('tryOnRequest')), status: 'completed', output: result.output }));
-        } else if (result.status === 'failed') {
-          displayResult(`Error: ${result.error || 'Unknown error occurred'}`);
-          localStorage.removeItem('tryOnRequest');
-        } else {
-          setTimeout(poll, pollInterval);
-        }
-      } catch (error) {
-        console.error(`Error polling job status:`, error);
-        displayResult(`Error: ${error.message}`);
-      }
-    };
-
-    poll();
+      }, 5000); // Poll every 5 seconds
+    }, 3000); // Wait for 3 seconds before starting to cycle messages
   }
 
-  function showNotification(message) {
-    const notification = document.createElement('div');
-    notification.style.position = 'fixed';
-    notification.style.bottom = '20px';
-    notification.style.right = '20px';
-    notification.style.backgroundColor = '#333';
-    notification.style.color = '#fff';
-    notification.style.padding = '10px';
-    notification.style.borderRadius = '5px';
-    notification.style.cursor = 'pointer';
-    notification.style.zIndex = '9999';
-    notification.textContent = message;
+  function updateWaitingMessage(pollCount) {
+    const messageIndex = pollCount % waitingMessages.length;
+    const message = waitingMessages[messageIndex];
+    const resultImage = document.getElementById('resultImage');
+    
+    // Reset styles for resultImage
+    resultImage.style.padding = '20px';
+    resultImage.style.backgroundColor = '#f0f0f0';
+    resultImage.style.display = 'flex';
+    resultImage.style.alignItems = 'center';
+    resultImage.style.justifyContent = 'center';
+    resultImage.style.textAlign = 'center';
+    resultImage.style.boxSizing = 'border-box';
 
-    notification.addEventListener('click', () => {
-      const tryOnRequest = JSON.parse(localStorage.getItem('tryOnRequest'));
-      if (tryOnRequest && tryOnRequest.status === 'completed') {
-        createLightbox(tryOnRequest.result);
+    resultImage.innerHTML = `<p style="margin: 0;">${message}</p>`;
+  }
+
+  function displayResult(output) {
+    const resultImage = document.getElementById('resultImage');
+    const resultContainer = document.getElementById('resultContainer');
+
+    // Clear any existing message
+    const existingMessage = resultContainer.querySelector('p');
+    if (existingMessage) {
+      existingMessage.remove();
+    }
+
+    if (typeof output === 'string' && output.startsWith('http')) {
+      resultImage.style.padding = '0'; // Remove padding for images
+      resultImage.innerHTML = `
+        <div style="position: relative; display: inline-block;">
+          <img src="${output}" alt="Try-on result" style="max-width: 100%; max-height: 200px; display: block; margin: 0 auto; cursor: pointer;">
+          <div class="expand-icon" style="position: absolute; top: 10px; right: 10px; background-color: rgba(255, 255, 255, 0.7); border-radius: 50%; padding: 5px; cursor: pointer;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <polyline points="9 21 3 21 3 15"></polyline>
+            </svg>
+          </div>
+        </div>
+      `;
+      resultImage.querySelector('img').addEventListener('click', () => createLightbox(output));
+      resultImage.querySelector('.expand-icon').addEventListener('click', () => createLightbox(output));
+      // Create a new paragraph for the message
+      const messageParagraph = document.createElement('p');
+      messageParagraph.textContent = 'Look how good you look!';
+      messageParagraph.style.textAlign = 'center';
+      messageParagraph.style.marginTop = '10px';
+      messageParagraph.style.fontFamily = getComputedStyle(tryItOnButton).fontFamily;
+      messageParagraph.style.fontSize = getComputedStyle(tryItOnButton).fontSize;
+      messageParagraph.style.fontWeight = getComputedStyle(tryItOnButton).fontWeight;
+      messageParagraph.style.color = getComputedStyle(tryItOnButton).color;
+      // Append the message to the resultContainer instead of the resultImage
+      resultContainer.appendChild(messageParagraph);
+    } else if (Array.isArray(output) && output.length > 0 && output[0].startsWith('http')) {
+      resultImage.style.padding = '0'; // Remove padding for images
+      resultImage.innerHTML = `
+        <div style="position: relative; display: inline-block;">
+          <img src="${output[0]}" alt="Try-on result" style="max-width: 100%; max-height: 200px; display: block; margin: 0 auto; cursor: pointer;">
+          <div class="expand-icon" style="position: absolute; top: 10px; right: 10px; background-color: rgba(255, 255, 255, 0.7); border-radius: 50%; padding: 5px; cursor: pointer;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <polyline points="9 21 3 21 3 15"></polyline>
+            </svg>
+          </div>
+        </div>
+      `;
+      resultImage.querySelector('img').addEventListener('click', () => createLightbox(output[0]));
+      resultImage.querySelector('.expand-icon').addEventListener('click', () => createLightbox(output[0]));
+      // Create a new paragraph for the message
+      const messageParagraph = document.createElement('p');
+      messageParagraph.textContent = 'Look how great you look!';
+      messageParagraph.style.textAlign = 'center';
+      messageParagraph.style.marginTop = '10px';
+      messageParagraph.style.fontFamily = getComputedStyle(tryItOnButton).fontFamily;
+      messageParagraph.style.fontSize = getComputedStyle(tryItOnButton).fontSize;
+      messageParagraph.style.fontWeight = getComputedStyle(tryItOnButton).fontWeight;
+      messageParagraph.style.color = getComputedStyle(tryItOnButton).color;
+      // Append the message to the resultContainer instead of the resultImage
+      resultContainer.appendChild(messageParagraph);
+    } else {
+      // Reset styles for text content
+      resultImage.style.padding = '20px';
+      resultImage.style.backgroundColor = '#f0f0f0';
+      resultImage.style.display = 'flex';
+      resultImage.style.alignItems = 'center';
+      resultImage.style.justifyContent = 'center';
+      resultImage.style.textAlign = 'center';
+      resultImage.style.boxSizing = 'border-box';
+
+      if (typeof output === 'object' && output.error) {
+        resultImage.innerHTML = `
+          <p style="color: red; text-align: center; margin: 0;">Error: ${output.error}</p>
+          <p style="text-align: center; margin: 10px 0 0 0;">Oops, something went wrong. Please try again.</p>
+        `;
+      } else {
+        resultImage.innerHTML = `
+          <p style="text-align: center; margin: 0;">${JSON.stringify(output)}</p>
+          <p style="text-align: center; margin: 10px 0 0 0;">Hmm, that didn't work as expected. Let's try again!</p>
+        `;
       }
-      document.body.removeChild(notification);
-    });
-
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-      if (document.body.contains(notification)) {
-        document.body.removeChild(notification);
-      }
-    }, 10000);
+    }
   }
 
   function createLightbox(imageSrc) {
@@ -582,79 +652,11 @@ console.log('Shopify try-on widget script started');
     // Display the new waiting message
     resultImage.innerHTML = `
       <p style="text-align: center; margin: 0;">
-        Your try-on image is being generated.<br>
-        You'll be notified when it's ready.<br>
-        Feel free to continue browsing!
+        Image generation may take 45-60 seconds.<br>
+        Feel free to browse, but please stay on this product page.
       </p>
     `;
   }
 
-  // Add this at the end of the script
-  document.addEventListener('DOMContentLoaded', () => {
-    const tryOnRequest = JSON.parse(localStorage.getItem('tryOnRequest'));
-    if (tryOnRequest) {
-      if (tryOnRequest.status === 'processing') {
-        displayInitialWaitingMessage();
-        startPolling(tryOnRequest.jobId);
-      } else if (tryOnRequest.status === 'completed') {
-        displayResult(`<img src="${tryOnRequest.output}" alt="Try-on result" style="max-width: 100%; height: auto;">`);
-      }
-    }
-  });
-
   console.log('Try-on widget fully initialized');
-
-  function displayResult(content) {
-    const resultImage = document.getElementById('resultImage');
-    if (content.startsWith('<img')) {
-      resultImage.style.padding = '0';
-      resultImage.style.backgroundColor = 'transparent';
-      resultImage.innerHTML = content;
-      
-      // Add expand icon
-      const expandIcon = document.createElement('div');
-      expandIcon.innerHTML = '&#x26F6;'; // Unicode for expand icon
-      expandIcon.style.position = 'absolute';
-      expandIcon.style.top = '10px';
-      expandIcon.style.right = '10px';
-      expandIcon.style.fontSize = '24px';
-      expandIcon.style.color = 'white';
-      expandIcon.style.textShadow = '1px 1px 2px black';
-      expandIcon.style.cursor = 'pointer';
-      resultImage.appendChild(expandIcon);
-
-      // Make image expandable
-      resultImage.onclick = () => {
-        openLightbox(content.match(/src="([^"]+)"/)[1]);
-      };
-    } else {
-      resultImage.style.padding = '20px';
-      resultImage.style.backgroundColor = '#f0f0f0';
-      resultImage.innerHTML = `<p style="color: red;">${content}</p>`;
-    }
-  }
-
-  function openLightbox(imageSrc) {
-    const lightbox = document.createElement('div');
-    lightbox.style.position = 'fixed';
-    lightbox.style.top = '0';
-    lightbox.style.left = '0';
-    lightbox.style.width = '100%';
-    lightbox.style.height = '100%';
-    lightbox.style.backgroundColor = 'rgba(0,0,0,0.8)';
-    lightbox.style.display = 'flex';
-    lightbox.style.alignItems = 'center';
-    lightbox.style.justifyContent = 'center';
-    lightbox.style.zIndex = '9999';
-
-    const img = document.createElement('img');
-    img.src = imageSrc;
-    img.style.maxWidth = '90%';
-    img.style.maxHeight = '90%';
-    img.style.objectFit = 'contain';
-
-    lightbox.appendChild(img);
-    lightbox.onclick = () => document.body.removeChild(lightbox);
-    document.body.appendChild(lightbox);
-  }
 })();
