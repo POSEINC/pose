@@ -814,20 +814,25 @@ console.log('Shopify try-on widget script started');
     checkExistingJob();
 
     const waitingMessages = [
-      "This will be worth the wait.",
-      "You're going to look great in this.",
-      "Stitching pixels... almost there!",
-      "Prepare to be amazed by your new style.",
-      "Excitement is just a few seconds away...",
+      "Get ready to strike a pose - your new look is loading!",
       "Fashion magic in progress...",
+      "You're going to look great in this.",
+      "Summoning the style gods...",
       "Transforming pixels into your perfect look.",
+      "Channeling your inner supermodel...",
+      "Sprinkling some virtual fairy dust on your outfit...",
+      "Turning up the fashion volume to eleven...",
+      "Buffing the digital runway for your grand entrance...",
       "You're about to see yourself in a whole new light.",
+      "Tailoring pixels to perfection, just for you.",
       "Your mirror's about to get jealous.",
       "Hold onto your socks, if you're still wearing any.",
       "Ironing out the virtual wrinkles.",
+      "This will be worth the wait.",
       "Preparing to make your reflection jealous.",
-      "Channeling your inner supermodel...",
-      "Summoning the style gods..."
+      "Stitching pixels... almost there!",
+      "Prepare to be amazed by your new style.",
+      "Excitement is just a few seconds away..."
     ];
 
     function updateWaitingMessage(pollCount) {
@@ -986,8 +991,8 @@ console.log('Shopify try-on widget script started');
       // Display the new waiting message
       resultImage.innerHTML = `
         <p style="text-align: center; margin: 0;">
-          Image generation may take 45-60 seconds.<br>
-          Feel free to browse, but please stay on this product page.
+          Generation takes 60-90 seconds.<br>
+          Feel free to browse the site - we'll notify you when it's ready!
         </p>
       `;
     }
