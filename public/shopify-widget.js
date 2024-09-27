@@ -98,7 +98,6 @@ console.log('Shopify try-on widget script started');
     const messageElement = document.createElement('p');
     messageElement.textContent = message;
     messageElement.style.margin = '0 0 10px 0';
-    messageElement.style.fontWeight = 'bold'; // Make the message stand out
     notification.appendChild(messageElement);
 
     // If we have output, add the image and buttons to the notification
@@ -297,7 +296,7 @@ console.log('Shopify try-on widget script started');
     indicator.id = 'try-on-status-indicator';
     indicator.style.position = 'fixed';
     indicator.style.bottom = '20px';
-    indicator.style.left = '20px';
+    indicator.style.right = '20px'; // Changed from 'left' to 'right'
     indicator.style.backgroundColor = '#333';
     indicator.style.color = 'white';
     indicator.style.padding = '10px';
