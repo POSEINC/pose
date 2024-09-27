@@ -52,6 +52,7 @@ export default async function handler(req, res) {
   } else if (req.method === 'GET') {
     const { jobId } = req.query;
     console.log(`Checking status for job ${jobId}`);
+    console.log('Current jobStatus map:', Array.from(jobStatus.entries()));
     const status = jobStatus.get(jobId);
     if (status) {
       console.log(`Status for job ${jobId}:`, status);
@@ -90,6 +91,8 @@ async function processImage(jobId, garmImg, humanImg, garmentDes, category) {
       human_img: input.human_img ? 'Present' : 'Missing',
     });
 
+    jobStatus.set(jobId, { status: 'processing' }); // Set initial status
+
     let output;
     try {
       console.log(`Calling Replicate API for job ${jobId}`);
@@ -100,11 +103,13 @@ async function processImage(jobId, garmImg, humanImg, garmentDes, category) {
       console.log(`Replicate API call successful for job ${jobId}`);
     } catch (replicateError) {
       console.error(`Replicate API error for job ${jobId}:`, replicateError);
-      throw new Error(`Replicate API error: ${replicateError.message}`);
+      jobStatus.set(jobId, { status: 'failed', error: replicateError.message });
+      return;
     }
 
     if (!output) {
-      throw new Error('No output received from Replicate API');
+      jobStatus.set(jobId, { status: 'failed', error: 'No output received from Replicate API' });
+      return;
     }
 
     console.log(`Processing completed for job ${jobId}. Output:`, output);
