@@ -27,6 +27,69 @@ console.log('Shopify try-on widget script started');
     return jobInfo ? JSON.parse(jobInfo) : null;
   }
 
+  // Function to update stored job status
+  function updateStoredJobStatus(status, output = null) {
+    const jobInfo = getStoredJobInformation();
+    if (jobInfo) {
+      jobInfo.status = status;
+      if (output) {
+        jobInfo.output = output;
+      }
+      localStorage.setItem('currentTryOnJob', JSON.stringify(jobInfo));
+    }
+  }
+
+  // Function to check job status (moved outside isProductPage condition)
+  async function checkJobStatus(jobId) {
+    try {
+      const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
+      
+      if (!response.ok) {
+        throw new Error(`Status check failed with status ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log(`Status check for job ${jobId}:`, data);
+
+      if (data.status === 'completed') {
+        updateStoredJobStatus('completed', data.output);
+        showNotification('Your virtual try-on is ready!');
+      } else if (data.status === 'failed') {
+        updateStoredJobStatus('failed');
+        showNotification('Virtual try-on processing failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error checking job status:', error);
+    }
+  }
+
+  // Function to show a notification (moved outside isProductPage condition)
+  function showNotification(message) {
+    // Check if the notification element already exists
+    let notification = document.getElementById('try-on-notification');
+    if (!notification) {
+      notification = document.createElement('div');
+      notification.id = 'try-on-notification';
+      notification.style.position = 'fixed';
+      notification.style.bottom = '20px';
+      notification.style.right = '20px';
+      notification.style.backgroundColor = '#333';
+      notification.style.color = 'white';
+      notification.style.padding = '10px';
+      notification.style.borderRadius = '5px';
+      notification.style.zIndex = '9999';
+      document.body.appendChild(notification);
+    }
+
+    notification.textContent = message;
+    notification.style.display = 'block';
+
+    // Hide the notification after 5 seconds
+    setTimeout(() => {
+      notification.style.display = 'none';
+    }, 5000);
+  }
+
   // Global status checker (runs on all pages)
   function startGlobalStatusChecker() {
     console.log('Starting global status checker');
@@ -419,18 +482,6 @@ console.log('Shopify try-on widget script started');
       reader.readAsDataURL(file);
     }
 
-    // Function to update stored job status
-    function updateStoredJobStatus(status, output = null) {
-      const jobInfo = getStoredJobInformation();
-      if (jobInfo) {
-        jobInfo.status = status;
-        if (output) {
-          jobInfo.output = output;
-        }
-        localStorage.setItem('currentTryOnJob', JSON.stringify(jobInfo));
-      }
-    }
-
     // Function to call Replicate API
     async function callReplicateAPI(garmImg, humanImg, garmentDes) {
       console.log('Calling Replicate API...');
@@ -721,57 +772,6 @@ console.log('Shopify try-on widget script started');
           Feel free to browse, but please stay on this product page.
         </p>
       `;
-    }
-
-    // Function to check job status
-    async function checkJobStatus(jobId) {
-      try {
-        const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
-        
-        if (!response.ok) {
-          throw new Error(`Status check failed with status ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log(`Status check for job ${jobId}:`, data);
-
-        if (data.status === 'completed') {
-          updateStoredJobStatus('completed', data.output);
-          showNotification('Your virtual try-on is ready!');
-        } else if (data.status === 'failed') {
-          updateStoredJobStatus('failed');
-          showNotification('Virtual try-on processing failed. Please try again.');
-        }
-      } catch (error) {
-        console.error('Error checking job status:', error);
-      }
-    }
-
-    // Function to show a notification
-    function showNotification(message) {
-      // Check if the notification element already exists
-      let notification = document.getElementById('try-on-notification');
-      if (!notification) {
-        notification = document.createElement('div');
-        notification.id = 'try-on-notification';
-        notification.style.position = 'fixed';
-        notification.style.bottom = '20px';
-        notification.style.right = '20px';
-        notification.style.backgroundColor = '#333';
-        notification.style.color = 'white';
-        notification.style.padding = '10px';
-        notification.style.borderRadius = '5px';
-        notification.style.zIndex = '9999';
-        document.body.appendChild(notification);
-      }
-
-      notification.textContent = message;
-      notification.style.display = 'block';
-
-      // Hide the notification after 5 seconds
-      setTimeout(() => {
-        notification.style.display = 'none';
-      }, 5000);
     }
 
     console.log('Try-on widget fully initialized');
