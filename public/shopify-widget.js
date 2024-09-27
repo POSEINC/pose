@@ -8,6 +8,38 @@ console.log('Shopify try-on widget script started');
     return !!document.querySelector('.product-single__title, .product__title, h1.title');
   }
 
+  // Function to store job information
+  function storeJobInformation(jobId, productImage, productTitle) {
+    const jobInfo = {
+      jobId: jobId,
+      productImage: productImage,
+      productTitle: productTitle,
+      status: 'processing',
+      timestamp: Date.now()
+    };
+    localStorage.setItem('currentTryOnJob', JSON.stringify(jobInfo));
+    console.log('Job information stored:', jobInfo);
+  }
+
+  // Function to get stored job information
+  function getStoredJobInformation() {
+    const jobInfo = localStorage.getItem('currentTryOnJob');
+    return jobInfo ? JSON.parse(jobInfo) : null;
+  }
+
+  // Global status checker (runs on all pages)
+  function startGlobalStatusChecker() {
+    console.log('Starting global status checker');
+    setInterval(() => {
+      const jobInfo = getStoredJobInformation();
+      console.log('Checking stored job information:', jobInfo);
+      if (jobInfo && jobInfo.status === 'processing') {
+        console.log('Found processing job, checking status');
+        checkJobStatus(jobInfo.jobId);
+      }
+    }, 5000); // Check every 5 seconds for testing purposes
+  }
+
   // Only proceed with product-specific code if we're on a product page
   if (isProductPage()) {
     // Move imagePreview declaration to the top
@@ -387,24 +419,7 @@ console.log('Shopify try-on widget script started');
       reader.readAsDataURL(file);
     }
 
-    // Add these functions near the top of your script, after the initial console.log statements
-
-    function storeJobInformation(jobId, productImage, productTitle) {
-      const jobInfo = {
-        jobId: jobId,
-        productImage: productImage,
-        productTitle: productTitle,
-        status: 'processing',
-        timestamp: Date.now()
-      };
-      localStorage.setItem('currentTryOnJob', JSON.stringify(jobInfo));
-    }
-
-    function getStoredJobInformation() {
-      const jobInfo = localStorage.getItem('currentTryOnJob');
-      return jobInfo ? JSON.parse(jobInfo) : null;
-    }
-
+    // Function to update stored job status
     function updateStoredJobStatus(status, output = null) {
       const jobInfo = getStoredJobInformation();
       if (jobInfo) {
@@ -416,7 +431,7 @@ console.log('Shopify try-on widget script started');
       }
     }
 
-    // Modify the callReplicateAPI function
+    // Function to call Replicate API
     async function callReplicateAPI(garmImg, humanImg, garmentDes) {
       console.log('Calling Replicate API...');
       console.log('Garment Image:', garmImg);
@@ -460,7 +475,7 @@ console.log('Shopify try-on widget script started');
       }
     }
 
-    // Modify the pollJobStatus function
+    // Function to poll job status
     function pollJobStatus(jobId) {
       console.log('Polling started for job:', jobId);
       let pollCount = 0;
@@ -517,7 +532,7 @@ console.log('Shopify try-on widget script started');
       }, 3000);
     }
 
-    // Add this function to check for existing jobs when the widget loads
+    // Function to check for existing job
     function checkExistingJob() {
       const jobInfo = getStoredJobInformation();
       if (jobInfo && jobInfo.status === 'processing') {
@@ -708,19 +723,6 @@ console.log('Shopify try-on widget script started');
       `;
     }
 
-    // Add this function to periodically check job status
-    function startGlobalStatusChecker() {
-      console.log('Starting global status checker');
-      setInterval(() => {
-        const jobInfo = getStoredJobInformation();
-        console.log('Checking stored job information:', jobInfo);
-        if (jobInfo && jobInfo.status === 'processing') {
-          console.log('Found processing job, checking status');
-          checkJobStatus(jobInfo.jobId);
-        }
-      }, 10000); // Check every 10 seconds
-    }
-
     // Function to check job status
     async function checkJobStatus(jobId) {
       try {
@@ -772,9 +774,11 @@ console.log('Shopify try-on widget script started');
       }, 5000);
     }
 
-    // Start the global status checker
-    startGlobalStatusChecker();
-
     console.log('Try-on widget fully initialized');
   }
+
+  // Start the global status checker on all pages
+  startGlobalStatusChecker();
+
+  console.log('Try-on widget script initialization complete');
 })();
