@@ -380,20 +380,46 @@ console.log('Shopify try-on widget script started');
     reader.readAsDataURL(file);
   }
 
+  // Add these functions near the top of your script, after the initial console.log statements
+
+  function storeJobInformation(jobId, productImage, productTitle) {
+    const jobInfo = {
+      jobId: jobId,
+      productImage: productImage,
+      productTitle: productTitle,
+      status: 'processing',
+      timestamp: Date.now()
+    };
+    localStorage.setItem('currentTryOnJob', JSON.stringify(jobInfo));
+  }
+
+  function getStoredJobInformation() {
+    const jobInfo = localStorage.getItem('currentTryOnJob');
+    return jobInfo ? JSON.parse(jobInfo) : null;
+  }
+
+  function updateStoredJobStatus(status, output = null) {
+    const jobInfo = getStoredJobInformation();
+    if (jobInfo) {
+      jobInfo.status = status;
+      if (output) {
+        jobInfo.output = output;
+      }
+      localStorage.setItem('currentTryOnJob', JSON.stringify(jobInfo));
+    }
+  }
+
+  // Modify the callReplicateAPI function
   async function callReplicateAPI(garmImg, humanImg, garmentDes) {
     console.log('Calling Replicate API...');
     console.log('Garment Image:', garmImg);
-    console.log('Human Image:', humanImg.substring(0, 50) + '...'); // Log only the first 50 characters of the base64 string
-    console.log('Garment Description:', JSON.stringify(garmentDes)); // Use JSON.stringify to see exact string content
+    console.log('Human Image:', humanImg.substring(0, 50) + '...');
+    console.log('Garment Description:', JSON.stringify(garmentDes));
     
     try {
-      // Remove displayInitialWaitingMessage() from here
-      
-      // Make sure the images are valid URLs or base64 strings
       const garmImgUrl = garmImg.startsWith('data:') ? garmImg : new URL(garmImg, window.location.origin).href;
       const humanImgUrl = humanImg.startsWith('data:') ? humanImg : new URL(humanImg, window.location.origin).href;
 
-      // Make a POST request to your API endpoint
       const response = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
         method: 'POST',
         headers: {
@@ -415,6 +441,7 @@ console.log('Shopify try-on widget script started');
 
       if (data.status === 'processing') {
         console.log('Starting polling for job:', data.jobId);
+        storeJobInformation(data.jobId, garmImg, garmentDes);
         pollJobStatus(data.jobId);
       } else {
         console.error('Unexpected response from API:', data);
@@ -425,6 +452,75 @@ console.log('Shopify try-on widget script started');
       displayResult(`Error: ${error.message}`);
     }
   }
+
+  // Modify the pollJobStatus function
+  function pollJobStatus(jobId) {
+    console.log('Polling started for job:', jobId);
+    let pollCount = 0;
+    const maxPolls = 60; // 5 minutes maximum polling time
+
+    setTimeout(() => {
+      const pollInterval = setInterval(async () => {
+        pollCount++;
+        console.log(`Polling attempt ${pollCount} for job ${jobId}`);
+
+        updateWaitingMessage(pollCount - 1);
+
+        try {
+          const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
+          
+          if (!response.ok) {
+            throw new Error(`Polling request failed with status ${response.status}`);
+          }
+
+          const data = await response.json();
+          console.log('Polling response:', data);
+
+          if (data.status === 'completed') {
+            clearInterval(pollInterval);
+            console.log('Job completed successfully:', data.output);
+            updateStoredJobStatus('completed', data.output);
+            displayResult(data.output);
+          } else if (data.status === 'failed') {
+            clearInterval(pollInterval);
+            console.error('Processing failed:', data.error);
+            updateStoredJobStatus('failed');
+            displayResult(`Error: Processing failed - ${data.error}`);
+          } else if (data.status === 'processing') {
+            console.log('Still processing...');
+            if (pollCount >= maxPolls) {
+              clearInterval(pollInterval);
+              console.error('Polling timeout reached');
+              updateStoredJobStatus('timeout');
+              displayResult('Error: Processing timeout');
+            }
+          } else {
+            clearInterval(pollInterval);
+            console.error('Unexpected status:', data.status);
+            updateStoredJobStatus('error');
+            displayResult('Error: Unexpected response from server');
+          }
+        } catch (error) {
+          console.error('Error polling job status:', error);
+          clearInterval(pollInterval);
+          updateStoredJobStatus('error');
+          displayResult(`Error: Unable to get processing status - ${error.message}`);
+        }
+      }, 5000);
+    }, 3000);
+  }
+
+  // Add this function to check for existing jobs when the widget loads
+  function checkExistingJob() {
+    const jobInfo = getStoredJobInformation();
+    if (jobInfo && jobInfo.status === 'processing') {
+      console.log('Found existing job:', jobInfo.jobId);
+      pollJobStatus(jobInfo.jobId);
+    }
+  }
+
+  // Call this function at the end of your script
+  checkExistingJob();
 
   const waitingMessages = [
     "This will be worth the wait.",
@@ -442,59 +538,6 @@ console.log('Shopify try-on widget script started');
     "Channeling your inner supermodel...",
     "Summoning the style gods..."
   ];
-
-  function pollJobStatus(jobId) {
-    console.log('Polling started for job:', jobId);
-    let pollCount = 0;
-    const maxPolls = 60; // 5 minutes maximum polling time
-
-    // Add a delay before starting to show cycling messages
-    setTimeout(() => {
-      const pollInterval = setInterval(async () => {
-        pollCount++;
-        console.log(`Polling attempt ${pollCount} for job ${jobId}`);
-
-        // Update message
-        updateWaitingMessage(pollCount - 1); // Subtract 1 to start from the first message
-
-        try {
-          const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
-          
-          if (!response.ok) {
-            throw new Error(`Polling request failed with status ${response.status}`);
-          }
-
-          const data = await response.json();
-          console.log('Polling response:', data);
-
-          if (data.status === 'completed') {
-            clearInterval(pollInterval);
-            console.log('Job completed successfully:', data.output);
-            displayResult(data.output);
-          } else if (data.status === 'failed') {
-            clearInterval(pollInterval);
-            console.error('Processing failed:', data.error);
-            displayResult(`Error: Processing failed - ${data.error}`);
-          } else if (data.status === 'processing') {
-            console.log('Still processing...');
-            if (pollCount >= maxPolls) {
-              clearInterval(pollInterval);
-              console.error('Polling timeout reached');
-              displayResult('Error: Processing timeout');
-            }
-          } else {
-            clearInterval(pollInterval);
-            console.error('Unexpected status:', data.status);
-            displayResult('Error: Unexpected response from server');
-          }
-        } catch (error) {
-          console.error('Error polling job status:', error);
-          clearInterval(pollInterval);
-          displayResult(`Error: Unable to get processing status - ${error.message}`);
-        }
-      }, 5000); // Poll every 5 seconds
-    }, 3000); // Wait for 3 seconds before starting to cycle messages
-  }
 
   function updateWaitingMessage(pollCount) {
     const messageIndex = pollCount % waitingMessages.length;
