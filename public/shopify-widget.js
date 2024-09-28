@@ -1109,30 +1109,22 @@ console.log('Shopify try-on widget script started');
     console.log('Try-on widget fully initialized');
 
     // Update the MutationObserver
-    const colorVariantObserver = new MutationObserver(() => {
-      const newColor = getSelectedColorVariant();
-      if (newColor) {
-        sectionSubtext.textContent = `Upload a photo and see how ${productTitle} in ${newColor} looks on you, no dressing room required.`;
-        
-        // Update the product image
-        const newImageUrl = getSelectedVariantImageUrl();
-        if (newImageUrl) {
-          productImage = newImageUrl;
-          console.log('Updated product image:', productImage);
-        }
+    const observeTargets = [
+      document.querySelector('form[action="/cart/add"]'),
+      document.querySelector('.product-single__variants'),
+      document.querySelector('.product__variants'),
+      document.querySelector('.product-form__variants')
+    ].filter(Boolean); // Remove any null elements
+
+    observeTargets.forEach(target => {
+      if (target) {
+        variantObserver.observe(target, { subtree: true, attributes: true, childList: true });
       }
     });
 
-    // Try to find the product form or a larger product container
-    const productForm = document.querySelector('form[action="/cart/add"]');
-    const productContainer = document.querySelector('.product, .product-single, #product-container');
-
-    if (productForm) {
-      colorVariantObserver.observe(productForm, { subtree: true, attributes: true, childList: true });
-    } else if (productContainer) {
-      colorVariantObserver.observe(productContainer, { subtree: true, attributes: true, childList: true });
-    } else {
-      console.warn('Could not find product form or container to observe for color changes');
+    // If no targets found, log a warning
+    if (observeTargets.length === 0) {
+      console.warn('Could not find product form or variant selectors to observe');
     }
 
     // Add this somewhere in your existing code, perhaps near the end of your main function
