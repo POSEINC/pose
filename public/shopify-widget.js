@@ -631,8 +631,8 @@ console.log('Shopify try-on widget script started');
         return;
       }
 
-      displayInitialWaitingMessage(); // Move this here
-      callReplicateAPI(productImage, humanImg, productTitle);
+      displayInitialWaitingMessage();
+      callReplicateAPI(humanImg, productTitle);
     });
 
     uploadSection.appendChild(uploadBox);
@@ -729,14 +729,14 @@ console.log('Shopify try-on widget script started');
     }
 
     // Function to call Replicate API
-    async function callReplicateAPI(garmImg, humanImg, garmentDes) {
+    async function callReplicateAPI(humanImg, garmentDes) {
       console.log('Calling Replicate API...');
-      console.log('Garment Image:', garmImg);
+      console.log('Garment Image:', productImage); // Use the current productImage
       console.log('Human Image:', humanImg.substring(0, 50) + '...');
       console.log('Garment Description:', JSON.stringify(garmentDes));
       
       try {
-        const garmImgUrl = garmImg.startsWith('data:') ? garmImg : new URL(garmImg, window.location.origin).href;
+        const garmImgUrl = productImage.startsWith('data:') ? productImage : new URL(productImage, window.location.origin).href;
         const humanImgUrl = humanImg.startsWith('data:') ? humanImg : new URL(humanImg, window.location.origin).href;
 
         const response = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
@@ -760,7 +760,7 @@ console.log('Shopify try-on widget script started');
 
         if (data.status === 'processing') {
           console.log('Starting polling for job:', data.jobId);
-          storeJobInformation(data.jobId, garmImg, garmentDes, window.location.href);
+          storeJobInformation(data.jobId, productImage, garmentDes, window.location.href);
           pollJobStatus(data.jobId);
         } else {
           console.error('Unexpected response from API:', data);
@@ -1029,6 +1029,7 @@ console.log('Shopify try-on widget script started');
 
     // Function to update product image and title based on selected variant
     function updateProductInfo(variant) {
+      console.log('updateProductInfo called with variant:', variant);
       if (variant && variant.featured_image) {
         productImage = variant.featured_image.src;
         console.log('Updated product image:', productImage);
@@ -1055,11 +1056,29 @@ console.log('Shopify try-on widget script started');
       return null;
     }
 
-    // Add event listener for variant changes
+    // Add event listeners for variant changes
     document.addEventListener('variant:changed', function(event) {
+      console.log('variant:changed event fired', event);
       const variant = event.detail.variant;
       updateProductInfo(variant);
       updateSubtext(variant);
+    });
+
+    document.addEventListener('variantChange', function(event) {
+      console.log('variantChange event fired', event);
+      const variant = event.detail.variant;
+      updateProductInfo(variant);
+      updateSubtext(variant);
+    });
+
+    // Some themes might update the URL when a variant is selected
+    window.addEventListener('popstate', function() {
+      console.log('popstate event fired');
+      const variant = getCurrentVariant();
+      if (variant) {
+        updateProductInfo(variant);
+        updateSubtext(variant);
+      }
     });
 
     // Initial update with the current variant
