@@ -3,6 +3,8 @@ console.log('Shopify try-on widget script started');
 (function() {
   console.log('Shopify try-on widget script started');
 
+  let currentProductImage, currentProductTitle;
+
   // Function to determine if we're on a product page
   function isProductPage() {
     return !!document.querySelector('.product-single__title, .product__title, h1.title');
@@ -441,12 +443,9 @@ console.log('Shopify try-on widget script started');
 
     // Add subtext
     const sectionSubtext = document.createElement('p');
-    sectionSubtext.className = 'section-header__subtext';
-    sectionSubtext.textContent = 'Upload a photo and see how this item looks on you, no dressing room required.';
-    sectionSubtext.style.textAlign = 'center';
-    sectionSubtext.style.marginBottom = '20px';
-    sectionSubtext.style.fontSize = '0.9em';
-    sectionSubtext.style.color = '#666';
+    sectionSubtext.id = 'sectionSubtext';
+    sectionSubtext.style.marginTop = '10px';
+    sectionSubtext.style.marginBottom = '10px';
 
     // Append the title and subtext to the widget section
     widgetSection.appendChild(sectionTitle);
@@ -632,7 +631,7 @@ console.log('Shopify try-on widget script started');
       }
 
       displayInitialWaitingMessage();
-      callReplicateAPI(humanImg, currentProductTitle);
+      callReplicateAPI(humanImg);
     });
 
     uploadSection.appendChild(uploadBox);
@@ -729,11 +728,11 @@ console.log('Shopify try-on widget script started');
     }
 
     // Function to call Replicate API
-    async function callReplicateAPI(humanImg, garmentDes) {
+    async function callReplicateAPI(humanImg) {
       console.log('Calling Replicate API...');
       console.log('Garment Image:', currentProductImage);
       console.log('Human Image:', humanImg.substring(0, 50) + '...');
-      console.log('Garment Description:', JSON.stringify(currentProductTitle));
+      console.log('Garment Description:', currentProductTitle);
       
       try {
         const garmImgUrl = currentProductImage.startsWith('data:') ? currentProductImage : new URL(currentProductImage, window.location.origin).href;
@@ -1100,11 +1099,17 @@ console.log('Shopify try-on widget script started');
       updateProductInfo(initialVariant);
       updateSubtext(initialVariant);
     } else {
-      // If no variant is selected, use the first available variant
-      const firstVariant = productJson.variants[0];
-      if (firstVariant) {
-        updateProductInfo(firstVariant);
-        updateSubtext(firstVariant);
+      // If no variant is selected, try to get the first available variant
+      const productJson = document.querySelector('[data-product-json]');
+      if (productJson) {
+        const productData = JSON.parse(productJson.textContent);
+        const firstVariant = productData.variants[0];
+        if (firstVariant) {
+          updateProductInfo(firstVariant);
+          updateSubtext(firstVariant);
+        }
+      } else {
+        console.error('Unable to find product JSON data');
       }
     }
 
@@ -1114,6 +1119,9 @@ console.log('Shopify try-on widget script started');
       const fullProductTitle = `${productTitle} in ${variantTitle}`;
       sectionSubtext.textContent = `Upload a photo and see how this ${fullProductTitle} looks on you, no dressing room required.`;
     }
+
+    // Add this where you're appending other elements to the widget container
+    widgetContainer.appendChild(sectionSubtext);
   }
 
   // Start the global status checker on all pages
