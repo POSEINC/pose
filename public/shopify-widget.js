@@ -426,7 +426,7 @@ console.log('Shopify try-on widget script started');
   let productTitle = ''; // Declare productTitle at this scope
 
   function setupVariantObserver() {
-    // Get the product title once
+    // Get the product title
     const productTitleElement = document.querySelector('.product-single__title, .product__title, h1.title');
     if (productTitleElement) {
       productTitle = productTitleElement.textContent.trim();
@@ -437,7 +437,12 @@ console.log('Shopify try-on widget script started');
 
     variantObserver = new MutationObserver(() => {
       const newColor = getSelectedColorVariant();
+      const newSize = getSelectedSizeVariant();
       const newImageUrl = getSelectedVariantImageUrl();
+
+      console.log('Selected Color:', newColor);
+      console.log('Selected Size:', newSize);
+      console.log('Updated product image:', newImageUrl);
 
       if (newColor && sectionSubtext) {
         let subtext = `Upload a photo and see how ${productTitle} in ${newColor} looks on you, no dressing room required.`;
@@ -807,7 +812,7 @@ console.log('Shopify try-on widget script started');
       return;
     }
 
-    async function handleFileUpload(file) {
+    function handleFileUpload(file) {
       console.log('handleFileUpload function called');
       const reader = new FileReader();
       reader.onload = function(e) {
@@ -858,7 +863,7 @@ console.log('Shopify try-on widget script started');
       console.log('Calling Replicate API...');
       console.log('Garment Image:', productImage);
       console.log('Human Image:', humanImg.substring(0, 50) + '...');
-      console.log('Garment Description:', garmentDes);
+      console.log('Garment Description:', JSON.stringify(garmentDes));
       
       try {
         const garmImgUrl = productImage.startsWith('data:') ? productImage : new URL(productImage, window.location.origin).href;
