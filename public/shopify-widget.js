@@ -379,14 +379,34 @@ console.log('Shopify try-on widget script started');
     const selectedColor = getSelectedColorVariant();
     
     // Look for variant data in different possible locations
-    const variantDataScript = document.querySelector('script[type="application/json"][data-product]');
+    const variantDataScript = document.querySelector('script[type="application/json"][data-product-json], script#ProductJson-product-template');
+    
     if (variantDataScript) {
       try {
         const productData = JSON.parse(variantDataScript.textContent);
-        const selectedVariant = productData.variants.find(v => 
-          v.option1 === selectedColor
-        );
         
+        // Check if we have a 'variants' array
+        if (productData.variants && Array.isArray(productData.variants)) {
+          const selectedVariant = productData.variants.find(v => 
+            v.option1 === selectedColor || v.option2 === selectedColor || v.option3 === selectedColor
+          );
+          
+          if (selectedVariant && selectedVariant.featured_image) {
+            return selectedVariant.featured_image.src;
+          }
+        }
+        
+        // If no specific variant image, return the first product image
+        if (productData.images && productData.images.length > 0) {
+          return productData.images[0];
+        }
+      } catch (e) {
+        console.error('Error parsing variant data:', e);
+      }
+    }
+
+    // If we couldn't find or parse variant data, return the current product image
+    return productImage;
   }
 
   function getSelectedSizeVariant() {
