@@ -219,7 +219,8 @@ console.log('Shopify try-on widget script started');
     const notificationClosed = localStorage.getItem('notificationClosed') === 'true';
     
     if (jobInfo && jobInfo.status === 'processing') {
-      updateStatusIndicator('processing');
+      const customMessage = `Trying on ${productTitle} in ${getSelectedColorVariant() || 'selected color'}`;
+      updateStatusIndicator('processing', customMessage);
     } else if (jobInfo && jobInfo.status === 'completed' && !notificationClosed && !document.getElementById('try-on-notification')) {
       showNotification('Look how great you look!', jobInfo.output);
     }
@@ -230,7 +231,8 @@ console.log('Shopify try-on widget script started');
       console.log('Checking stored job information:', jobInfo);
       if (jobInfo && jobInfo.status === 'processing') {
         console.log('Found processing job, checking status');
-        updateStatusIndicator('processing');
+        const customMessage = `Trying on ${productTitle} in ${getSelectedColorVariant() || 'selected color'}`;
+        updateStatusIndicator('processing', customMessage);
         checkJobStatus(jobInfo.jobId);
       } else if (jobInfo && jobInfo.status === 'completed' && !notificationClosed && !document.getElementById('try-on-notification')) {
         console.log('Found completed job, showing notification');
@@ -336,13 +338,15 @@ console.log('Shopify try-on widget script started');
     return indicator;
   }
 
-  function updateStatusIndicator(status) {
+  function updateStatusIndicator(status, customMessage = null) {
     const indicator = document.getElementById('try-on-status-indicator') || createStatusIndicator();
     const spinner = indicator.querySelector('.try-on-spinner');
+    const statusText = indicator.querySelector('span');
     
     if (status === 'processing') {
-      indicator.style.display = 'flex'; // Change to 'flex'
+      indicator.style.display = 'flex';
       spinner.style.display = 'block';
+      statusText.textContent = customMessage || 'Try-on in progress...';
     } else {
       indicator.style.display = 'none';
       spinner.style.display = 'none';
@@ -905,12 +909,14 @@ console.log('Shopify try-on widget script started');
       let pollCount = 0;
       const maxPolls = 60; // 5 minutes maximum polling time
 
+      const customMessage = `Trying on ${productTitle} in ${getSelectedColorVariant() || 'selected color'}`;
+
       setTimeout(() => {
         const pollInterval = setInterval(async () => {
           pollCount++;
           console.log(`Polling attempt ${pollCount} for job ${jobId}`);
 
-          updateWaitingMessage(pollCount - 1);
+          updateStatusIndicator('processing', customMessage);
 
           try {
             const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
