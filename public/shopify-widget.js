@@ -856,12 +856,14 @@ console.log('Shopify try-on widget script started');
     // Function to call Replicate API
     async function callReplicateAPI(humanImg, garmentDes) {
       console.log('Calling Replicate API...');
-      console.log('Garment Image:', productImage); // This will now use the updated productImage
+      // Get the most recent product image URL
+      const currentProductImage = getSelectedVariantImageUrl() || productImage;
+      console.log('Garment Image:', currentProductImage);
       console.log('Human Image:', humanImg.substring(0, 50) + '...');
       console.log('Garment Description:', JSON.stringify(garmentDes));
       
       try {
-        const garmImgUrl = productImage.startsWith('//') ? 'https:' + productImage : productImage;
+        const garmImgUrl = currentProductImage.startsWith('//') ? 'https:' + currentProductImage : currentProductImage;
         const humanImgUrl = humanImg.startsWith('data:') ? humanImg : new URL(humanImg, window.location.origin).href;
 
         const response = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
