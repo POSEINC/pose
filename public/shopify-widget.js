@@ -448,6 +448,8 @@ console.log('Shopify try-on widget script started');
 
     console.log('Product Image:', productImage);
 
+    const colorVariant = getSelectedColorVariant();
+
     // Create the widget section
     const widgetSection = document.createElement('section');
     widgetSection.className = 'try-on-widget';
@@ -474,7 +476,9 @@ console.log('Shopify try-on widget script started');
     // Add subtext
     const sectionSubtext = document.createElement('p');
     sectionSubtext.className = 'section-header__subtext';
-    sectionSubtext.textContent = `Upload a photo and see how ${productTitle} looks on you, no dressing room required.`;
+    sectionSubtext.textContent = colorVariant
+      ? `Upload a photo and see how ${productTitle} in ${colorVariant} looks on you, no dressing room required.`
+      : `Upload a photo and see how ${productTitle} looks on you, no dressing room required.`;
     sectionSubtext.style.textAlign = 'center';
     sectionSubtext.style.marginBottom = '20px';
     sectionSubtext.style.fontSize = '0.9em';
