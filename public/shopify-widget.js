@@ -384,7 +384,7 @@ console.log('Shopify try-on widget script started');
     if (variantDataScript) {
       try {
         const variantData = JSON.parse(variantDataScript.textContent);
-        const selectedVariant = variantData.find(v => v.title === selectedColor);
+        const selectedVariant = variantData.find(v => v.title.includes(selectedColor));
         if (selectedVariant && selectedVariant.featured_image) {
           return selectedVariant.featured_image.src;
         }
@@ -393,7 +393,8 @@ console.log('Shopify try-on widget script started');
       }
     }
 
-    return null;
+    // If we couldn't find the variant image, return the current product image
+    return productImage;
   }
 
   // Add this new function
@@ -423,9 +424,16 @@ console.log('Shopify try-on widget script started');
   window.getSelectedColorVariant = getSelectedColorVariant;
   window.getSelectedVariantImageUrl = getSelectedVariantImageUrl;
 
-  let variantObserver; // Declare variantObserver at this scope
+  let variantObserver;
+  let productTitle = ''; // Declare productTitle at this scope
 
   function setupVariantObserver() {
+    // Get the product title
+    const productTitleElement = document.querySelector('.product-single__title, .product__title, h1.title');
+    if (productTitleElement) {
+      productTitle = productTitleElement.textContent.trim();
+    }
+
     variantObserver = new MutationObserver(() => {
       const newColor = getSelectedColorVariant();
       const newSize = getSelectedSizeVariant();
@@ -437,7 +445,10 @@ console.log('Shopify try-on widget script started');
 
       if (newColor) {
         let subtext = `Upload a photo and see how ${productTitle} in ${newColor} looks on you, no dressing room required.`;
-        sectionSubtext.textContent = subtext;
+        const sectionSubtext = document.querySelector('.section-header__subtext');
+        if (sectionSubtext) {
+          sectionSubtext.textContent = subtext;
+        }
         
         if (newImageUrl) {
           productImage = newImageUrl;
@@ -486,7 +497,6 @@ console.log('Shopify try-on widget script started');
       }
     }
 
-    let productTitle = '';
     if (productTitleElement) {
       // Get all text content, including nested elements
       productTitle = productTitleElement.textContent
