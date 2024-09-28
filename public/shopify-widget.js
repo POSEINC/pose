@@ -3,8 +3,6 @@ console.log('Shopify try-on widget script started');
 (function() {
   console.log('Shopify try-on widget script started');
 
-  let currentProductImage, currentProductTitle;
-
   // Function to determine if we're on a product page
   function isProductPage() {
     return !!document.querySelector('.product-single__title, .product__title, h1.title');
@@ -443,9 +441,12 @@ console.log('Shopify try-on widget script started');
 
     // Add subtext
     const sectionSubtext = document.createElement('p');
-    sectionSubtext.id = 'sectionSubtext';
-    sectionSubtext.style.marginTop = '10px';
-    sectionSubtext.style.marginBottom = '10px';
+    sectionSubtext.className = 'section-header__subtext';
+    sectionSubtext.textContent = 'Upload a photo and see how this item looks on you, no dressing room required.';
+    sectionSubtext.style.textAlign = 'center';
+    sectionSubtext.style.marginBottom = '20px';
+    sectionSubtext.style.fontSize = '0.9em';
+    sectionSubtext.style.color = '#666';
 
     // Append the title and subtext to the widget section
     widgetSection.appendChild(sectionTitle);
@@ -617,9 +618,9 @@ console.log('Shopify try-on widget script started');
     tryItOnButton.style.marginTop = '10px';
     tryItOnButton.disabled = true; // Initially disabled
     tryItOnButton.addEventListener('click', () => {
-      if (!currentProductImage) {
+      if (!productImage) {
         console.error('Product image not found. Unable to proceed with try-on.');
-        displayResult('Error: Unable to detect the product image. This may be due to your theme structure. Please contact support for assistance.');
+        displayResult('Error: Product image not found. Please refresh the page or contact support.');
         return;
       }
 
@@ -630,8 +631,8 @@ console.log('Shopify try-on widget script started');
         return;
       }
 
-      displayInitialWaitingMessage();
-      callReplicateAPI(humanImg, currentProductTitle);
+      displayInitialWaitingMessage(); // Move this here
+      callReplicateAPI(productImage, humanImg, productTitle);
     });
 
     uploadSection.appendChild(uploadBox);
@@ -728,14 +729,14 @@ console.log('Shopify try-on widget script started');
     }
 
     // Function to call Replicate API
-    async function callReplicateAPI(humanImg, productTitle) {
+    async function callReplicateAPI(garmImg, humanImg, garmentDes) {
       console.log('Calling Replicate API...');
-      console.log('Garment Image:', currentProductImage);
+      console.log('Garment Image:', garmImg);
       console.log('Human Image:', humanImg.substring(0, 50) + '...');
-      console.log('Garment Description:', productTitle);
+      console.log('Garment Description:', JSON.stringify(garmentDes));
       
       try {
-        const garmImgUrl = currentProductImage.startsWith('data:') ? currentProductImage : new URL(currentProductImage, window.location.origin).href;
+        const garmImgUrl = garmImg.startsWith('data:') ? garmImg : new URL(garmImg, window.location.origin).href;
         const humanImgUrl = humanImg.startsWith('data:') ? humanImg : new URL(humanImg, window.location.origin).href;
 
         const response = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
@@ -746,7 +747,7 @@ console.log('Shopify try-on widget script started');
           body: JSON.stringify({ 
             garm_img: garmImgUrl, 
             human_img: humanImgUrl, 
-            garment_des: productTitle 
+            garment_des: garmentDes 
           }),
         });
 
@@ -759,7 +760,7 @@ console.log('Shopify try-on widget script started');
 
         if (data.status === 'processing') {
           console.log('Starting polling for job:', data.jobId);
-          storeJobInformation(data.jobId, currentProductImage, productTitle, window.location.href);
+          storeJobInformation(data.jobId, garmImg, garmentDes, window.location.href);
           pollJobStatus(data.jobId);
         } else {
           console.error('Unexpected response from API:', data);
@@ -965,6 +966,34 @@ console.log('Shopify try-on widget script started');
       }
     }
 
+    function createLightbox(imageSrc) {
+      const lightbox = document.createElement('div');
+      lightbox.style.position = 'fixed';
+      lightbox.style.top = '0';
+      lightbox.style.left = '0';
+      lightbox.style.width = '100%';
+      lightbox.style.height = '100%';
+      lightbox.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+      lightbox.style.display = 'flex';
+      lightbox.style.alignItems = 'center';
+      lightbox.style.justifyContent = 'center';
+      lightbox.style.zIndex = '9999';
+
+      const img = document.createElement('img');
+      img.src = imageSrc;
+      img.style.maxWidth = '90%';
+      img.style.maxHeight = '90%';
+      img.style.objectFit = 'contain';
+
+      lightbox.appendChild(img);
+
+      lightbox.addEventListener('click', () => {
+        document.body.removeChild(lightbox);
+      });
+
+      document.body.appendChild(lightbox);
+    }
+
     function displayInitialWaitingMessage() {
       const resultImage = document.getElementById('resultImage');
       const resultContainer = document.getElementById('resultContainer');
@@ -997,145 +1026,6 @@ console.log('Shopify try-on widget script started');
     }
 
     console.log('Try-on widget fully initialized');
-
-    // Function to update product image and title based on selected variant
-    function updateProductInfo(variant) {
-      console.log('updateProductInfo called with variant:', variant);
-      
-      // Try to get the image from the variant
-      if (variant && variant.featured_image) {
-        currentProductImage = variant.featured_image.src;
-      } else {
-        // If not found in variant, try various selectors to find the product image
-        const imageSelectors = [
-          '.product__image img',
-          '.product-single__image img',
-          '.product-featured-img',
-          '[data-product-featured-image]',
-          '.product__img',
-          '.product-image-main img',
-          '#ProductPhotoImg',
-          '.product-single__photo img'
-        ];
-
-        for (let selector of imageSelectors) {
-          const productImageElement = document.querySelector(selector);
-          if (productImageElement) {
-            currentProductImage = productImageElement.src || productImageElement.dataset.src;
-            if (currentProductImage) break;
-          }
-        }
-
-        // If still not found, try to find any image within the product container
-        if (!currentProductImage) {
-          const productContainer = document.querySelector('.product, .product-single, #product-container');
-          if (productContainer) {
-            const anyProductImage = productContainer.querySelector('img');
-            if (anyProductImage) {
-              currentProductImage = anyProductImage.src || anyProductImage.dataset.src;
-            }
-          }
-        }
-      }
-
-      console.log('Updated product image:', currentProductImage);
-
-      if (variant && variant.title) {
-        currentProductTitle = `${productTitleElement.textContent.trim()} - ${variant.title}`;
-      } else {
-        currentProductTitle = productTitleElement.textContent.trim();
-      }
-      console.log('Updated product title:', currentProductTitle);
-    }
-
-    // Function to get the current variant
-    function getCurrentVariant() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const variantId = urlParams.get('variant');
-      
-      if (variantId) {
-        const productJson = document.querySelector('[data-product-json]');
-        if (productJson) {
-          const productData = JSON.parse(productJson.textContent);
-          return productData.variants.find(v => v.id.toString() === variantId);
-        }
-      }
-      
-      return null;
-    }
-
-    // Add event listeners for variant changes
-    document.addEventListener('variant:changed', function(event) {
-      console.log('variant:changed event fired', event);
-      const variant = event.detail.variant;
-      updateProductInfo(variant);
-      updateSubtext(variant);
-    });
-
-    document.addEventListener('variantChange', function(event) {
-      console.log('variantChange event fired', event);
-      const variant = event.detail.variant;
-      updateProductInfo(variant);
-      updateSubtext(variant);
-    });
-
-    // Add a new event listener for click events on variant selectors
-    document.addEventListener('click', function(event) {
-      if (event.target.matches('.single-option-selector, .swatch-element, .color-swatch')) {
-        setTimeout(() => {
-          const variant = getCurrentVariant();
-          if (variant) {
-            updateProductInfo(variant);
-            updateSubtext(variant);
-          }
-        }, 100); // Small delay to ensure variant is updated
-      }
-    });
-
-    // Some themes might update the URL when a variant is selected
-    window.addEventListener('popstate', function() {
-      console.log('popstate event fired');
-      const variant = getCurrentVariant();
-      if (variant) {
-        updateProductInfo(variant);
-        updateSubtext(variant);
-      }
-    });
-
-    // Initial update with the current variant
-    let initialVariant = getCurrentVariant();
-    if (!initialVariant) {
-      // Try different methods to get product data
-      let productData;
-      const productJson = document.querySelector('[data-product-json]');
-      if (productJson) {
-        productData = JSON.parse(productJson.textContent);
-      } else {
-        // Try to find product data in the global window object
-        productData = window.product || window.Product || window.ProductJson;
-      }
-
-      if (productData && productData.variants) {
-        initialVariant = productData.variants[0];
-      }
-    }
-
-    if (initialVariant) {
-      updateProductInfo(initialVariant);
-      updateSubtext(initialVariant);
-    } else {
-      console.warn('Unable to find product data. Some features may not work correctly.');
-    }
-
-    // Function to update subtext based on selected variant
-    function updateSubtext(variant) {
-      const variantTitle = variant ? variant.title : '';
-      const fullProductTitle = `${productTitle} in ${variantTitle}`;
-      sectionSubtext.textContent = `Upload a photo and see how this ${fullProductTitle} looks on you, no dressing room required.`;
-    }
-
-    // Add this where you're appending other elements to the widget container
-    widgetContainer.appendChild(sectionSubtext);
   }
 
   // Start the global status checker on all pages
