@@ -631,7 +631,7 @@ console.log('Shopify try-on widget script started');
       }
 
       displayInitialWaitingMessage();
-      callReplicateAPI(humanImg);
+      callReplicateAPI(humanImg, currentProductTitle);
     });
 
     uploadSection.appendChild(uploadBox);
@@ -728,11 +728,11 @@ console.log('Shopify try-on widget script started');
     }
 
     // Function to call Replicate API
-    async function callReplicateAPI(humanImg) {
+    async function callReplicateAPI(humanImg, productTitle) {
       console.log('Calling Replicate API...');
       console.log('Garment Image:', currentProductImage);
       console.log('Human Image:', humanImg.substring(0, 50) + '...');
-      console.log('Garment Description:', currentProductTitle);
+      console.log('Garment Description:', productTitle);
       
       try {
         const garmImgUrl = currentProductImage.startsWith('data:') ? currentProductImage : new URL(currentProductImage, window.location.origin).href;
@@ -746,7 +746,7 @@ console.log('Shopify try-on widget script started');
           body: JSON.stringify({ 
             garm_img: garmImgUrl, 
             human_img: humanImgUrl, 
-            garment_des: currentProductTitle 
+            garment_des: productTitle 
           }),
         });
 
@@ -759,7 +759,7 @@ console.log('Shopify try-on widget script started');
 
         if (data.status === 'processing') {
           console.log('Starting polling for job:', data.jobId);
-          storeJobInformation(data.jobId, currentProductImage, currentProductTitle, window.location.href);
+          storeJobInformation(data.jobId, currentProductImage, productTitle, window.location.href);
           pollJobStatus(data.jobId);
         } else {
           console.error('Unexpected response from API:', data);
@@ -1031,12 +1031,21 @@ console.log('Shopify try-on widget script started');
       console.log('updateProductInfo called with variant:', variant);
       if (variant && variant.featured_image) {
         currentProductImage = variant.featured_image.src;
-        console.log('Updated product image:', currentProductImage);
+      } else {
+        // Fallback to find product image
+        const productImage = document.querySelector('.product__image, .product-single__image, .product-featured-img');
+        if (productImage) {
+          currentProductImage = productImage.src || productImage.dataset.src;
+        }
       }
+      console.log('Updated product image:', currentProductImage);
+
       if (variant && variant.title) {
         currentProductTitle = `${productTitleElement.textContent.trim()} - ${variant.title}`;
-        console.log('Updated product title:', currentProductTitle);
+      } else {
+        currentProductTitle = productTitleElement.textContent.trim();
       }
+      console.log('Updated product title:', currentProductTitle);
     }
 
     // Function to get the current variant
@@ -1094,23 +1103,28 @@ console.log('Shopify try-on widget script started');
     });
 
     // Initial update with the current variant
-    const initialVariant = getCurrentVariant();
+    let initialVariant = getCurrentVariant();
+    if (!initialVariant) {
+      // Try different methods to get product data
+      let productData;
+      const productJson = document.querySelector('[data-product-json]');
+      if (productJson) {
+        productData = JSON.parse(productJson.textContent);
+      } else {
+        // Try to find product data in the global window object
+        productData = window.product || window.Product || window.ProductJson;
+      }
+
+      if (productData && productData.variants) {
+        initialVariant = productData.variants[0];
+      }
+    }
+
     if (initialVariant) {
       updateProductInfo(initialVariant);
       updateSubtext(initialVariant);
     } else {
-      // If no variant is selected, try to get the first available variant
-      const productJson = document.querySelector('[data-product-json]');
-      if (productJson) {
-        const productData = JSON.parse(productJson.textContent);
-        const firstVariant = productData.variants[0];
-        if (firstVariant) {
-          updateProductInfo(firstVariant);
-          updateSubtext(firstVariant);
-        }
-      } else {
-        console.error('Unable to find product JSON data');
-      }
+      console.warn('Unable to find product data. Some features may not work correctly.');
     }
 
     // Function to update subtext based on selected variant
