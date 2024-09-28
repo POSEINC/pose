@@ -375,6 +375,9 @@ console.log('Shopify try-on widget script started');
     return null; // No color variant found
   }
 
+  // Make the function globally accessible
+  window.getSelectedColorVariant = getSelectedColorVariant;
+
   // Only proceed with product-specific code if we're on a product page
   if (isProductPage()) {
     // Move imagePreview declaration to the top
