@@ -1062,6 +1062,26 @@ console.log('Shopify try-on widget script started');
     }
 
     console.log('Try-on widget fully initialized');
+
+    // Set up MutationObserver to watch for changes in color variant
+    const colorVariantObserver = new MutationObserver(() => {
+      const newColorVariant = getSelectedColorVariant();
+      if (newColorVariant) {
+        sectionSubtext.textContent = `Upload a photo and see how ${productTitle} in ${newColorVariant} looks on you, no dressing room required.`;
+      }
+    });
+
+    // Try to find the product form or a larger product container
+    const productForm = document.querySelector('form[action="/cart/add"]');
+    const productContainer = document.querySelector('.product, .product-single, #product-container');
+
+    if (productForm) {
+      colorVariantObserver.observe(productForm, { subtree: true, attributes: true, childList: true });
+    } else if (productContainer) {
+      colorVariantObserver.observe(productContainer, { subtree: true, attributes: true, childList: true });
+    } else {
+      console.warn('Could not find product form or container to observe for color changes');
+    }
   }
 
   // Start the global status checker on all pages
