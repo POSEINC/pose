@@ -10,12 +10,14 @@ console.log('Shopify try-on widget script started');
 
   // Function to store job information
   function storeJobInformation(jobId, productImage, productTitle, productUrl, colorVariant) {
+    const priceElement = document.querySelector('.price__regular .price-item--regular');
     const jobInfo = {
       jobId: jobId,
       productImage: productImage,
       productTitle: productTitle,
       productUrl: productUrl,
       colorVariant: colorVariant,
+      price: priceElement ? priceElement.textContent.trim() : 'N/A',
       status: 'processing',
       timestamp: Date.now(),
       notified: false
@@ -142,12 +144,13 @@ console.log('Shopify try-on widget script started');
       imageContainer.appendChild(expandIcon);
       notification.appendChild(imageContainer);
 
-      // Add product summary
+      // Update product summary
+      const jobInfo = getStoredJobInformation();
       const productSummary = document.createElement('div');
       productSummary.style.marginBottom = '10px';
       productSummary.innerHTML = `
-        <p style="margin: 0;">Price: $XX.XX</p>
-        <p style="margin: 0;">Color: Selected Color</p>
+        <p style="margin: 0;">Price: ${jobInfo.price || 'N/A'}</p>
+        <p style="margin: 0;">Color: ${jobInfo.colorVariant || 'N/A'}</p>
       `;
       notification.appendChild(productSummary);
 
