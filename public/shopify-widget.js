@@ -350,7 +350,6 @@ console.log('Shopify try-on widget script started');
   }
 
   function getSelectedColorVariant() {
-    // Common selectors for color variant elements
     const colorSelectors = [
       'select[name="Color"]',
       'input[name="Color"]:checked',
@@ -362,13 +361,18 @@ console.log('Shopify try-on widget script started');
     for (let selector of colorSelectors) {
       const element = document.querySelector(selector);
       if (element) {
+        let color, imageUrl;
         if (element.tagName === 'SELECT') {
-          return element.value;
+          color = element.value;
+          imageUrl = element.querySelector(`option[value="${color}"]`)?.dataset.imageUrl;
         } else if (element.tagName === 'INPUT') {
-          return element.value;
+          color = element.value;
+          imageUrl = element.dataset.imageUrl;
         } else {
-          return element.getAttribute('data-value') || element.title;
+          color = element.getAttribute('data-value') || element.title;
+          imageUrl = element.dataset.imageUrl;
         }
+        return { color, imageUrl };
       }
     }
 
@@ -477,7 +481,7 @@ console.log('Shopify try-on widget script started');
     const sectionSubtext = document.createElement('p');
     sectionSubtext.className = 'section-header__subtext';
     sectionSubtext.textContent = colorVariant
-      ? `Upload a photo and see how ${productTitle} in ${colorVariant} looks on you, no dressing room required.`
+      ? `Upload a photo and see how ${productTitle} in ${colorVariant.color} looks on you, no dressing room required.`
       : `Upload a photo and see how ${productTitle} looks on you, no dressing room required.`;
     sectionSubtext.style.textAlign = 'center';
     sectionSubtext.style.marginBottom = '20px';
@@ -668,7 +672,7 @@ console.log('Shopify try-on widget script started');
       }
 
       displayInitialWaitingMessage(); // Move this here
-      callReplicateAPI(productImage, humanImg, productTitle);
+      callReplicateAPI(humanImg, productTitle);
     });
 
     uploadSection.appendChild(uploadBox);
@@ -765,14 +769,14 @@ console.log('Shopify try-on widget script started');
     }
 
     // Function to call Replicate API
-    async function callReplicateAPI(garmImg, humanImg, garmentDes) {
+    async function callReplicateAPI(humanImg, garmentDes) {
       console.log('Calling Replicate API...');
-      console.log('Garment Image:', garmImg);
+      console.log('Garment Image:', productImage);
       console.log('Human Image:', humanImg.substring(0, 50) + '...');
       console.log('Garment Description:', JSON.stringify(garmentDes));
       
       try {
-        const garmImgUrl = garmImg.startsWith('data:') ? garmImg : new URL(garmImg, window.location.origin).href;
+        const garmImgUrl = productImage.startsWith('data:') ? productImage : new URL(productImage, window.location.origin).href;
         const humanImgUrl = humanImg.startsWith('data:') ? humanImg : new URL(humanImg, window.location.origin).href;
 
         const response = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
@@ -796,7 +800,7 @@ console.log('Shopify try-on widget script started');
 
         if (data.status === 'processing') {
           console.log('Starting polling for job:', data.jobId);
-          storeJobInformation(data.jobId, garmImg, garmentDes, window.location.href);
+          storeJobInformation(data.jobId, productImage, garmentDes, window.location.href);
           pollJobStatus(data.jobId);
         } else {
           console.error('Unexpected response from API:', data);
@@ -1067,7 +1071,13 @@ console.log('Shopify try-on widget script started');
     const colorVariantObserver = new MutationObserver(() => {
       const newColorVariant = getSelectedColorVariant();
       if (newColorVariant) {
-        sectionSubtext.textContent = `Upload a photo and see how ${productTitle} in ${newColorVariant} looks on you, no dressing room required.`;
+        sectionSubtext.textContent = `Upload a photo and see how ${productTitle} in ${newColorVariant.color} looks on you, no dressing room required.`;
+        
+        // Update the product image
+        if (newColorVariant.imageUrl) {
+          productImage = newColorVariant.imageUrl;
+          console.log('Updated product image:', productImage);
+        }
       }
     });
 
