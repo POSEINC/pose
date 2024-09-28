@@ -1153,7 +1153,7 @@ console.log('Shopify try-on widget script started');
 
     // Call setupVariantObserver after the widget is initialized
     setupVariantObserver();
-    console.log('Current color variant:', getSelectedcolorVariant());
+    console.log('Current color variant:', getSelectedColorVariant());
     console.log('Current size variant:', getSelectedSizeVariant());
   }
 
