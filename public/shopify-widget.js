@@ -741,6 +741,7 @@ console.log('Shopify try-on widget script started');
     tryItOnButton.className = 'btn';
     tryItOnButton.style.marginTop = '10px';
     tryItOnButton.disabled = true; // Initially disabled
+
     tryItOnButton.addEventListener('click', () => {
       if (!productImage) {
         console.error('Product image not found. Unable to proceed with try-on.');
@@ -755,7 +756,7 @@ console.log('Shopify try-on widget script started');
         return;
       }
 
-      displayInitialWaitingMessage(); // Move this here
+      displayInitialWaitingMessage();
       callReplicateAPI(humanImg, productTitle);
     });
 
@@ -855,12 +856,12 @@ console.log('Shopify try-on widget script started');
     // Function to call Replicate API
     async function callReplicateAPI(humanImg, garmentDes) {
       console.log('Calling Replicate API...');
-      console.log('Garment Image:', productImage);
+      console.log('Garment Image:', productImage); // This will now use the updated productImage
       console.log('Human Image:', humanImg.substring(0, 50) + '...');
       console.log('Garment Description:', JSON.stringify(garmentDes));
       
       try {
-        const garmImgUrl = productImage.startsWith('data:') ? productImage : new URL(productImage, window.location.origin).href;
+        const garmImgUrl = productImage.startsWith('//') ? 'https:' + productImage : productImage;
         const humanImgUrl = humanImg.startsWith('data:') ? humanImg : new URL(humanImg, window.location.origin).href;
 
         const response = await fetch('https://shopify-virtual-tryon-app.vercel.app/api/try-on', {
