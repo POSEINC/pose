@@ -361,26 +361,44 @@ console.log('Shopify try-on widget script started');
     for (let selector of colorSelectors) {
       const element = document.querySelector(selector);
       if (element) {
-        let color, imageUrl;
         if (element.tagName === 'SELECT') {
-          color = element.value;
-          imageUrl = element.querySelector(`option[value="${color}"]`)?.dataset.imageUrl;
+          return element.value;
         } else if (element.tagName === 'INPUT') {
-          color = element.value;
-          imageUrl = element.dataset.imageUrl;
+          return element.value;
         } else {
-          color = element.getAttribute('data-value') || element.title;
-          imageUrl = element.dataset.imageUrl;
+          return element.getAttribute('data-value') || element.title;
         }
-        return { color, imageUrl };
       }
     }
 
     return null; // No color variant found
   }
 
-  // Make the function globally accessible
+  // Add this new function
+  function getSelectedVariantImageUrl() {
+    const selectedColor = getSelectedColorVariant();
+    if (!selectedColor) return null;
+
+    const variantDataScript = document.querySelector('variant-radios script');
+    
+    if (variantDataScript) {
+      try {
+        const variantData = JSON.parse(variantDataScript.textContent);
+        const selectedVariant = variantData.find(v => v.title === selectedColor);
+        if (selectedVariant && selectedVariant.featured_image) {
+          return selectedVariant.featured_image.src;
+        }
+      } catch (e) {
+        console.error('Error parsing variant data:', e);
+      }
+    }
+
+    return null;
+  }
+
+  // Make both functions globally accessible for testing
   window.getSelectedColorVariant = getSelectedColorVariant;
+  window.getSelectedVariantImageUrl = getSelectedVariantImageUrl;
 
   // Only proceed with product-specific code if we're on a product page
   if (isProductPage()) {
@@ -481,7 +499,7 @@ console.log('Shopify try-on widget script started');
     const sectionSubtext = document.createElement('p');
     sectionSubtext.className = 'section-header__subtext';
     sectionSubtext.textContent = colorVariant
-      ? `Upload a photo and see how ${productTitle} in ${colorVariant.color} looks on you, no dressing room required.`
+      ? `Upload a photo and see how ${productTitle} in ${colorVariant} looks on you, no dressing room required.`
       : `Upload a photo and see how ${productTitle} looks on you, no dressing room required.`;
     sectionSubtext.style.textAlign = 'center';
     sectionSubtext.style.marginBottom = '20px';
@@ -1067,15 +1085,16 @@ console.log('Shopify try-on widget script started');
 
     console.log('Try-on widget fully initialized');
 
-    // Set up MutationObserver to watch for changes in color variant
+    // Update the MutationObserver
     const colorVariantObserver = new MutationObserver(() => {
-      const newColorVariant = getSelectedColorVariant();
-      if (newColorVariant) {
-        sectionSubtext.textContent = `Upload a photo and see how ${productTitle} in ${newColorVariant.color} looks on you, no dressing room required.`;
+      const newColor = getSelectedColorVariant();
+      if (newColor) {
+        sectionSubtext.textContent = `Upload a photo and see how ${productTitle} in ${newColor} looks on you, no dressing room required.`;
         
         // Update the product image
-        if (newColorVariant.imageUrl) {
-          productImage = newColorVariant.imageUrl;
+        const newImageUrl = getSelectedVariantImageUrl();
+        if (newImageUrl) {
+          productImage = newImageUrl;
           console.log('Updated product image:', productImage);
         }
       }
