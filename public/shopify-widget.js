@@ -349,6 +349,32 @@ console.log('Shopify try-on widget script started');
     }
   }
 
+  function getSelectedColorVariant() {
+    // Common selectors for color variant elements
+    const colorSelectors = [
+      'select[name="Color"]',
+      'input[name="Color"]:checked',
+      '.swatch-element.color input:checked',
+      '.color-swatch.active',
+      '.color-swatch--selected'
+    ];
+
+    for (let selector of colorSelectors) {
+      const element = document.querySelector(selector);
+      if (element) {
+        if (element.tagName === 'SELECT') {
+          return element.value;
+        } else if (element.tagName === 'INPUT') {
+          return element.value;
+        } else {
+          return element.getAttribute('data-value') || element.title;
+        }
+      }
+    }
+
+    return null; // No color variant found
+  }
+
   // Only proceed with product-specific code if we're on a product page
   if (isProductPage()) {
     // Move imagePreview declaration to the top
