@@ -377,28 +377,9 @@ console.log('Shopify try-on widget script started');
   // Add this new function
   function getSelectedVariantImageUrl() {
     const selectedColor = getSelectedColorVariant();
-    const selectedSize = getSelectedSizeVariant(); // New function to get selected size
     
-    const variantDataScript = document.querySelector('script[type="application/json"]');
-    
-    if (variantDataScript) {
-      try {
-        const productData = JSON.parse(variantDataScript.textContent);
-        const selectedVariant = productData.variants.find(v => 
-          v.option1 === selectedColor && v.option2 === selectedSize
-        );
-        
-        if (selectedVariant && selectedVariant.featured_image) {
-          return selectedVariant.featured_image.src;
-        } else if (productData.images && productData.images.length > 0) {
-          return productData.images[0]; // Return first image if no specific variant image
-        }
-      } catch (e) {
-        console.error('Error parsing variant data:', e);
-      }
-    }
-
-    return null;
+    // Look for variant data in different possible locations
+    const variantDataScript = document.querySelector('script[type="application/json"][data-product
   }
 
   function getSelectedSizeVariant() {
@@ -1118,11 +1099,9 @@ console.log('Shopify try-on widget script started');
     // Update the MutationObserver
     const variantObserver = new MutationObserver(() => {
       const newColor = getSelectedColorVariant();
-      const newSize = getSelectedSizeVariant();
-      if (newColor || newSize) {
+      if (newColor) {
         let subtext = `Upload a photo and see how ${productTitle}`;
         if (newColor) subtext += ` in ${newColor}`;
-        if (newSize) subtext += ` size ${newSize}`;
         subtext += ` looks on you, no dressing room required.`;
         sectionSubtext.textContent = subtext;
         
@@ -1135,7 +1114,6 @@ console.log('Shopify try-on widget script started');
 
         // Add these console logs for testing
         console.log('Selected Color:', newColor);
-        console.log('Selected Size:', newSize);
         console.log('Selected Variant Image URL:', newImageUrl);
       }
     });
