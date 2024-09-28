@@ -9,12 +9,13 @@ console.log('Shopify try-on widget script started');
   }
 
   // Function to store job information
-  function storeJobInformation(jobId, productImage, productTitle, productUrl) {
+  function storeJobInformation(jobId, productImage, productTitle, productUrl, colorVariant) {
     const jobInfo = {
       jobId: jobId,
       productImage: productImage,
       productTitle: productTitle,
       productUrl: productUrl,
+      colorVariant: colorVariant,
       status: 'processing',
       timestamp: Date.now(),
       notified: false
@@ -219,7 +220,7 @@ console.log('Shopify try-on widget script started');
     const notificationClosed = localStorage.getItem('notificationClosed') === 'true';
     
     if (jobInfo && jobInfo.status === 'processing') {
-      const customMessage = `Trying on ${productTitle} in ${getSelectedColorVariant() || 'selected color'}`;
+      const customMessage = `Trying on ${jobInfo.productTitle} in ${jobInfo.colorVariant || 'selected color'}`;
       updateStatusIndicator('processing', customMessage);
     } else if (jobInfo && jobInfo.status === 'completed' && !notificationClosed && !document.getElementById('try-on-notification')) {
       showNotification('Look how great you look!', jobInfo.output);
@@ -231,7 +232,7 @@ console.log('Shopify try-on widget script started');
       console.log('Checking stored job information:', jobInfo);
       if (jobInfo && jobInfo.status === 'processing') {
         console.log('Found processing job, checking status');
-        const customMessage = `Trying on ${productTitle} in ${getSelectedColorVariant() || 'selected color'}`;
+        const customMessage = `Trying on ${jobInfo.productTitle} in ${jobInfo.colorVariant || 'selected color'}`;
         updateStatusIndicator('processing', customMessage);
         checkJobStatus(jobInfo.jobId);
       } else if (jobInfo && jobInfo.status === 'completed' && !notificationClosed && !document.getElementById('try-on-notification')) {
@@ -891,7 +892,7 @@ console.log('Shopify try-on widget script started');
 
         if (data.status === 'processing') {
           console.log('Starting polling for job:', data.jobId);
-          storeJobInformation(data.jobId, productImage, garmentDes, window.location.href);
+          storeJobInformation(data.jobId, currentProductImage, productTitle, window.location.href, getSelectedColorVariant());
           pollJobStatus(data.jobId);
         } else {
           console.error('Unexpected response from API:', data);
