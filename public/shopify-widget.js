@@ -431,8 +431,11 @@ console.log('Shopify try-on widget script started');
     // Get the product title
     const productTitleElement = document.querySelector('.product-single__title, .product__title, h1.title');
     if (productTitleElement) {
-      productTitle = productTitleElement.textContent.trim();
+      productTitle = productTitleElement.textContent.trim().split('\n')[0]; // Take only the first line
     }
+
+    // Get the section subtext element
+    const sectionSubtext = document.querySelector('.section-header__subtext');
 
     variantObserver = new MutationObserver(() => {
       const newColor = getSelectedColorVariant();
@@ -443,7 +446,7 @@ console.log('Shopify try-on widget script started');
       console.log('Selected Size:', newSize);
       console.log('Updated product image:', newImageUrl);
 
-      if (newColor) {
+      if (newColor && sectionSubtext) {
         let subtext = `Upload a photo and see how ${productTitle} in ${newColor} looks on you, no dressing room required.`;
         sectionSubtext.textContent = subtext;
         
