@@ -443,7 +443,7 @@ console.log('Shopify try-on widget script started');
         sectionSubtext.textContent = subtext;
         
         if (newImageUrl) {
-          productImage = newImageUrl;
+          productImage = newImageUrl; // Update the productImage variable
         }
       }
     });
