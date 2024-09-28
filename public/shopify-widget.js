@@ -426,12 +426,6 @@ console.log('Shopify try-on widget script started');
   let productTitle = ''; // Declare productTitle at this scope
 
   function setupVariantObserver() {
-    // Get the product title
-    const productTitleElement = document.querySelector('.product-single__title, .product__title, h1.title');
-    if (productTitleElement) {
-      productTitle = productTitleElement.textContent.trim();
-    }
-
     // Get the section subtext element
     const sectionSubtext = document.querySelector('.section-header__subtext');
 
