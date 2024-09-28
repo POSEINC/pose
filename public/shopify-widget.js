@@ -378,6 +378,11 @@ console.log('Shopify try-on widget script started');
         .replace(/\s+/g, ' ')
         // Trim leading and trailing whitespace
         .trim();
+      
+      // Remove any duplicate occurrences of the title
+      const titleParts = productTitle.split(' ');
+      const uniqueParts = [...new Set(titleParts)];
+      productTitle = uniqueParts.join(' ');
     }
 
     // If we still don't have a title, use a default
