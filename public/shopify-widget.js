@@ -445,7 +445,7 @@ console.log('Shopify try-on widget script started');
     // Add subtext
     const sectionSubtext = document.createElement('p');
     sectionSubtext.className = 'section-header__subtext';
-    sectionSubtext.textContent = 'Upload a photo and see how this item looks on you, no dressing room required.';
+    sectionSubtext.textContent = `Upload a photo and see how ${productTitle} looks on you, no dressing room required.`;
     sectionSubtext.style.textAlign = 'center';
     sectionSubtext.style.marginBottom = '20px';
     sectionSubtext.style.fontSize = '0.9em';
