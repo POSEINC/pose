@@ -379,7 +379,14 @@ console.log('Shopify try-on widget script started');
     const selectedColor = getSelectedColorVariant();
     
     // Look for variant data in different possible locations
-    const variantDataScript = document.querySelector('script[type="application/json"][data-product
+    const variantDataScript = document.querySelector('script[type="application/json"][data-product]');
+    if (variantDataScript) {
+      try {
+        const productData = JSON.parse(variantDataScript.textContent);
+        const selectedVariant = productData.variants.find(v => 
+          v.option1 === selectedColor
+        );
+        
   }
 
   function getSelectedSizeVariant() {
