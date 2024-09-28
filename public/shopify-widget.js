@@ -619,7 +619,7 @@ console.log('Shopify try-on widget script started');
     tryItOnButton.addEventListener('click', () => {
       if (!currentProductImage) {
         console.error('Product image not found. Unable to proceed with try-on.');
-        displayResult('Error: Product image not found. Please refresh the page or contact support.');
+        displayResult('Error: Unable to detect the product image. This may be due to your theme structure. Please contact support for assistance.');
         return;
       }
 
@@ -965,34 +965,6 @@ console.log('Shopify try-on widget script started');
       }
     }
 
-    function createLightbox(imageSrc) {
-      const lightbox = document.createElement('div');
-      lightbox.style.position = 'fixed';
-      lightbox.style.top = '0';
-      lightbox.style.left = '0';
-      lightbox.style.width = '100%';
-      lightbox.style.height = '100%';
-      lightbox.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-      lightbox.style.display = 'flex';
-      lightbox.style.alignItems = 'center';
-      lightbox.style.justifyContent = 'center';
-      lightbox.style.zIndex = '9999';
-
-      const img = document.createElement('img');
-      img.src = imageSrc;
-      img.style.maxWidth = '90%';
-      img.style.maxHeight = '90%';
-      img.style.objectFit = 'contain';
-
-      lightbox.appendChild(img);
-
-      lightbox.addEventListener('click', () => {
-        document.body.removeChild(lightbox);
-      });
-
-      document.body.appendChild(lightbox);
-    }
-
     function displayInitialWaitingMessage() {
       const resultImage = document.getElementById('resultImage');
       const resultContainer = document.getElementById('resultContainer');
@@ -1029,15 +1001,43 @@ console.log('Shopify try-on widget script started');
     // Function to update product image and title based on selected variant
     function updateProductInfo(variant) {
       console.log('updateProductInfo called with variant:', variant);
+      
+      // Try to get the image from the variant
       if (variant && variant.featured_image) {
         currentProductImage = variant.featured_image.src;
       } else {
-        // Fallback to find product image
-        const productImage = document.querySelector('.product__image, .product-single__image, .product-featured-img');
-        if (productImage) {
-          currentProductImage = productImage.src || productImage.dataset.src;
+        // If not found in variant, try various selectors to find the product image
+        const imageSelectors = [
+          '.product__image img',
+          '.product-single__image img',
+          '.product-featured-img',
+          '[data-product-featured-image]',
+          '.product__img',
+          '.product-image-main img',
+          '#ProductPhotoImg',
+          '.product-single__photo img'
+        ];
+
+        for (let selector of imageSelectors) {
+          const productImageElement = document.querySelector(selector);
+          if (productImageElement) {
+            currentProductImage = productImageElement.src || productImageElement.dataset.src;
+            if (currentProductImage) break;
+          }
+        }
+
+        // If still not found, try to find any image within the product container
+        if (!currentProductImage) {
+          const productContainer = document.querySelector('.product, .product-single, #product-container');
+          if (productContainer) {
+            const anyProductImage = productContainer.querySelector('img');
+            if (anyProductImage) {
+              currentProductImage = anyProductImage.src || anyProductImage.dataset.src;
+            }
+          }
         }
       }
+
       console.log('Updated product image:', currentProductImage);
 
       if (variant && variant.title) {
