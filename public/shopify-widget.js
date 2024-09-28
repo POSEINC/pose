@@ -396,6 +396,29 @@ console.log('Shopify try-on widget script started');
     return null;
   }
 
+  // Add this new function
+  function getSelectedSizeVariant() {
+    const sizeSelectors = [
+      'select[name="Size"]',
+      'input[name="Size"]:checked',
+      '.swatch-element.size input:checked',
+      '.single-option-selector__radio[name*="Size"]:checked',
+      'select[name*="size"]',
+      // Add more selectors as needed based on common Shopify themes
+    ];
+
+    for (let selector of sizeSelectors) {
+      const element = document.querySelector(selector);
+      if (element) {
+        console.log('Size variant found:', element.value);
+        return element.value;
+      }
+    }
+
+    console.log('No size variant found');
+    return null; // No size variant found
+  }
+
   // Make both functions globally accessible for testing
   window.getSelectedColorVariant = getSelectedColorVariant;
   window.getSelectedVariantImageUrl = getSelectedVariantImageUrl;
@@ -1111,6 +1134,10 @@ console.log('Shopify try-on widget script started');
     } else {
       console.warn('Could not find product form or container to observe for color changes');
     }
+
+    // Add this somewhere in your existing code, perhaps near the end of your main function
+    // or in the MutationObserver callback
+    console.log('Current size variant:', getSelectedSizeVariant());
   }
 
   // Start the global status checker on all pages
