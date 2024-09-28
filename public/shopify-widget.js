@@ -411,12 +411,10 @@ console.log('Shopify try-on widget script started');
     for (let selector of sizeSelectors) {
       const element = document.querySelector(selector);
       if (element) {
-        console.log('Size variant found:', element.value);
         return element.value;
       }
     }
 
-    console.log('No size variant found');
     return null; // No size variant found
   }
 
@@ -431,7 +429,7 @@ console.log('Shopify try-on widget script started');
     // Get the product title
     const productTitleElement = document.querySelector('.product-single__title, .product__title, h1.title');
     if (productTitleElement) {
-      productTitle = productTitleElement.textContent.trim().split('\n')[0]; // Take only the first line
+      productTitle = productTitleElement.textContent.trim();
     }
 
     // Get the section subtext element
