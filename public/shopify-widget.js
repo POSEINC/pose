@@ -709,9 +709,9 @@ console.log('Shopify try-on widget script started');
     widgetSection.appendChild(widgetContainer);
 
     // Insert the widget section after the product form
-    const productForm = document.querySelector('.product-form');
-    if (productForm && productForm.parentNode) {
-      productForm.parentNode.insertBefore(widgetSection, productForm.nextSibling);
+    const productFormElement = document.querySelector('.product-form');
+    if (productFormElement && productFormElement.parentNode) {
+      productFormElement.parentNode.insertBefore(widgetSection, productFormElement.nextSibling);
       console.log('Try-on widget section inserted into DOM');
     } else {
       console.error('Could not find the product form');
