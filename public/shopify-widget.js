@@ -93,7 +93,7 @@ console.log('Shopify try-on widget script started');
     notification.style.borderRadius = '5px';
     notification.style.zIndex = '9999';
     notification.style.maxWidth = '300px';
-    notification.style.textAlign = 'center'; // Center all content
+    notification.style.textAlign = 'center';
 
     // Add message to notification
     const messageElement = document.createElement('p');
@@ -101,7 +101,7 @@ console.log('Shopify try-on widget script started');
     messageElement.style.margin = '0 0 10px 0';
     notification.appendChild(messageElement);
 
-    // If we have output, add the image and buttons to the notification
+    // If we have output, add the image and new elements to the notification
     if (output && typeof output === 'string' && output.startsWith('http')) {
       const imageContainer = document.createElement('div');
       imageContainer.style.position = 'relative';
@@ -142,35 +142,74 @@ console.log('Shopify try-on widget script started');
       imageContainer.appendChild(expandIcon);
       notification.appendChild(imageContainer);
 
+      // Add product summary
+      const productSummary = document.createElement('div');
+      productSummary.style.marginBottom = '10px';
+      productSummary.innerHTML = `
+        <p style="margin: 0;">Price: $XX.XX</p>
+        <p style="margin: 0;">Color: Selected Color</p>
+      `;
+      notification.appendChild(productSummary);
+
+      // Add size dropdown
+      const sizeDropdown = document.createElement('select');
+      sizeDropdown.style.marginBottom = '10px';
+      sizeDropdown.style.width = '100%';
+      sizeDropdown.style.padding = '5px';
+      sizeDropdown.innerHTML = `
+        <option value="">Select Size</option>
+        <option value="S">Small</option>
+        <option value="M">Medium</option>
+        <option value="L">Large</option>
+      `;
+      notification.appendChild(sizeDropdown);
+
       // Create button container
       const buttonContainer = document.createElement('div');
       buttonContainer.style.display = 'flex';
-      buttonContainer.style.justifyContent = 'center';
+      buttonContainer.style.justifyContent = 'space-between';
       buttonContainer.style.marginTop = '10px';
 
-      // Create "Save image" button
+      // Create "Add to Cart" button
+      const addToCartButton = document.createElement('button');
+      addToCartButton.textContent = 'Add to Cart';
+      addToCartButton.style.padding = '5px 10px';
+      addToCartButton.style.backgroundColor = '#4CAF50';
+      addToCartButton.style.color = 'white';
+      addToCartButton.style.border = 'none';
+      addToCartButton.style.borderRadius = '3px';
+      addToCartButton.style.cursor = 'pointer';
+      addToCartButton.style.flex = '2';
+      addToCartButton.style.marginRight = '5px';
+      addToCartButton.onclick = () => {
+        // Add to cart functionality will be implemented later
+        console.log('Add to cart clicked');
+      };
+
+      // Modify existing buttons
       const saveButton = document.createElement('button');
-      saveButton.textContent = 'Save image';
-      saveButton.style.marginRight = '10px';
+      saveButton.textContent = 'Save';
       saveButton.style.padding = '5px 10px';
-      saveButton.style.backgroundColor = '#4CAF50';
+      saveButton.style.backgroundColor = '#008CBA';
       saveButton.style.color = 'white';
       saveButton.style.border = 'none';
       saveButton.style.borderRadius = '3px';
       saveButton.style.cursor = 'pointer';
+      saveButton.style.flex = '1';
+      saveButton.style.marginRight = '5px';
       saveButton.onclick = () => {
         saveImage(output);
       };
 
-      // Create "View product page" button
       const viewProductButton = document.createElement('button');
-      viewProductButton.textContent = 'View product page';
+      viewProductButton.textContent = 'View';
       viewProductButton.style.padding = '5px 10px';
       viewProductButton.style.backgroundColor = '#008CBA';
       viewProductButton.style.color = 'white';
       viewProductButton.style.border = 'none';
       viewProductButton.style.borderRadius = '3px';
       viewProductButton.style.cursor = 'pointer';
+      viewProductButton.style.flex = '1';
       viewProductButton.onclick = () => {
         const jobInfo = getStoredJobInformation();
         if (jobInfo && jobInfo.productUrl) {
@@ -181,6 +220,7 @@ console.log('Shopify try-on widget script started');
       };
 
       // Add buttons to the container
+      buttonContainer.appendChild(addToCartButton);
       buttonContainer.appendChild(saveButton);
       buttonContainer.appendChild(viewProductButton);
 
