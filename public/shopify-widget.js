@@ -377,61 +377,23 @@ console.log('Shopify try-on widget script started');
   // Add this new function
   function getSelectedVariantImageUrl() {
     const selectedColor = getSelectedColorVariant();
-    
-    // Look for variant data in different possible locations
-    const variantDataScript = document.querySelector('script[type="application/json"][data-product-json], script#ProductJson-product-template');
+    if (!selectedColor) return null;
+
+    const variantDataScript = document.querySelector('variant-radios script');
     
     if (variantDataScript) {
       try {
-        const productData = JSON.parse(variantDataScript.textContent);
-        
-        // Check if we have a 'variants' array
-        if (productData.variants && Array.isArray(productData.variants)) {
-          const selectedVariant = productData.variants.find(v => 
-            v.option1 === selectedColor || v.option2 === selectedColor || v.option3 === selectedColor
-          );
-          
-          if (selectedVariant && selectedVariant.featured_image) {
-            return selectedVariant.featured_image.src;
-          }
-        }
-        
-        // If no specific variant image, return the first product image
-        if (productData.images && productData.images.length > 0) {
-          return productData.images[0];
+        const variantData = JSON.parse(variantDataScript.textContent);
+        const selectedVariant = variantData.find(v => v.title === selectedColor);
+        if (selectedVariant && selectedVariant.featured_image) {
+          return selectedVariant.featured_image.src;
         }
       } catch (e) {
         console.error('Error parsing variant data:', e);
       }
     }
 
-    // If we couldn't find or parse variant data, return the current product image
-    return productImage;
-  }
-
-  function getSelectedSizeVariant() {
-    const sizeSelectors = [
-      'select[name="Size"]',
-      'input[name="Size"]:checked',
-      '.swatch-element.size input:checked',
-      '.size-swatch.active',
-      '.size-swatch--selected'
-    ];
-
-    for (let selector of sizeSelectors) {
-      const element = document.querySelector(selector);
-      if (element) {
-        if (element.tagName === 'SELECT') {
-          return element.value;
-        } else if (element.tagName === 'INPUT') {
-          return element.value;
-        } else {
-          return element.getAttribute('data-value') || element.title;
-        }
-      }
-    }
-
-    return null; // No size variant found
+    return null;
   }
 
   // Make both functions globally accessible for testing
@@ -1124,13 +1086,10 @@ console.log('Shopify try-on widget script started');
     console.log('Try-on widget fully initialized');
 
     // Update the MutationObserver
-    const variantObserver = new MutationObserver(() => {
+    const colorVariantObserver = new MutationObserver(() => {
       const newColor = getSelectedColorVariant();
       if (newColor) {
-        let subtext = `Upload a photo and see how ${productTitle}`;
-        if (newColor) subtext += ` in ${newColor}`;
-        subtext += ` looks on you, no dressing room required.`;
-        sectionSubtext.textContent = subtext;
+        sectionSubtext.textContent = `Upload a photo and see how ${productTitle} in ${newColor} looks on you, no dressing room required.`;
         
         // Update the product image
         const newImageUrl = getSelectedVariantImageUrl();
@@ -1138,10 +1097,6 @@ console.log('Shopify try-on widget script started');
           productImage = newImageUrl;
           console.log('Updated product image:', productImage);
         }
-
-        // Add these console logs for testing
-        console.log('Selected Color:', newColor);
-        console.log('Selected Variant Image URL:', newImageUrl);
       }
     });
 
@@ -1150,9 +1105,9 @@ console.log('Shopify try-on widget script started');
     const productContainer = document.querySelector('.product, .product-single, #product-container');
 
     if (productForm) {
-      variantObserver.observe(productForm, { subtree: true, attributes: true, childList: true });
+      colorVariantObserver.observe(productForm, { subtree: true, attributes: true, childList: true });
     } else if (productContainer) {
-      variantObserver.observe(productContainer, { subtree: true, attributes: true, childList: true });
+      colorVariantObserver.observe(productContainer, { subtree: true, attributes: true, childList: true });
     } else {
       console.warn('Could not find product form or container to observe for color changes');
     }
