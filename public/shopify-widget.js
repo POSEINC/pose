@@ -441,18 +441,14 @@ console.log('Shopify try-on widget script started');
 
       console.log('Selected Color:', newColor);
       console.log('Selected Size:', newSize);
-      console.log('Selected Variant Image URL:', newImageUrl);
+      console.log('Updated product image:', newImageUrl);
 
       if (newColor) {
         let subtext = `Upload a photo and see how ${productTitle} in ${newColor} looks on you, no dressing room required.`;
-        const sectionSubtext = document.querySelector('.section-header__subtext');
-        if (sectionSubtext) {
-          sectionSubtext.textContent = subtext;
-        }
+        sectionSubtext.textContent = subtext;
         
         if (newImageUrl) {
           productImage = newImageUrl;
-          console.log('Updated product image:', productImage);
         }
       }
     });
