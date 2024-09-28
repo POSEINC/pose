@@ -423,6 +423,48 @@ console.log('Shopify try-on widget script started');
   window.getSelectedColorVariant = getSelectedColorVariant;
   window.getSelectedVariantImageUrl = getSelectedVariantImageUrl;
 
+  let variantObserver; // Declare variantObserver at this scope
+
+  function setupVariantObserver() {
+    variantObserver = new MutationObserver(() => {
+      const newColor = getSelectedColorVariant();
+      const newSize = getSelectedSizeVariant();
+      const newImageUrl = getSelectedVariantImageUrl();
+
+      console.log('Selected Color:', newColor);
+      console.log('Selected Size:', newSize);
+      console.log('Selected Variant Image URL:', newImageUrl);
+
+      if (newColor) {
+        let subtext = `Upload a photo and see how ${productTitle} in ${newColor} looks on you, no dressing room required.`;
+        sectionSubtext.textContent = subtext;
+        
+        if (newImageUrl) {
+          productImage = newImageUrl;
+          console.log('Updated product image:', productImage);
+        }
+      }
+    });
+
+    const observeTargets = [
+      document.querySelector('form[action="/cart/add"]'),
+      document.querySelector('.product-single__variants'),
+      document.querySelector('.product__variants'),
+      document.querySelector('.product-form__variants')
+    ].filter(Boolean); // Remove any null elements
+
+    observeTargets.forEach(target => {
+      if (target) {
+        variantObserver.observe(target, { subtree: true, attributes: true, childList: true });
+      }
+    });
+
+    // If no targets found, log a warning
+    if (observeTargets.length === 0) {
+      console.warn('Could not find product form or variant selectors to observe');
+    }
+  }
+
   // Only proceed with product-specific code if we're on a product page
   if (isProductPage()) {
     // Move imagePreview declaration to the top
@@ -1108,27 +1150,9 @@ console.log('Shopify try-on widget script started');
 
     console.log('Try-on widget fully initialized');
 
-    // Update the MutationObserver
-    const observeTargets = [
-      document.querySelector('form[action="/cart/add"]'),
-      document.querySelector('.product-single__variants'),
-      document.querySelector('.product__variants'),
-      document.querySelector('.product-form__variants')
-    ].filter(Boolean); // Remove any null elements
+    // Call setupVariantObserver after the widget is initialized
+    setupVariantObserver();
 
-    observeTargets.forEach(target => {
-      if (target) {
-        variantObserver.observe(target, { subtree: true, attributes: true, childList: true });
-      }
-    });
-
-    // If no targets found, log a warning
-    if (observeTargets.length === 0) {
-      console.warn('Could not find product form or variant selectors to observe');
-    }
-
-    // Add this somewhere in your existing code, perhaps near the end of your main function
-    // or in the MutationObserver callback
     console.log('Current size variant:', getSelectedSizeVariant());
   }
 
