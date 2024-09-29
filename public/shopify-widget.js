@@ -617,6 +617,7 @@ console.log('Shopify try-on widget script started');
     sectionTitle.style.marginTop = '0'; // Remove top margin to align with upload box
     sectionTitle.style.marginBottom = '0px';
     sectionTitle.style.textAlign = 'center';
+    sectionTitle.style.fontSize = '24px'; // Add this line to set the font size
 
     // Add subtext
     const sectionSubtext = document.createElement('p');
