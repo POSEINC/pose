@@ -605,7 +605,7 @@ console.log('Shopify try-on widget script started');
     // Section title
     const sectionTitle = document.createElement('h2');
     sectionTitle.className = 'section-header__title';
-    sectionTitle.textContent = 'See Yourself Wearing It';
+    sectionTitle.textContent = 'See yourself wearing it';
     sectionTitle.style.textAlign = 'center';
     sectionTitle.style.marginBottom = '10px'; // Reduced margin to accommodate subtext
 
@@ -726,15 +726,16 @@ console.log('Shopify try-on widget script started');
     modalContent.style.border = '1px solid #888';
     modalContent.style.width = '80%';
     modalContent.style.maxWidth = '600px';
+    modalContent.style.textAlign = 'center';
     modalContent.innerHTML = `
-      <h2 style="text-align: center;">Tips for the Best Try-On Experience</h2>
-      <ul>
-        <li>Ensure you're the only person in the photo</li>
-        <li>Use a full-body photo, from head to toe</li>
-        <li>Stand in a natural, relaxed pose facing the camera</li>
-        <li>Wear fitted clothing that shows your body shape</li>
-      </ul>
-      <div style="text-align: center; margin-top: 20px;">
+      <h2 style="text-align: center; margin-bottom: 20px;">Tips for the best try-on experience</h2>
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+        <div style="border: 1px solid #ddd; padding: 10px; border-radius: 5px;">Ensure you're the only person in the photo</div>
+        <div style="border: 1px solid #ddd; padding: 10px; border-radius: 5px;">Use a full-body photo, from head to toe</div>
+        <div style="border: 1px solid #ddd; padding: 10px; border-radius: 5px;">Stand in a natural, relaxed pose facing the camera</div>
+        <div style="border: 1px solid #ddd; padding: 10px; border-radius: 5px;">Wear fitted clothing that shows your body shape</div>
+      </div>
+      <div style="margin-top: 20px;">
         <button id="closeModal" style="padding: 10px 20px; cursor: pointer;">Got it!</button>
         <label style="display: block; margin-top: 10px;">
           <input type="checkbox" id="dontShowAgain"> Don't show this again
