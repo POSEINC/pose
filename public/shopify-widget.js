@@ -643,7 +643,7 @@ console.log('Shopify try-on widget script started');
     const uploadBox = document.createElement('div');
     uploadBox.id = 'uploadBox';
     uploadBox.style.width = '100%';
-    uploadBox.style.height = '160px'; // Reduced from 200px to 160px (20% reduction)
+    uploadBox.style.height = '160px';
     uploadBox.style.border = '2px dashed #808080';
     uploadBox.style.display = 'flex';
     uploadBox.style.flexDirection = 'column';
@@ -658,11 +658,11 @@ console.log('Shopify try-on widget script started');
     // Create a paragraph element for the main text
     const uploadText = document.createElement('p');
     uploadText.textContent = 'Click to add a photo of yourself';
-    uploadText.style.margin = '0 0 8px 0'; // Reduced bottom margin
-    uploadText.style.padding = '8px'; // Reduced padding
+    uploadText.style.margin = '0';
+    uploadText.style.padding = '0';
     uploadText.style.maxWidth = '100%';
     uploadText.style.wordWrap = 'break-word';
-    uploadText.style.fontSize = '14px'; // Reduced font size
+    uploadText.style.fontSize = '14px';
 
     // Create an info icon
     const infoIcon = document.createElement('span');
@@ -1086,10 +1086,31 @@ console.log('Shopify try-on widget script started');
       // Reset the upload box
       const uploadBox = document.getElementById('uploadBox');
       if (uploadBox) {
-        uploadBox.innerHTML = `
-          <p>Click to add a photo of yourself</p>
-          <span style="position: absolute; top: 10px; right: 10px; font-size: 20px; cursor: pointer;" title="Click for photo tips">&#9432;</span>
-        `;
+        uploadBox.innerHTML = '';
+        uploadBox.style.display = 'flex';
+        uploadBox.style.flexDirection = 'column';
+        uploadBox.style.alignItems = 'center';
+        uploadBox.style.justifyContent = 'center';
+        
+        const uploadText = document.createElement('p');
+        uploadText.textContent = 'Click to add a photo of yourself';
+        uploadText.style.margin = '0';
+        uploadText.style.padding = '0';
+        uploadText.style.maxWidth = '100%';
+        uploadText.style.wordWrap = 'break-word';
+        uploadText.style.fontSize = '14px';
+        
+        const infoIcon = document.createElement('span');
+        infoIcon.innerHTML = '&#9432;';
+        infoIcon.style.position = 'absolute';
+        infoIcon.style.top = '10px';
+        infoIcon.style.right = '10px';
+        infoIcon.style.fontSize = '20px';
+        infoIcon.style.cursor = 'pointer';
+        infoIcon.title = 'Click for photo tips';
+        
+        uploadBox.appendChild(uploadText);
+        uploadBox.appendChild(infoIcon);
       }
 
       // Reset the try-on button
