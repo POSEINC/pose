@@ -625,9 +625,13 @@ console.log('Shopify try-on widget script started');
     sectionSubtext.textContent = colorVariant
       ? `Upload a photo and see how ${productTitle} in ${colorVariant} looks on you, no dressing room required.`
       : `Upload a photo and see how ${productTitle} looks on you, no dressing room required.`;
-    sectionSubtext.style.fontSize = '0.9em';
-    sectionSubtext.style.color = '#666';
+    sectionSubtext.style.fontSize = '14px'; // Match the font size
+    sectionSubtext.style.color = '#333'; // Adjust color to match
     sectionSubtext.style.textAlign = 'center';
+    sectionSubtext.style.margin = '0px 0 0 0'; // Add some top margin
+    sectionSubtext.style.padding = '0';
+    sectionSubtext.style.maxWidth = '100%';
+    sectionSubtext.style.wordWrap = 'break-word';
 
     leftSection.appendChild(sectionTitle);
     leftSection.appendChild(sectionSubtext);
