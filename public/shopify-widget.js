@@ -888,19 +888,32 @@ console.log('Shopify try-on widget script started');
 
         console.log('Image preview added to uploadBox');
 
-        // Add a "Replace Image" button
-        const replaceButton = document.createElement('button');
-        replaceButton.textContent = 'Replace Image';
-        replaceButton.className = 'btn btn--small';
-        replaceButton.style.position = 'absolute';
-        replaceButton.style.top = '5px'; // Reduced from 10px
-        replaceButton.style.right = '5px'; // Reduced from 10px
-        replaceButton.style.zIndex = '10';
-        replaceButton.addEventListener('click', (e) => {
-          e.stopPropagation();
-          photoUpload.click();
+        // Add an overlay with instructions
+        const overlay = document.createElement('div');
+        overlay.style.position = 'absolute';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        overlay.style.color = 'white';
+        overlay.style.display = 'flex';
+        overlay.style.alignItems = 'center';
+        overlay.style.justifyContent = 'center';
+        overlay.style.opacity = '0';
+        overlay.style.transition = 'opacity 0.3s';
+        overlay.innerHTML = '<p style="text-align: center; padding: 10px;">Click to replace image</p>';
+
+        uploadBox.appendChild(overlay);
+
+        // Show overlay on hover
+        uploadBox.addEventListener('mouseenter', () => {
+          overlay.style.opacity = '1';
         });
-        uploadBox.appendChild(replaceButton);
+
+        uploadBox.addEventListener('mouseleave', () => {
+          overlay.style.opacity = '0';
+        });
       };
       reader.onerror = function(error) {
         console.error('Error reading file:', error);
