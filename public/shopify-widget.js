@@ -602,6 +602,39 @@ console.log('Shopify try-on widget script started');
 
     // Enable the upload box
     setUploadBoxState(false);
+
+    // Reset the upload box
+    resetUploadBox();
+  }
+
+  // Add this new function to reset the upload box
+  function resetUploadBox() {
+    const uploadBox = document.getElementById('uploadBox');
+    if (uploadBox) {
+      uploadBox.innerHTML = '';
+      uploadBox.style.display = 'flex';
+      uploadBox.style.flexDirection = 'column';
+      uploadBox.style.alignItems = 'center';
+      uploadBox.style.justifyContent = 'center';
+      uploadBox.style.padding = '20px';
+      
+      const uploadText = document.createElement('p');
+      uploadText.innerHTML = 'Click to add a photo of yourself.<br><br>Your data is never saved or shared.';
+      uploadText.style.margin = '0';
+      uploadText.style.padding = '0';
+      uploadText.style.maxWidth = '100%';
+      uploadText.style.wordWrap = 'break-word';
+      uploadText.style.fontSize = '14px';
+      
+      uploadBox.appendChild(uploadText);
+    }
+
+    // Reset the try-on button
+    const tryItOnButton = document.querySelector('.try-on-widget button');
+    if (tryItOnButton) {
+      tryItOnButton.textContent = 'Try it on';
+      tryItOnButton.disabled = true;
+    }
   }
 
   // Modify the checkExistingJob function
@@ -612,6 +645,76 @@ console.log('Shopify try-on widget script started');
       pollJobStatus(jobInfo.jobId);
       setUploadBoxState(true); // Disable upload box for existing job
     }
+  }
+
+  // Modify the pollJobStatus function
+  function pollJobStatus(jobId) {
+    console.log('Polling started for job:', jobId);
+    let pollCount = 0;
+    const maxPolls = 60; // 5 minutes maximum polling time
+
+    const jobInfo = getStoredJobInformation();
+    const customMessage = `Trying on ${jobInfo.productTitle} in ${jobInfo.colorVariant || 'selected color'}`;
+
+    setTimeout(() => {
+      const pollInterval = setInterval(async () => {
+        pollCount++;
+        console.log(`Polling attempt ${pollCount} for job ${jobId}`);
+
+        updateStatusIndicator('processing', customMessage);
+
+        try {
+          const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
+          
+          if (!response.ok) {
+            throw new Error(`Polling request failed with status ${response.status}`);
+          }
+
+          const data = await response.json();
+          console.log('Polling response:', data);
+
+          if (data.status === 'completed') {
+            clearInterval(pollInterval);
+            console.log('Job completed successfully:', data.output);
+            updateStoredJobStatus('completed', data.output);
+            displayResult(data.output);
+            setUploadBoxState(false); // Enable the upload box
+            resetUploadBox(); // Reset the upload box
+          } else if (data.status === 'failed') {
+            clearInterval(pollInterval);
+            console.error('Processing failed:', data.error);
+            updateStoredJobStatus('failed');
+            displayResult(`Error: Processing failed - ${data.error}`);
+            setUploadBoxState(false); // Enable the upload box
+            resetUploadBox(); // Reset the upload box
+          } else if (data.status === 'processing') {
+            console.log('Still processing...');
+            if (pollCount >= maxPolls) {
+              clearInterval(pollInterval);
+              console.error('Polling timeout reached');
+              updateStoredJobStatus('timeout');
+              displayResult('Error: Processing timeout');
+              setUploadBoxState(false); // Enable the upload box
+              resetUploadBox(); // Reset the upload box
+            }
+          } else {
+            clearInterval(pollInterval);
+            console.error('Unexpected status:', data.status);
+            updateStoredJobStatus('error');
+            displayResult('Error: Unexpected response from server');
+            setUploadBoxState(false); // Enable the upload box
+            resetUploadBox(); // Reset the upload box
+          }
+        } catch (error) {
+          console.error('Error polling job status:', error);
+          clearInterval(pollInterval);
+          updateStoredJobStatus('error');
+          displayResult(`Error: Unable to get processing status - ${error.message}`);
+          setUploadBoxState(false); // Enable the upload box
+          resetUploadBox(); // Reset the upload box
+        }
+      }, 5000);
+    }, 3000);
   }
 
   // Only proceed with product-specific code if we're on a product page
@@ -1003,66 +1106,6 @@ console.log('Shopify try-on widget script started');
         console.error('Error calling API:', error);
         displayResult(`Error: ${error.message}`);
       }
-    }
-
-    // Function to poll job status
-    function pollJobStatus(jobId) {
-      console.log('Polling started for job:', jobId);
-      let pollCount = 0;
-      const maxPolls = 60; // 5 minutes maximum polling time
-
-      const jobInfo = getStoredJobInformation();
-      const customMessage = `Trying on ${jobInfo.productTitle} in ${jobInfo.colorVariant || 'selected color'}`;
-
-      setTimeout(() => {
-        const pollInterval = setInterval(async () => {
-          pollCount++;
-          console.log(`Polling attempt ${pollCount} for job ${jobId}`);
-
-          updateStatusIndicator('processing', customMessage);
-
-          try {
-            const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
-            
-            if (!response.ok) {
-              throw new Error(`Polling request failed with status ${response.status}`);
-            }
-
-            const data = await response.json();
-            console.log('Polling response:', data);
-
-            if (data.status === 'completed') {
-              clearInterval(pollInterval);
-              console.log('Job completed successfully:', data.output);
-              updateStoredJobStatus('completed', data.output);
-              displayResult(data.output);
-            } else if (data.status === 'failed') {
-              clearInterval(pollInterval);
-              console.error('Processing failed:', data.error);
-              updateStoredJobStatus('failed');
-              displayResult(`Error: Processing failed - ${data.error}`);
-            } else if (data.status === 'processing') {
-              console.log('Still processing...');
-              if (pollCount >= maxPolls) {
-                clearInterval(pollInterval);
-                console.error('Polling timeout reached');
-                updateStoredJobStatus('timeout');
-                displayResult('Error: Processing timeout');
-              }
-            } else {
-              clearInterval(pollInterval);
-              console.error('Unexpected status:', data.status);
-              updateStoredJobStatus('error');
-              displayResult('Error: Unexpected response from server');
-            }
-          } catch (error) {
-            console.error('Error polling job status:', error);
-            clearInterval(pollInterval);
-            updateStoredJobStatus('error');
-            displayResult(`Error: Unable to get processing status - ${error.message}`);
-          }
-        }, 5000);
-      }, 3000);
     }
 
     // Check for existing job and set initial upload box state
