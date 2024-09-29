@@ -76,9 +76,15 @@ console.log('Shopify try-on widget script started');
 // Add this function near the top of your script, with other utility functions
 async function getProductData(productUrl) {
   try {
-    const response = await fetch(productUrl + '.js');
+    // Remove any query parameters from the URL
+    const cleanUrl = productUrl.split('?')[0];
+    const response = await fetch(cleanUrl + '.js');
     if (!response.ok) {
-      throw new Error('Failed to fetch product data');
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      throw new Error("Oops! We didn't get JSON!");
     }
     return await response.json();
   } catch (error) {
@@ -207,15 +213,23 @@ async function getProductData(productUrl) {
           } else {
             console.error('Failed to fetch product data');
             const errorMessage = document.createElement('p');
-            errorMessage.textContent = 'Unable to load size information. Please try again later.';
+            errorMessage.textContent = 'Unable to load size information. Please refresh the page and try again.';
             errorMessage.style.color = 'red';
             notification.appendChild(errorMessage);
           }
         }).catch(error => {
           console.error('Error in getProductData:', error);
+          const errorMessage = document.createElement('p');
+          errorMessage.textContent = 'An error occurred while loading product information. Please try again later.';
+          errorMessage.style.color = 'red';
+          notification.appendChild(errorMessage);
         });
       } else {
         console.error('No product URL found in job info');
+        const errorMessage = document.createElement('p');
+        errorMessage.textContent = 'Product information is missing. Please try again.';
+        errorMessage.style.color = 'red';
+        notification.appendChild(errorMessage);
       }
     }
 
