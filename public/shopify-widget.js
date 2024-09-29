@@ -159,12 +159,30 @@ console.log('Shopify try-on widget script started');
       sizeDropdown.style.marginBottom = '10px';
       sizeDropdown.style.width = '100%';
       sizeDropdown.style.padding = '5px';
-      sizeDropdown.innerHTML = `
-        <option value="">Select Size</option>
-        <option value="S">Small</option>
-        <option value="M">Medium</option>
-        <option value="L">Large</option>
-      `;
+      sizeDropdown.innerHTML = '<option value="">Select Size</option>';
+
+      const variants = getProductVariants();
+      const selectedColor = getSelectedColorVariant();
+
+      if (variants) {
+        variants.forEach(variant => {
+          if (variant.option2 === selectedColor && variant.available) {
+            const option = document.createElement('option');
+            option.value = variant.option1;
+            option.textContent = variant.option1;
+            sizeDropdown.appendChild(option);
+          }
+        });
+      } else {
+        // Fallback to default sizes if variant data is not available
+        ['S', 'M', 'L'].forEach(size => {
+          const option = document.createElement('option');
+          option.value = size;
+          option.textContent = size;
+          sizeDropdown.appendChild(option);
+        });
+      }
+
       notification.appendChild(sizeDropdown);
 
       // Create button container
@@ -185,8 +203,38 @@ console.log('Shopify try-on widget script started');
       addToCartButton.style.flex = '2';
       addToCartButton.style.marginRight = '5px';
       addToCartButton.onclick = () => {
-        // Add to cart functionality will be implemented later
-        console.log('Add to cart clicked');
+        const selectedSize = sizeDropdown.value;
+        if (!selectedSize) {
+          alert('Please select a size');
+          return;
+        }
+
+        const selectedVariant = variants ? variants.find(v => v.option1 === selectedSize && v.option2 === selectedColor) : null;
+        if (selectedVariant) {
+          // Add to cart using Shopify AJAX API
+          fetch('/cart/add.js', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              id: selectedVariant.id,
+              quantity: 1
+            })
+          })
+          .then(response => response.json())
+          .then(data => {
+            console.log('Added to cart:', data);
+            alert('Added to cart successfully!');
+          })
+          .catch(error => {
+            console.error('Error adding to cart:', error);
+            alert('Error adding to cart. Please try again.');
+          });
+        } else {
+          console.error('Selected variant not found');
+          alert('Error adding to cart. Please try again.');
+        }
       };
 
       // Modify existing buttons
@@ -513,6 +561,20 @@ console.log('Shopify try-on widget script started');
     if (observeTargets.length === 0) {
       console.warn('Could not find product form or variant selectors to observe');
     }
+  }
+
+  // Add this function after the existing global functions
+  function getProductVariants() {
+    const variantScript = document.querySelector('script[type="application/json"]');
+    if (variantScript) {
+      try {
+        const productData = JSON.parse(variantScript.textContent);
+        return productData.variants;
+      } catch (e) {
+        console.error('Error parsing product variant data:', e);
+      }
+    }
+    return null;
   }
 
   // Only proceed with product-specific code if we're on a product page
