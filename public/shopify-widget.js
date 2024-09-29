@@ -628,7 +628,7 @@ console.log('Shopify try-on widget script started');
     sectionSubtext.style.fontSize = '14px'; // Match the font size
     sectionSubtext.style.color = '#333'; // Adjust color to match
     sectionSubtext.style.textAlign = 'center';
-    sectionSubtext.style.margin = '7px 0 0 0'; // Add some top margin
+    sectionSubtext.style.margin = '10px 0 0 0'; // Add some top margin
     sectionSubtext.style.padding = '0';
     sectionSubtext.style.maxWidth = '100%';
     sectionSubtext.style.wordWrap = 'break-word';
