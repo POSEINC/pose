@@ -859,13 +859,6 @@ console.log('Shopify try-on widget script started');
 
     // Update the tryItOnButton click event listener
     tryItOnButton.addEventListener('click', () => {
-      const jobInfo = getStoredJobInformation();
-      if (jobInfo && jobInfo.status === 'processing') {
-        console.log('A job is already running:', jobInfo.jobId);
-        showNotification('A try-on is already in progress. Please wait for it to complete.');
-        return;
-      }
-
       // Existing checks and logic
       if (!productImage) {
         console.error('Product image not found. Unable to proceed with try-on.');
