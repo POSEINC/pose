@@ -661,66 +661,15 @@ console.log('Shopify try-on widget script started');
 
     // Create a paragraph element for the main text
     const uploadText = document.createElement('p');
-    uploadText.textContent = 'Click to add a photo of yourself';
+    uploadText.innerHTML = 'Click to add a photo of yourself<br><br>Your data is never saved or shared.';
     uploadText.style.margin = '0';
     uploadText.style.padding = '0';
     uploadText.style.maxWidth = '100%';
     uploadText.style.wordWrap = 'break-word';
     uploadText.style.fontSize = '14px';
 
-    // Create an info icon
-    const infoIcon = document.createElement('span');
-    infoIcon.innerHTML = '&#9432;'; // Info symbol
-    infoIcon.style.position = 'absolute';
-    infoIcon.style.top = '10px';
-    infoIcon.style.right = '10px';
-    infoIcon.style.fontSize = '20px';
-    infoIcon.style.cursor = 'pointer';
-    infoIcon.title = 'Click for photo tips';
-
-    // Add the text and info icon to the upload box
+    // Add the text to the upload box
     uploadBox.appendChild(uploadText);
-    uploadBox.appendChild(infoIcon);
-
-    // Create a tooltip for quick tips
-    const tooltip = document.createElement('div');
-    tooltip.style.display = 'none';
-    tooltip.style.position = 'absolute';
-    tooltip.style.backgroundColor = '#f9f9f9';
-    tooltip.style.border = '1px solid #ccc';
-    tooltip.style.padding = '10px';
-    tooltip.style.borderRadius = '5px';
-    tooltip.style.maxWidth = '250px';
-    tooltip.style.zIndex = '1000';
-    tooltip.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
-    tooltip.innerHTML = `
-      <p style="margin: 0 0 10px 0; font-weight: bold;">Photo Tips:</p>
-      <ul style="margin: 0; padding-left: 20px;">
-        <li>Ensure you're the only person in the photo</li>
-        <li>Use a full-body photo, from head to toe</li>
-        <li>Stand in a natural, relaxed pose facing the camera</li>
-        <li>Wear fitted clothing that shows your body shape</li>
-      </ul>
-    `;
-
-    // Add the tooltip to the document body
-    document.body.appendChild(tooltip);
-
-    // Show/hide tooltip on info icon click
-    infoIcon.addEventListener('click', (e) => {
-      e.stopPropagation(); // Prevent triggering the file upload
-      const rect = infoIcon.getBoundingClientRect();
-      tooltip.style.display = tooltip.style.display === 'none' ? 'block' : 'none';
-      tooltip.style.top = `${rect.bottom + window.scrollY + 5}px`;
-      tooltip.style.left = `${rect.left + window.scrollX - 125}px`; // Center the tooltip
-    });
-
-    // Hide tooltip when clicking outside
-    document.addEventListener('click', (e) => {
-      if (e.target !== infoIcon) {
-        tooltip.style.display = 'none';
-      }
-    });
 
     // Create a modal for first-time users
     const modal = document.createElement('div');
@@ -1097,24 +1046,14 @@ console.log('Shopify try-on widget script started');
         uploadBox.style.justifyContent = 'center';
         
         const uploadText = document.createElement('p');
-        uploadText.textContent = 'Click to add a photo of yourself';
+        uploadText.innerHTML = 'Click to add a photo of yourself<br><br>Your data is never saved or shared.';
         uploadText.style.margin = '0';
         uploadText.style.padding = '0';
         uploadText.style.maxWidth = '100%';
         uploadText.style.wordWrap = 'break-word';
         uploadText.style.fontSize = '14px';
         
-        const infoIcon = document.createElement('span');
-        infoIcon.innerHTML = '&#9432;';
-        infoIcon.style.position = 'absolute';
-        infoIcon.style.top = '10px';
-        infoIcon.style.right = '10px';
-        infoIcon.style.fontSize = '20px';
-        infoIcon.style.cursor = 'pointer';
-        infoIcon.title = 'Click for photo tips';
-        
         uploadBox.appendChild(uploadText);
-        uploadBox.appendChild(infoIcon);
       }
 
       // Reset the try-on button
