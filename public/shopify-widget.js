@@ -169,7 +169,6 @@ async function getProductData(productUrl) {
       notification.appendChild(productSummary);
 
       // Fetch product data and populate size dropdown
-      const jobInfo = getStoredJobInformation();
       if (jobInfo && jobInfo.productUrl) {
         getProductData(jobInfo.productUrl).then(productData => {
           if (productData) {
@@ -195,29 +194,18 @@ async function getProductData(productUrl) {
             addToCartButton.style.border = 'none';
             addToCartButton.style.borderRadius = '3px';
             addToCartButton.style.cursor = 'pointer';
-            addToCartButton.style.flex = '2';
-            addToCartButton.style.marginRight = '5px';
             addToCartButton.onclick = () => {
               const selectedSize = sizeDropdown.value;
               if (!selectedSize) {
                 alert('Please select a size');
                 return;
               }
-              console.log('Add to cart clicked. Color:', jobInfo.colorVariant, 'Size:', selectedSize);
-              // We'll implement the actual add to cart functionality in the next step
+              // Here you would call a function to add the item to the cart
+              console.log('Adding to cart:', jobInfo.productTitle, 'Size:', selectedSize, 'Color:', jobInfo.colorVariant);
             };
             notification.appendChild(addToCartButton);
-
-            // Disable Add to Cart button if no sizes are available
-            if (sizesAvailability.every(sizeObj => !sizeObj.available)) {
-              addToCartButton.disabled = true;
-              addToCartButton.style.backgroundColor = '#ccc';
-              addToCartButton.style.cursor = 'not-allowed';
-              addToCartButton.textContent = 'Out of Stock';
-            }
           } else {
             console.error('Failed to fetch product data');
-            // Add a message to the notification that sizes couldn't be loaded
             const errorMessage = document.createElement('p');
             errorMessage.textContent = 'Unable to load size information. Please try again later.';
             errorMessage.style.color = 'red';
@@ -229,76 +217,22 @@ async function getProductData(productUrl) {
       } else {
         console.error('No product URL found in job info');
       }
-
-      // Create button container
-      const buttonContainer = document.createElement('div');
-      buttonContainer.style.display = 'flex';
-      buttonContainer.style.justifyContent = 'space-between';
-      buttonContainer.style.marginTop = '10px';
-
-      // Modify existing buttons
-      const saveButton = document.createElement('button');
-      saveButton.textContent = 'Save';
-      saveButton.style.padding = '5px 10px';
-      saveButton.style.backgroundColor = '#008CBA';
-      saveButton.style.color = 'white';
-      saveButton.style.border = 'none';
-      saveButton.style.borderRadius = '3px';
-      saveButton.style.cursor = 'pointer';
-      saveButton.style.flex = '1';
-      saveButton.style.marginRight = '5px';
-      saveButton.onclick = () => {
-        saveImage(output);
-      };
-
-      const viewProductButton = document.createElement('button');
-      viewProductButton.textContent = 'View';
-      viewProductButton.style.padding = '5px 10px';
-      viewProductButton.style.backgroundColor = '#008CBA';
-      viewProductButton.style.color = 'white';
-      viewProductButton.style.border = 'none';
-      viewProductButton.style.borderRadius = '3px';
-      viewProductButton.style.cursor = 'pointer';
-      viewProductButton.style.flex = '1';
-      viewProductButton.onclick = () => {
-        const jobInfo = getStoredJobInformation();
-        if (jobInfo && jobInfo.productUrl) {
-          window.location.href = jobInfo.productUrl;
-        } else {
-          console.error('Product URL not found');
-        }
-      };
-
-      // Add buttons to the container
-      buttonContainer.appendChild(addToCartButton);
-      buttonContainer.appendChild(saveButton);
-      buttonContainer.appendChild(viewProductButton);
-
-      // Add button container to the notification
-      notification.appendChild(buttonContainer);
     }
 
     // Add close button
     const closeButton = document.createElement('button');
-    closeButton.textContent = 'X';
-    closeButton.style.position = 'absolute';
-    closeButton.style.top = '5px';
-    closeButton.style.right = '5px';
-    closeButton.style.background = 'none';
+    closeButton.textContent = 'Close';
+    closeButton.style.marginTop = '10px';
+    closeButton.style.padding = '5px 10px';
+    closeButton.style.backgroundColor = '#ccc';
     closeButton.style.border = 'none';
-    closeButton.style.color = 'white';
+    closeButton.style.borderRadius = '3px';
     closeButton.style.cursor = 'pointer';
-    closeButton.onclick = () => {
-      notification.remove();
-      localStorage.setItem('notificationClosed', 'true');
-      updateStatusIndicator('none');
-    };
+    closeButton.onclick = () => notification.remove();
     notification.appendChild(closeButton);
 
-    // Add notification to page
+    // Add notification to the page
     document.body.appendChild(notification);
-
-    console.log('Notification added to page');
   }
 
   // Global status checker (runs on all pages)
