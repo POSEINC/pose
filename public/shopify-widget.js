@@ -97,6 +97,32 @@ console.log('Shopify try-on widget script started');
     notification.style.maxWidth = '300px';
     notification.style.textAlign = 'center';
 
+    // Add mobile-specific styles
+    const mobileStyles = `
+      @media (max-width: 767px) {
+        #try-on-notification {
+          bottom: 10px;
+          right: 10px;
+          left: 10px;
+          max-width: none;
+          width: calc(100% - 20px);
+          font-size: 14px;
+          padding: 10px;
+        }
+        #try-on-notification img {
+          max-height: 150px;
+        }
+        #try-on-notification button {
+          padding: 8px 12px;
+          font-size: 12px;
+        }
+      }
+    `;
+
+    const styleElement = document.createElement('style');
+    styleElement.textContent = mobileStyles;
+    document.head.appendChild(styleElement);
+
     // Add message to notification
     const messageElement = document.createElement('p');
     messageElement.textContent = message;
@@ -349,7 +375,26 @@ console.log('Shopify try-on widget script started');
     indicator.style.borderRadius = '5px';
     indicator.style.zIndex = '9998';
     indicator.style.display = 'none';
-    indicator.style.alignItems = 'center'; // Add this line
+    indicator.style.alignItems = 'center';
+    
+    // Add mobile-specific styles for the status indicator
+    const mobileStyles = `
+      @media (max-width: 767px) {
+        #try-on-status-indicator {
+          bottom: 10px;
+          right: 10px;
+          left: 10px;
+          max-width: none;
+          width: calc(100% - 20px);
+          font-size: 14px;
+          padding: 8px;
+        }
+      }
+    `;
+
+    const styleElement = document.createElement('style');
+    styleElement.textContent = mobileStyles;
+    document.head.appendChild(styleElement);
     
     const spinner = document.createElement('div');
     spinner.className = 'try-on-spinner';
@@ -369,14 +414,14 @@ console.log('Shopify try-on widget script started');
     indicator.appendChild(statusText);
     
     // Add keyframe animation for the spinner
-    const style = document.createElement('style');
-    style.textContent = `
+    const spinnerStyle = document.createElement('style');
+    spinnerStyle.textContent = `
       @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
       }
     `;
-    document.head.appendChild(style);
+    document.head.appendChild(spinnerStyle);
     
     document.body.appendChild(indicator);
     return indicator;
@@ -801,12 +846,14 @@ console.log('Shopify try-on widget script started');
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'page-width';
     widgetContainer.style.display = 'flex';
+    widgetContainer.style.flexWrap = 'wrap';
     widgetContainer.style.justifyContent = 'space-between';
-    widgetContainer.style.alignItems = 'flex-start'; // Align items to the top
+    widgetContainer.style.alignItems = 'flex-start';
 
     // Left side: Title and subtext
     const leftSection = document.createElement('div');
-    leftSection.style.width = '50%';
+    leftSection.style.flex = '1 1 45%';
+    leftSection.style.minWidth = '250px';
     leftSection.style.display = 'flex';
     leftSection.style.flexDirection = 'column';
     leftSection.style.alignItems = 'center';
@@ -840,7 +887,8 @@ console.log('Shopify try-on widget script started');
 
     // Right side: Upload box and Try it on button
     const uploadSection = document.createElement('div');
-    uploadSection.style.width = '45%';
+    uploadSection.style.flex = '1 1 45%';
+    uploadSection.style.minWidth = '250px';
     uploadSection.style.display = 'flex';
     uploadSection.style.flexDirection = 'column';
     uploadSection.style.alignItems = 'center';
