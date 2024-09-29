@@ -73,26 +73,6 @@ console.log('Shopify try-on widget script started');
     }
   }
 
-// Add this function near the top of your script, with other utility functions
-async function getProductData(productUrl) {
-  try {
-    // Remove any query parameters from the URL
-    const cleanUrl = productUrl.split('?')[0];
-    const response = await fetch(cleanUrl + '.js');
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const contentType = response.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-      throw new Error("Oops! We didn't get JSON!");
-    }
-    return await response.json();
-  } catch (error) {
-    console.error('Error fetching product data:', error);
-    return null;
-  }
-}
-
   // Function to show a notification
   function showNotification(message, output = null) {
     console.log('Showing notification:', message, 'Output:', output);
@@ -174,79 +154,104 @@ async function getProductData(productUrl) {
       `;
       notification.appendChild(productSummary);
 
-      // Fetch product data and populate size dropdown
-      if (jobInfo && jobInfo.productUrl) {
-        getProductData(jobInfo.productUrl).then(productData => {
-          if (productData) {
-            const sizesAvailability = getSizesAvailability(productData, jobInfo.colorVariant);
-            
-            // Create and populate size dropdown
-            const sizeDropdown = document.createElement('select');
-            sizeDropdown.style.marginBottom = '10px';
-            sizeDropdown.style.width = '100%';
-            sizeDropdown.style.padding = '5px';
-            sizeDropdown.innerHTML = '<option value="">Select Size</option>';
-            sizesAvailability.forEach(({ size, available }) => {
-              sizeDropdown.innerHTML += `<option value="${size}" ${available ? '' : 'disabled'}>${size}${available ? '' : ' (Out of Stock)'}</option>`;
-            });
-            notification.appendChild(sizeDropdown);
+      // Add size dropdown
+      const sizeDropdown = document.createElement('select');
+      sizeDropdown.style.marginBottom = '10px';
+      sizeDropdown.style.width = '100%';
+      sizeDropdown.style.padding = '5px';
+      sizeDropdown.innerHTML = `
+        <option value="">Select Size</option>
+        <option value="S">Small</option>
+        <option value="M">Medium</option>
+        <option value="L">Large</option>
+      `;
+      notification.appendChild(sizeDropdown);
 
-            // Add to Cart button
-            const addToCartButton = document.createElement('button');
-            addToCartButton.textContent = 'Add to Cart';
-            addToCartButton.style.padding = '5px 10px';
-            addToCartButton.style.backgroundColor = '#4CAF50';
-            addToCartButton.style.color = 'white';
-            addToCartButton.style.border = 'none';
-            addToCartButton.style.borderRadius = '3px';
-            addToCartButton.style.cursor = 'pointer';
-            addToCartButton.onclick = () => {
-              const selectedSize = sizeDropdown.value;
-              if (!selectedSize) {
-                alert('Please select a size');
-                return;
-              }
-              // Here you would call a function to add the item to the cart
-              console.log('Adding to cart:', jobInfo.productTitle, 'Size:', selectedSize, 'Color:', jobInfo.colorVariant);
-            };
-            notification.appendChild(addToCartButton);
-          } else {
-            console.error('Failed to fetch product data');
-            const errorMessage = document.createElement('p');
-            errorMessage.textContent = 'Unable to load size information. Please refresh the page and try again.';
-            errorMessage.style.color = 'red';
-            notification.appendChild(errorMessage);
-          }
-        }).catch(error => {
-          console.error('Error in getProductData:', error);
-          const errorMessage = document.createElement('p');
-          errorMessage.textContent = 'An error occurred while loading product information. Please try again later.';
-          errorMessage.style.color = 'red';
-          notification.appendChild(errorMessage);
-        });
-      } else {
-        console.error('No product URL found in job info');
-        const errorMessage = document.createElement('p');
-        errorMessage.textContent = 'Product information is missing. Please try again.';
-        errorMessage.style.color = 'red';
-        notification.appendChild(errorMessage);
-      }
+      // Create button container
+      const buttonContainer = document.createElement('div');
+      buttonContainer.style.display = 'flex';
+      buttonContainer.style.justifyContent = 'space-between';
+      buttonContainer.style.marginTop = '10px';
+
+      // Create "Add to Cart" button
+      const addToCartButton = document.createElement('button');
+      addToCartButton.textContent = 'Add to Cart';
+      addToCartButton.style.padding = '5px 10px';
+      addToCartButton.style.backgroundColor = '#4CAF50';
+      addToCartButton.style.color = 'white';
+      addToCartButton.style.border = 'none';
+      addToCartButton.style.borderRadius = '3px';
+      addToCartButton.style.cursor = 'pointer';
+      addToCartButton.style.flex = '2';
+      addToCartButton.style.marginRight = '5px';
+      addToCartButton.onclick = () => {
+        // Add to cart functionality will be implemented later
+        console.log('Add to cart clicked');
+      };
+
+      // Modify existing buttons
+      const saveButton = document.createElement('button');
+      saveButton.textContent = 'Save';
+      saveButton.style.padding = '5px 10px';
+      saveButton.style.backgroundColor = '#008CBA';
+      saveButton.style.color = 'white';
+      saveButton.style.border = 'none';
+      saveButton.style.borderRadius = '3px';
+      saveButton.style.cursor = 'pointer';
+      saveButton.style.flex = '1';
+      saveButton.style.marginRight = '5px';
+      saveButton.onclick = () => {
+        saveImage(output);
+      };
+
+      const viewProductButton = document.createElement('button');
+      viewProductButton.textContent = 'View';
+      viewProductButton.style.padding = '5px 10px';
+      viewProductButton.style.backgroundColor = '#008CBA';
+      viewProductButton.style.color = 'white';
+      viewProductButton.style.border = 'none';
+      viewProductButton.style.borderRadius = '3px';
+      viewProductButton.style.cursor = 'pointer';
+      viewProductButton.style.flex = '1';
+      viewProductButton.onclick = () => {
+        const jobInfo = getStoredJobInformation();
+        if (jobInfo && jobInfo.productUrl) {
+          window.location.href = jobInfo.productUrl;
+        } else {
+          console.error('Product URL not found');
+        }
+      };
+
+      // Add buttons to the container
+      buttonContainer.appendChild(addToCartButton);
+      buttonContainer.appendChild(saveButton);
+      buttonContainer.appendChild(viewProductButton);
+
+      // Add button container to the notification
+      notification.appendChild(buttonContainer);
     }
 
     // Add close button
     const closeButton = document.createElement('button');
-    closeButton.textContent = 'Close';
-    closeButton.style.marginTop = '10px';
-    closeButton.style.padding = '5px 10px';
-    closeButton.style.backgroundColor = '#ccc';
+    closeButton.textContent = 'X';
+    closeButton.style.position = 'absolute';
+    closeButton.style.top = '5px';
+    closeButton.style.right = '5px';
+    closeButton.style.background = 'none';
     closeButton.style.border = 'none';
-    closeButton.style.borderRadius = '3px';
+    closeButton.style.color = 'white';
     closeButton.style.cursor = 'pointer';
-    closeButton.onclick = () => notification.remove();
+    closeButton.onclick = () => {
+      notification.remove();
+      localStorage.setItem('notificationClosed', 'true');
+      updateStatusIndicator('none');
+    };
     notification.appendChild(closeButton);
 
-    // Add notification to the page
+    // Add notification to page
     document.body.appendChild(notification);
+
+    console.log('Notification added to page');
   }
 
   // Global status checker (runs on all pages)
