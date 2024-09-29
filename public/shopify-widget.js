@@ -73,6 +73,20 @@ console.log('Shopify try-on widget script started');
     }
   }
 
+// Add this function near the top of your script, with other utility functions
+async function getProductData(productUrl) {
+  try {
+    const response = await fetch(productUrl + '.js');
+    if (!response.ok) {
+      throw new Error('Failed to fetch product data');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching product data:', error);
+    return null;
+  }
+}
+
   // Function to show a notification
   function showNotification(message, output = null) {
     console.log('Showing notification:', message, 'Output:', output);
@@ -155,54 +169,66 @@ console.log('Shopify try-on widget script started');
       notification.appendChild(productSummary);
 
       // Fetch product data and populate size dropdown
-      getProductData(jobInfo.productUrl).then(productData => {
-        if (productData) {
-          const sizesAvailability = getSizesAvailability(productData, jobInfo.colorVariant);
-          
-          // Create and populate size dropdown
-          const sizeDropdown = document.createElement('select');
-          sizeDropdown.style.marginBottom = '10px';
-          sizeDropdown.style.width = '100%';
-          sizeDropdown.style.padding = '5px';
-          sizeDropdown.innerHTML = '<option value="">Select Size</option>';
-          sizesAvailability.forEach(({ size, available }) => {
-            sizeDropdown.innerHTML += `<option value="${size}" ${available ? '' : 'disabled'}>${size}${available ? '' : ' (Out of Stock)'}</option>`;
-          });
-          notification.appendChild(sizeDropdown);
+      const jobInfo = getStoredJobInformation();
+      if (jobInfo && jobInfo.productUrl) {
+        getProductData(jobInfo.productUrl).then(productData => {
+          if (productData) {
+            const sizesAvailability = getSizesAvailability(productData, jobInfo.colorVariant);
+            
+            // Create and populate size dropdown
+            const sizeDropdown = document.createElement('select');
+            sizeDropdown.style.marginBottom = '10px';
+            sizeDropdown.style.width = '100%';
+            sizeDropdown.style.padding = '5px';
+            sizeDropdown.innerHTML = '<option value="">Select Size</option>';
+            sizesAvailability.forEach(({ size, available }) => {
+              sizeDropdown.innerHTML += `<option value="${size}" ${available ? '' : 'disabled'}>${size}${available ? '' : ' (Out of Stock)'}</option>`;
+            });
+            notification.appendChild(sizeDropdown);
 
-          // Add to Cart button
-          const addToCartButton = document.createElement('button');
-          addToCartButton.textContent = 'Add to Cart';
-          addToCartButton.style.padding = '5px 10px';
-          addToCartButton.style.backgroundColor = '#4CAF50';
-          addToCartButton.style.color = 'white';
-          addToCartButton.style.border = 'none';
-          addToCartButton.style.borderRadius = '3px';
-          addToCartButton.style.cursor = 'pointer';
-          addToCartButton.style.flex = '2';
-          addToCartButton.style.marginRight = '5px';
-          addToCartButton.onclick = () => {
-            const selectedSize = sizeDropdown.value;
-            if (!selectedSize) {
-              alert('Please select a size');
-              return;
+            // Add to Cart button
+            const addToCartButton = document.createElement('button');
+            addToCartButton.textContent = 'Add to Cart';
+            addToCartButton.style.padding = '5px 10px';
+            addToCartButton.style.backgroundColor = '#4CAF50';
+            addToCartButton.style.color = 'white';
+            addToCartButton.style.border = 'none';
+            addToCartButton.style.borderRadius = '3px';
+            addToCartButton.style.cursor = 'pointer';
+            addToCartButton.style.flex = '2';
+            addToCartButton.style.marginRight = '5px';
+            addToCartButton.onclick = () => {
+              const selectedSize = sizeDropdown.value;
+              if (!selectedSize) {
+                alert('Please select a size');
+                return;
+              }
+              console.log('Add to cart clicked. Color:', jobInfo.colorVariant, 'Size:', selectedSize);
+              // We'll implement the actual add to cart functionality in the next step
+            };
+            notification.appendChild(addToCartButton);
+
+            // Disable Add to Cart button if no sizes are available
+            if (sizesAvailability.every(sizeObj => !sizeObj.available)) {
+              addToCartButton.disabled = true;
+              addToCartButton.style.backgroundColor = '#ccc';
+              addToCartButton.style.cursor = 'not-allowed';
+              addToCartButton.textContent = 'Out of Stock';
             }
-            console.log('Add to cart clicked. Color:', jobInfo.colorVariant, 'Size:', selectedSize);
-            // We'll implement the actual add to cart functionality in the next step
-          };
-          notification.appendChild(addToCartButton);
-
-          // Disable Add to Cart button if no sizes are available
-          if (sizesAvailability.every(sizeObj => !sizeObj.available)) {
-            addToCartButton.disabled = true;
-            addToCartButton.style.backgroundColor = '#ccc';
-            addToCartButton.style.cursor = 'not-allowed';
-            addToCartButton.textContent = 'Out of Stock';
+          } else {
+            console.error('Failed to fetch product data');
+            // Add a message to the notification that sizes couldn't be loaded
+            const errorMessage = document.createElement('p');
+            errorMessage.textContent = 'Unable to load size information. Please try again later.';
+            errorMessage.style.color = 'red';
+            notification.appendChild(errorMessage);
           }
-        } else {
-          console.error('Failed to fetch product data');
-        }
-      });
+        }).catch(error => {
+          console.error('Error in getProductData:', error);
+        });
+      } else {
+        console.error('No product URL found in job info');
+      }
 
       // Create button container
       const buttonContainer = document.createElement('div');
