@@ -642,7 +642,7 @@ console.log('Shopify try-on widget script started');
     const uploadBox = document.createElement('div');
     uploadBox.id = 'uploadBox';
     uploadBox.style.width = '100%';
-    uploadBox.style.height = '200px';
+    uploadBox.style.height = '160px'; // Reduced from 200px to 160px (20% reduction)
     uploadBox.style.border = '2px dashed #808080';
     uploadBox.style.display = 'flex';
     uploadBox.style.flexDirection = 'column';
@@ -651,16 +651,17 @@ console.log('Shopify try-on widget script started');
     uploadBox.style.cursor = 'pointer';
     uploadBox.style.position = 'relative';
     uploadBox.style.textAlign = 'center';
-    uploadBox.style.padding = '20px'; // Add padding for initial text
-    uploadBox.style.boxSizing = 'border-box'; // Include padding in the total width/height
+    uploadBox.style.padding = '20px';
+    uploadBox.style.boxSizing = 'border-box';
 
     // Create a paragraph element for the main text
     const uploadText = document.createElement('p');
     uploadText.textContent = 'Click to add a photo of yourself';
-    uploadText.style.margin = '0 0 10px 0';
-    uploadText.style.padding = '10px';
+    uploadText.style.margin = '0 0 8px 0'; // Reduced bottom margin
+    uploadText.style.padding = '8px'; // Reduced padding
     uploadText.style.maxWidth = '100%';
     uploadText.style.wordWrap = 'break-word';
+    uploadText.style.fontSize = '14px'; // Reduced font size
 
     // Create an info icon
     const infoIcon = document.createElement('span');
@@ -892,8 +893,8 @@ console.log('Shopify try-on widget script started');
         replaceButton.textContent = 'Replace Image';
         replaceButton.className = 'btn btn--small';
         replaceButton.style.position = 'absolute';
-        replaceButton.style.top = '10px';
-        replaceButton.style.right = '10px';
+        replaceButton.style.top = '5px'; // Reduced from 10px
+        replaceButton.style.right = '5px'; // Reduced from 10px
         replaceButton.style.zIndex = '10';
         replaceButton.addEventListener('click', (e) => {
           e.stopPropagation();
