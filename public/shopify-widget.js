@@ -515,6 +515,105 @@ console.log('Shopify try-on widget script started');
     }
   }
 
+  // Add this new function
+  function setUploadBoxState(disabled) {
+    const uploadBox = document.getElementById('uploadBox');
+    const photoUpload = document.getElementById('photoUpload');
+    if (uploadBox && photoUpload) {
+      if (disabled) {
+        uploadBox.style.pointerEvents = 'none';
+        uploadBox.style.opacity = '0.5';
+        photoUpload.disabled = true;
+      } else {
+        uploadBox.style.pointerEvents = 'auto';
+        uploadBox.style.opacity = '1';
+        photoUpload.disabled = false;
+      }
+    }
+  }
+
+  // Modify the displayInitialWaitingMessage function
+  function displayInitialWaitingMessage() {
+    // Update the upload box to show a loading message
+    const uploadBox = document.getElementById('uploadBox');
+    if (uploadBox) {
+      uploadBox.innerHTML = `
+        <p style="text-align: center; margin: 0; padding: 20px; font-size: 13px; line-height: 1.4;">
+          Generation takes 60-90 seconds.<br><br>
+          Feel free to browse the site - we'll notify you when it's ready!
+        </p>
+      `;
+    }
+
+    // Update the try-on button to show it's processing
+    const tryItOnButton = document.querySelector('.try-on-widget button');
+    if (tryItOnButton) {
+      tryItOnButton.textContent = 'Processing...';
+      tryItOnButton.disabled = true;
+    }
+
+    // Show the status indicator
+    updateStatusIndicator('processing', `Trying on ${productTitle} in ${getSelectedColorVariant() || 'selected color'}`);
+
+    // Disable the upload box
+    setUploadBoxState(true);
+  }
+
+  // Modify the displayResult function
+  function displayResult(output) {
+    // Reset the upload box
+    const uploadBox = document.getElementById('uploadBox');
+    if (uploadBox) {
+      uploadBox.innerHTML = '';
+      uploadBox.style.display = 'flex';
+      uploadBox.style.flexDirection = 'column';
+      uploadBox.style.alignItems = 'center';
+      uploadBox.style.justifyContent = 'center';
+      
+      const uploadText = document.createElement('p');
+      uploadText.innerHTML = 'Click to add a photo of yourself.<br><br>Your data is never saved or shared.';
+      uploadText.style.margin = '0';
+      uploadText.style.padding = '0';
+      uploadText.style.maxWidth = '100%';
+      uploadText.style.wordWrap = 'break-word';
+      uploadText.style.fontSize = '14px';
+      
+      uploadBox.appendChild(uploadText);
+    }
+
+    // Reset the try-on button
+    const tryItOnButton = document.querySelector('.try-on-widget button');
+    if (tryItOnButton) {
+      tryItOnButton.textContent = 'Try it on';
+      tryItOnButton.disabled = false;
+    }
+
+    // Hide the status indicator
+    updateStatusIndicator('none');
+
+    // Show the result in a notification
+    if (typeof output === 'string' && output.startsWith('http')) {
+      showNotification('Look how great you look!', output);
+    } else if (Array.isArray(output) && output.length > 0 && output[0].startsWith('http')) {
+      showNotification('Look how great you look!', output[0]);
+    } else {
+      showNotification('Error: Unable to generate try-on image. Please try again.');
+    }
+
+    // Enable the upload box
+    setUploadBoxState(false);
+  }
+
+  // Modify the checkExistingJob function
+  function checkExistingJob() {
+    const jobInfo = getStoredJobInformation();
+    if (jobInfo && jobInfo.status === 'processing') {
+      console.log('Found existing job:', jobInfo.jobId);
+      pollJobStatus(jobInfo.jobId);
+      setUploadBoxState(true); // Disable upload box for existing job
+    }
+  }
+
   // Only proceed with product-specific code if we're on a product page
   if (isProductPage()) {
     // Move imagePreview declaration to the top
@@ -758,29 +857,6 @@ console.log('Shopify try-on widget script started');
     tryItOnButton.style.marginTop = '10px';
     tryItOnButton.disabled = true; // Initially disabled
 
-    function displayInitialWaitingMessage() {
-      // Update the upload box to show a loading message
-      const uploadBox = document.getElementById('uploadBox');
-      if (uploadBox) {
-        uploadBox.innerHTML = `
-          <p style="text-align: center; margin: 0; padding: 20px; font-size: 13px; line-height: 1.4;">
-            Generation takes 60-90 seconds.<br><br>
-            Feel free to browse the site - we'll notify you when it's ready!
-          </p>
-        `;
-      }
-
-      // Update the try-on button to show it's processing
-      const tryItOnButton = document.querySelector('.try-on-widget button');
-      if (tryItOnButton) {
-        tryItOnButton.textContent = 'Processing...';
-        tryItOnButton.disabled = true;
-      }
-
-      // Show the status indicator
-      updateStatusIndicator('processing', `Trying on ${productTitle} in ${getSelectedColorVariant() || 'selected color'}`);
-    }
-
     // Update the tryItOnButton click event listener
     tryItOnButton.addEventListener('click', () => {
       const jobInfo = getStoredJobInformation();
@@ -996,17 +1072,11 @@ console.log('Shopify try-on widget script started');
       }, 3000);
     }
 
-    // Function to check for existing job
-    function checkExistingJob() {
-      const jobInfo = getStoredJobInformation();
-      if (jobInfo && jobInfo.status === 'processing') {
-        console.log('Found existing job:', jobInfo.jobId);
-        pollJobStatus(jobInfo.jobId);
-      }
+    // Check for existing job and set initial upload box state
+    const jobInfo = getStoredJobInformation();
+    if (jobInfo && jobInfo.status === 'processing') {
+      setUploadBoxState(true);
     }
-
-    // Call this function at the end of your script
-    checkExistingJob();
 
     const waitingMessages = [
       "Get ready to strike a pose - your new look is loading!",
@@ -1045,75 +1115,6 @@ console.log('Shopify try-on widget script started');
       resultImage.style.boxSizing = 'border-box';
 
       resultImage.innerHTML = `<p style="margin: 0;">${message}</p>`;
-    }
-
-    function displayResult(output) {
-      // Reset the upload box
-      const uploadBox = document.getElementById('uploadBox');
-      if (uploadBox) {
-        uploadBox.innerHTML = '';
-        uploadBox.style.display = 'flex';
-        uploadBox.style.flexDirection = 'column';
-        uploadBox.style.alignItems = 'center';
-        uploadBox.style.justifyContent = 'center';
-        
-        const uploadText = document.createElement('p');
-        uploadText.innerHTML = 'Click to add a photo of yourself.<br><br>Your data is never saved or shared.';
-        uploadText.style.margin = '0';
-        uploadText.style.padding = '0';
-        uploadText.style.maxWidth = '100%';
-        uploadText.style.wordWrap = 'break-word';
-        uploadText.style.fontSize = '14px';
-        
-        uploadBox.appendChild(uploadText);
-      }
-
-      // Reset the try-on button
-      const tryItOnButton = document.querySelector('.try-on-widget button');
-      if (tryItOnButton) {
-        tryItOnButton.textContent = 'Try it on';
-        tryItOnButton.disabled = false;
-      }
-
-      // Hide the status indicator
-      updateStatusIndicator('none');
-
-      // Show the result in a notification
-      if (typeof output === 'string' && output.startsWith('http')) {
-        showNotification('Look how great you look!', output);
-      } else if (Array.isArray(output) && output.length > 0 && output[0].startsWith('http')) {
-        showNotification('Look how great you look!', output[0]);
-      } else {
-        showNotification('Error: Unable to generate try-on image. Please try again.');
-      }
-    }
-
-    function createLightbox(imageSrc) {
-      const lightbox = document.createElement('div');
-      lightbox.style.position = 'fixed';
-      lightbox.style.top = '0';
-      lightbox.style.left = '0';
-      lightbox.style.width = '100%';
-      lightbox.style.height = '100%';
-      lightbox.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-      lightbox.style.display = 'flex';
-      lightbox.style.alignItems = 'center';
-      lightbox.style.justifyContent = 'center';
-      lightbox.style.zIndex = '9999';
-
-      const img = document.createElement('img');
-      img.src = imageSrc;
-      img.style.maxWidth = '90%';
-      img.style.maxHeight = '90%';
-      img.style.objectFit = 'contain';
-
-      lightbox.appendChild(img);
-
-      lightbox.addEventListener('click', () => {
-        document.body.removeChild(lightbox);
-      });
-
-      document.body.appendChild(lightbox);
     }
 
     console.log('Try-on widget fully initialized');
