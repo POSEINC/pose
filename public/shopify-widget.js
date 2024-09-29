@@ -651,6 +651,8 @@ console.log('Shopify try-on widget script started');
     uploadBox.style.cursor = 'pointer';
     uploadBox.style.position = 'relative';
     uploadBox.style.textAlign = 'center';
+    uploadBox.style.padding = '20px'; // Add padding for initial text
+    uploadBox.style.boxSizing = 'border-box'; // Include padding in the total width/height
 
     // Create a paragraph element for the main text
     const uploadText = document.createElement('p');
@@ -872,13 +874,15 @@ console.log('Shopify try-on widget script started');
         // Display the uploaded image preview
         imagePreview.src = humanImg;
         imagePreview.style.display = 'block';
-        imagePreview.style.maxWidth = '100%';
-        imagePreview.style.maxHeight = '180px';
-        imagePreview.style.objectFit = 'contain';
+        imagePreview.style.width = '100%';
+        imagePreview.style.height = '100%';
+        imagePreview.style.objectFit = 'cover';
         tryItOnButton.disabled = false;
         
         // Clear the upload box and add the preview
         uploadBox.innerHTML = '';
+        uploadBox.style.padding = '0'; // Remove padding
+        uploadBox.style.overflow = 'hidden'; // Hide overflow
         uploadBox.appendChild(imagePreview);
 
         console.log('Image preview added to uploadBox');
@@ -902,7 +906,7 @@ console.log('Shopify try-on widget script started');
         // Add visual feedback for error
         uploadBox.style.border = '2px solid #f44336';
         uploadBox.style.backgroundColor = '#ffebee';
-        uploadBox.innerHTML = '<p style="color: #f44336;">Error uploading image. Please try again.</p>';
+        uploadBox.innerHTML = '<p style="color: #f44336; padding: 20px;">Error uploading image. Please try again.</p>';
       };
       reader.readAsDataURL(file);
     }
