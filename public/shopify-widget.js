@@ -487,7 +487,7 @@ console.log('Shopify try-on widget script started');
       console.log('Updated product image:', newImageUrl);
 
       if (newColor && sectionSubtext) {
-        let subtext = `Upload a photo and see how ${productTitle} in ${newColor} looks on you, no dressing room required.`;
+        let subtext = `See how ${productTitle} in ${newColor} looks on you, no dressing room required.`;
         sectionSubtext.textContent = subtext;
         
         if (newImageUrl) {
@@ -623,8 +623,8 @@ console.log('Shopify try-on widget script started');
     const sectionSubtext = document.createElement('p');
     sectionSubtext.className = 'section-header__subtext';
     sectionSubtext.textContent = colorVariant
-      ? `Upload a photo and see how ${productTitle} in ${colorVariant} looks on you, no dressing room required.`
-      : `Upload a photo and see how ${productTitle} looks on you, no dressing room required.`;
+      ? `See how ${productTitle} in ${colorVariant} looks on you, no dressing room required.`
+      : `See how ${productTitle} looks on you, no dressing room required.`;
     sectionSubtext.style.fontSize = '14px'; // Match the font size
     sectionSubtext.style.color = '#333'; // Adjust color to match
     sectionSubtext.style.textAlign = 'center';
@@ -661,7 +661,7 @@ console.log('Shopify try-on widget script started');
 
     // Create a paragraph element for the main text
     const uploadText = document.createElement('p');
-    uploadText.innerHTML = 'Click to add a photo of yourself<br><br>Your data is never saved or shared.';
+    uploadText.innerHTML = 'Click to add a photo of yourself.<br><br>Your data is never saved or shared.';
     uploadText.style.margin = '0';
     uploadText.style.padding = '0';
     uploadText.style.maxWidth = '100%';
@@ -1046,7 +1046,7 @@ console.log('Shopify try-on widget script started');
         uploadBox.style.justifyContent = 'center';
         
         const uploadText = document.createElement('p');
-        uploadText.innerHTML = 'Click to add a photo of yourself<br><br>Your data is never saved or shared.';
+        uploadText.innerHTML = 'Click to add a photo of yourself.<br><br>Your data is never saved or shared.';
         uploadText.style.margin = '0';
         uploadText.style.padding = '0';
         uploadText.style.maxWidth = '100%';
