@@ -931,7 +931,8 @@ console.log('Shopify try-on widget script started');
       let pollCount = 0;
       const maxPolls = 60; // 5 minutes maximum polling time
 
-      const customMessage = `Trying on ${productTitle} in ${getSelectedColorVariant() || 'selected color'}`;
+      const jobInfo = getStoredJobInformation();
+      const customMessage = `Trying on ${jobInfo.productTitle} in ${jobInfo.colorVariant || 'selected color'}`;
 
       setTimeout(() => {
         const pollInterval = setInterval(async () => {
