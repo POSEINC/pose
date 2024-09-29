@@ -791,17 +791,41 @@ console.log('Shopify try-on widget script started');
     tryItOnButton.style.marginTop = '10px';
     tryItOnButton.disabled = true; // Initially disabled
 
+    function displayInitialWaitingMessage() {
+      // Update the upload box to show a loading message
+      const uploadBox = document.getElementById('uploadBox');
+      if (uploadBox) {
+        uploadBox.innerHTML = `
+          <p style="text-align: center; margin: 0;">
+            Generation takes 60-90 seconds.<br>
+            Feel free to browse the site - we'll notify you when it's ready!
+          </p>
+        `;
+      }
+
+      // Update the try-on button to show it's processing
+      const tryItOnButton = document.querySelector('.try-on-widget button');
+      if (tryItOnButton) {
+        tryItOnButton.textContent = 'Processing...';
+        tryItOnButton.disabled = true;
+      }
+
+      // Show the status indicator
+      updateStatusIndicator('processing', `Trying on ${productTitle} in ${getSelectedColorVariant() || 'selected color'}`);
+    }
+
+    // Update the tryItOnButton click event listener
     tryItOnButton.addEventListener('click', () => {
       if (!productImage) {
         console.error('Product image not found. Unable to proceed with try-on.');
-        displayResult('Error: Product image not found. Please refresh the page or contact support.');
+        showNotification('Error: Product image not found. Please refresh the page or contact support.');
         return;
       }
 
       const humanImg = imagePreview.src;
       if (!humanImg) {
         console.error('Human image not uploaded');
-        displayResult('Error: Please upload an image first');
+        showNotification('Error: Please upload an image first');
         return;
       }
 
@@ -1033,88 +1057,32 @@ console.log('Shopify try-on widget script started');
     }
 
     function displayResult(output) {
-      const resultImage = document.getElementById('resultImage');
-      const resultContainer = document.getElementById('resultContainer');
-
-      // Clear any existing message
-      const existingMessage = resultContainer.querySelector('p');
-      if (existingMessage) {
-        existingMessage.remove();
+      // Reset the upload box
+      const uploadBox = document.getElementById('uploadBox');
+      if (uploadBox) {
+        uploadBox.innerHTML = `
+          <p>Click to add a photo of yourself</p>
+          <span style="position: absolute; top: 10px; right: 10px; font-size: 20px; cursor: pointer;" title="Click for photo tips">&#9432;</span>
+        `;
       }
 
-      if (typeof output === 'string' && output.startsWith('http')) {
-        resultImage.style.padding = '0'; // Remove padding for images
-        resultImage.innerHTML = `
-          <div style="position: relative; display: inline-block;">
-            <img src="${output}" alt="Try-on result" style="max-width: 100%; max-height: 200px; display: block; margin: 0 auto; cursor: pointer;">
-            <div class="expand-icon" style="position: absolute; top: 10px; right: 10px; background-color: rgba(255, 255, 255, 0.7); border-radius: 50%; padding: 5px; cursor: pointer;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="15 3 21 3 21 9"></polyline>
-                <polyline points="9 21 3 21 3 15"></polyline>
-              </svg>
-            </div>
-          </div>
-        `;
-        resultImage.querySelector('img').addEventListener('click', () => createLightbox(output));
-        resultImage.querySelector('.expand-icon').addEventListener('click', () => createLightbox(output));
-        // Create a new paragraph for the message
-        const messageParagraph = document.createElement('p');
-        messageParagraph.textContent = 'Look how good you look!';
-        messageParagraph.style.textAlign = 'center';
-        messageParagraph.style.marginTop = '10px';
-        messageParagraph.style.fontFamily = getComputedStyle(tryItOnButton).fontFamily;
-        messageParagraph.style.fontSize = getComputedStyle(tryItOnButton).fontSize;
-        messageParagraph.style.fontWeight = getComputedStyle(tryItOnButton).fontWeight;
-        messageParagraph.style.color = getComputedStyle(tryItOnButton).color;
-        // Append the message to the resultContainer instead of the resultImage
-        resultContainer.appendChild(messageParagraph);
-      } else if (Array.isArray(output) && output.length > 0 && output[0].startsWith('http')) {
-        resultImage.style.padding = '0'; // Remove padding for images
-        resultImage.innerHTML = `
-          <div style="position: relative; display: inline-block;">
-            <img src="${output[0]}" alt="Try-on result" style="max-width: 100%; max-height: 200px; display: block; margin: 0 auto; cursor: pointer;">
-            <div class="expand-icon" style="position: absolute; top: 10px; right: 10px; background-color: rgba(255, 255, 255, 0.7); border-radius: 50%; padding: 5px; cursor: pointer;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="15 3 21 3 21 9"></polyline>
-                <polyline points="9 21 3 21 3 15"></polyline>
-              </svg>
-            </div>
-          </div>
-        `;
-        resultImage.querySelector('img').addEventListener('click', () => createLightbox(output[0]));
-        resultImage.querySelector('.expand-icon').addEventListener('click', () => createLightbox(output[0]));
-        // Create a new paragraph for the message
-        const messageParagraph = document.createElement('p');
-        messageParagraph.textContent = 'Look how great you look!';
-        messageParagraph.style.textAlign = 'center';
-        messageParagraph.style.marginTop = '10px';
-        messageParagraph.style.fontFamily = getComputedStyle(tryItOnButton).fontFamily;
-        messageParagraph.style.fontSize = getComputedStyle(tryItOnButton).fontSize;
-        messageParagraph.style.fontWeight = getComputedStyle(tryItOnButton).fontWeight;
-        messageParagraph.style.color = getComputedStyle(tryItOnButton).color;
-        // Append the message to the resultContainer instead of the resultImage
-        resultContainer.appendChild(messageParagraph);
-      } else {
-        // Reset styles for text content
-        resultImage.style.padding = '20px';
-        resultImage.style.backgroundColor = '#f0f0f0';
-        resultImage.style.display = 'flex';
-        resultImage.style.alignItems = 'center';
-        resultImage.style.justifyContent = 'center';
-        resultImage.style.textAlign = 'center';
-        resultImage.style.boxSizing = 'border-box';
+      // Reset the try-on button
+      const tryItOnButton = document.querySelector('.try-on-widget button');
+      if (tryItOnButton) {
+        tryItOnButton.textContent = 'Try it on';
+        tryItOnButton.disabled = false;
+      }
 
-        if (typeof output === 'object' && output.error) {
-          resultImage.innerHTML = `
-            <p style="color: red; text-align: center; margin: 0;">Error: ${output.error}</p>
-            <p style="text-align: center; margin: 10px 0 0 0;">Oops, something went wrong. Please try again.</p>
-          `;
-        } else {
-          resultImage.innerHTML = `
-            <p style="text-align: center; margin: 0;">${JSON.stringify(output)}</p>
-            <p style="text-align: center; margin: 10px 0 0 0;">Hmm, that didn't work as expected. Let's try again!</p>
-          `;
-        }
+      // Hide the status indicator
+      updateStatusIndicator('none');
+
+      // Show the result in a notification
+      if (typeof output === 'string' && output.startsWith('http')) {
+        showNotification('Look how great you look!', output);
+      } else if (Array.isArray(output) && output.length > 0 && output[0].startsWith('http')) {
+        showNotification('Look how great you look!', output[0]);
+      } else {
+        showNotification('Error: Unable to generate try-on image. Please try again.');
       }
     }
 
@@ -1144,37 +1112,6 @@ console.log('Shopify try-on widget script started');
       });
 
       document.body.appendChild(lightbox);
-    }
-
-    function displayInitialWaitingMessage() {
-      const resultImage = document.getElementById('resultImage');
-      const resultContainer = document.getElementById('resultContainer');
-
-      // Reset styles for resultImage
-      resultImage.style.padding = '20px';
-      resultImage.style.backgroundColor = '#f0f0f0';
-      resultImage.style.display = 'flex';
-      resultImage.style.alignItems = 'center';
-      resultImage.style.justifyContent = 'center';
-      resultImage.style.textAlign = 'center';
-      resultImage.style.boxSizing = 'border-box';
-
-      // Clear any existing content in resultImage
-      resultImage.innerHTML = '';
-
-      // Clear any existing messages in resultContainer
-      const existingMessage = resultContainer.querySelector('p');
-      if (existingMessage) {
-        existingMessage.remove();
-      }
-
-      // Display the new waiting message
-      resultImage.innerHTML = `
-        <p style="text-align: center; margin: 0;">
-          Generation takes 60-90 seconds.<br>
-          Feel free to browse the site - we'll notify you when it's ready!
-        </p>
-      `;
     }
 
     console.log('Try-on widget fully initialized');
