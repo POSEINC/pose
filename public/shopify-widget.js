@@ -605,12 +605,14 @@ console.log('Shopify try-on widget script started');
     // Left side: Title and subtext
     const leftSection = document.createElement('div');
     leftSection.style.width = '50%';
+    leftSection.style.textAlign = 'center'; // Center the content of this section
 
     // Section title
     const sectionTitle = document.createElement('h2');
     sectionTitle.className = 'section-header__title';
     sectionTitle.textContent = 'See yourself wearing it';
     sectionTitle.style.marginBottom = '10px';
+    sectionTitle.style.textAlign = 'center'; // Center the title text
 
     // Add subtext
     const sectionSubtext = document.createElement('p');
@@ -620,6 +622,7 @@ console.log('Shopify try-on widget script started');
       : `Upload a photo and see how ${productTitle} looks on you, no dressing room required.`;
     sectionSubtext.style.fontSize = '0.9em';
     sectionSubtext.style.color = '#666';
+    sectionSubtext.style.textAlign = 'center'; // Center the subtext
 
     leftSection.appendChild(sectionTitle);
     leftSection.appendChild(sectionSubtext);
