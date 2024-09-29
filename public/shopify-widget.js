@@ -730,10 +730,10 @@ console.log('Shopify try-on widget script started');
     modalContent.innerHTML = `
       <h2 style="text-align: center; margin-bottom: 20px;">Tips for the best try-on experience</h2>
       <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
-        <div style="border: 1px solid #ddd; padding: 10px; border-radius: 5px;">Ensure you're the only person in the photo</div>
-        <div style="border: 1px solid #ddd; padding: 10px; border-radius: 5px;">Use a full-body photo, from head to toe</div>
-        <div style="border: 1px solid #ddd; padding: 10px; border-radius: 5px;">Stand in a natural, relaxed pose facing the camera</div>
-        <div style="border: 1px solid #ddd; padding: 10px; border-radius: 5px;">Wear fitted clothing that shows your body shape</div>
+        <div style="border: 1px solid #ddd; padding: 10px; border-radius: 5px;"><strong>Solo:</strong> Ensure you're the only person in the photo</div>
+        <div style="border: 1px solid #ddd; padding: 10px; border-radius: 5px;"><strong>Full-body:</strong> Use a photo that shows you head to toe</div>
+        <div style="border: 1px solid #ddd; padding: 10px; border-radius: 5px;"><strong>Pose:</strong> Stand naturally, facing the camera</div>
+        <div style="border: 1px solid #ddd; padding: 10px; border-radius: 5px;"><strong>Clothing:</strong> Wear fitted items that show your body shape</div>
       </div>
       <div style="margin-top: 20px;">
         <button id="closeModal" style="padding: 10px 20px; cursor: pointer;">Got it!</button>
