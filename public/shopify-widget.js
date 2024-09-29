@@ -628,7 +628,7 @@ console.log('Shopify try-on widget script started');
     sectionSubtext.style.fontSize = '14px'; // Match the font size
     sectionSubtext.style.color = '#333'; // Adjust color to match
     sectionSubtext.style.textAlign = 'center';
-    sectionSubtext.style.margin = '5px 0 0 0'; // Add some top margin
+    sectionSubtext.style.margin = '7px 0 0 0'; // Add some top margin
     sectionSubtext.style.padding = '0';
     sectionSubtext.style.maxWidth = '100%';
     sectionSubtext.style.wordWrap = 'break-word';
@@ -656,7 +656,10 @@ console.log('Shopify try-on widget script started');
     uploadBox.style.cursor = 'pointer';
     uploadBox.style.position = 'relative';
     uploadBox.style.textAlign = 'center';
-    uploadBox.style.padding = '20px';
+    uploadBox.style.paddingTop = '20px';
+    uploadBox.style.paddingRight = '10px';
+    uploadBox.style.paddingBottom = '20px';
+    uploadBox.style.paddingLeft = '10px';
     uploadBox.style.boxSizing = 'border-box';
 
     // Create a paragraph element for the main text
