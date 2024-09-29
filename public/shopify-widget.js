@@ -615,7 +615,7 @@ console.log('Shopify try-on widget script started');
     sectionTitle.className = 'section-header__title';
     sectionTitle.textContent = 'See yourself wearing it';
     sectionTitle.style.marginTop = '0'; // Remove top margin to align with upload box
-    sectionTitle.style.marginBottom = '10px';
+    sectionTitle.style.marginBottom = '5px';
     sectionTitle.style.textAlign = 'center';
 
     // Add subtext
