@@ -592,22 +592,25 @@ console.log('Shopify try-on widget script started');
     widgetSection.style.padding = '40px 0';
     widgetSection.style.margin = '40px 0';
     widgetSection.style.borderTop = '1px solid #e8e8e8';
-    widgetSection.style.borderBottom = '1px solid #e8e8e8';
-    widgetSection.style.lineHeight = '1.25'; // Add this line to set consistent line spacing
+    widgetSection.style.borderBottom = '1px solid #e8e8e1';
+    widgetSection.style.lineHeight = '1.25';
 
     // Create a container for the widget content
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'page-width';
     widgetContainer.style.display = 'flex';
     widgetContainer.style.justifyContent = 'space-between';
-    widgetContainer.style.alignItems = 'flex-start';
+    widgetContainer.style.alignItems = 'center';
+
+    // Left side: Title and subtext
+    const leftSection = document.createElement('div');
+    leftSection.style.width = '50%';
 
     // Section title
     const sectionTitle = document.createElement('h2');
     sectionTitle.className = 'section-header__title';
     sectionTitle.textContent = 'See yourself wearing it';
-    sectionTitle.style.textAlign = 'center';
-    sectionTitle.style.marginBottom = '10px'; // Reduced margin to accommodate subtext
+    sectionTitle.style.marginBottom = '10px';
 
     // Add subtext
     const sectionSubtext = document.createElement('p');
@@ -615,16 +618,13 @@ console.log('Shopify try-on widget script started');
     sectionSubtext.textContent = colorVariant
       ? `Upload a photo and see how ${productTitle} in ${colorVariant} looks on you, no dressing room required.`
       : `Upload a photo and see how ${productTitle} looks on you, no dressing room required.`;
-    sectionSubtext.style.textAlign = 'center';
-    sectionSubtext.style.marginBottom = '20px';
     sectionSubtext.style.fontSize = '0.9em';
     sectionSubtext.style.color = '#666';
 
-    // Append the title and subtext to the widget section
-    widgetSection.appendChild(sectionTitle);
-    widgetSection.appendChild(sectionSubtext);
+    leftSection.appendChild(sectionTitle);
+    leftSection.appendChild(sectionSubtext);
 
-    // Upload box and Try it on button
+    // Right side: Upload box and Try it on button
     const uploadSection = document.createElement('div');
     uploadSection.style.width = '45%';
     uploadSection.style.display = 'flex';
@@ -812,36 +812,10 @@ console.log('Shopify try-on widget script started');
     uploadSection.appendChild(uploadBox);
     uploadSection.appendChild(photoUpload);
     uploadSection.appendChild(tryItOnButton);
+
+    // Append sections to the widget container
+    widgetContainer.appendChild(leftSection);
     widgetContainer.appendChild(uploadSection);
-
-    // Result container
-    const resultContainer = document.createElement('div');
-    resultContainer.id = 'resultContainer';
-    resultContainer.style.width = '45%';
-
-    const resultImage = document.createElement('div');
-    resultImage.id = 'resultImage';
-    resultImage.style.width = '100%';
-    resultImage.style.height = '200px';
-    resultImage.style.backgroundColor = '#f0f0f0';
-    resultImage.style.display = 'flex';
-    resultImage.style.alignItems = 'center';
-    resultImage.style.justifyContent = 'center';
-    resultImage.style.textAlign = 'center';
-    resultImage.style.padding = '20px'; // Add padding
-    resultImage.style.boxSizing = 'border-box'; // Ensure padding doesn't increase overall size
-
-    const resultText = document.createElement('p');
-    resultText.textContent = 'Your virtual try-on will show here';
-    resultText.style.margin = '0';
-    resultText.style.padding = '10px';
-    resultText.style.maxWidth = '100%';
-    resultText.style.wordWrap = 'break-word';
-
-    resultImage.appendChild(resultText);
-    resultContainer.appendChild(resultImage);
-
-    widgetContainer.appendChild(resultContainer);
 
     // Append the container to the section
     widgetSection.appendChild(widgetContainer);
