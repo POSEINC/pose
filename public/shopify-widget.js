@@ -796,8 +796,8 @@ console.log('Shopify try-on widget script started');
       const uploadBox = document.getElementById('uploadBox');
       if (uploadBox) {
         uploadBox.innerHTML = `
-          <p style="text-align: center; margin: 0; padding: 20px; font-size: 12px; line-height: 1.4;">
-            Generation takes 60-90 seconds.<br>
+          <p style="text-align: center; margin: 0; padding: 20px; font-size: 13px; line-height: 1.4;">
+            Generation takes 60-90 seconds.<br><br>
             Feel free to browse the site - we'll notify you when it's ready!
           </p>
         `;
