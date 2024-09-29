@@ -600,19 +600,23 @@ console.log('Shopify try-on widget script started');
     widgetContainer.className = 'page-width';
     widgetContainer.style.display = 'flex';
     widgetContainer.style.justifyContent = 'space-between';
-    widgetContainer.style.alignItems = 'center';
+    widgetContainer.style.alignItems = 'flex-start'; // Align items to the top
 
     // Left side: Title and subtext
     const leftSection = document.createElement('div');
     leftSection.style.width = '50%';
-    leftSection.style.textAlign = 'center'; // Center the content of this section
+    leftSection.style.display = 'flex';
+    leftSection.style.flexDirection = 'column';
+    leftSection.style.alignItems = 'center';
+    leftSection.style.textAlign = 'center';
 
     // Section title
     const sectionTitle = document.createElement('h2');
     sectionTitle.className = 'section-header__title';
     sectionTitle.textContent = 'See yourself wearing it';
+    sectionTitle.style.marginTop = '0'; // Remove top margin to align with upload box
     sectionTitle.style.marginBottom = '10px';
-    sectionTitle.style.textAlign = 'center'; // Center the title text
+    sectionTitle.style.textAlign = 'center';
 
     // Add subtext
     const sectionSubtext = document.createElement('p');
@@ -622,7 +626,7 @@ console.log('Shopify try-on widget script started');
       : `Upload a photo and see how ${productTitle} looks on you, no dressing room required.`;
     sectionSubtext.style.fontSize = '0.9em';
     sectionSubtext.style.color = '#666';
-    sectionSubtext.style.textAlign = 'center'; // Center the subtext
+    sectionSubtext.style.textAlign = 'center';
 
     leftSection.appendChild(sectionTitle);
     leftSection.appendChild(sectionSubtext);
