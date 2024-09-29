@@ -154,40 +154,61 @@ console.log('Shopify try-on widget script started');
       `;
       notification.appendChild(productSummary);
 
-      // Add size dropdown
-      const sizeDropdown = document.createElement('select');
-      sizeDropdown.style.marginBottom = '10px';
-      sizeDropdown.style.width = '100%';
-      sizeDropdown.style.padding = '5px';
-      sizeDropdown.innerHTML = `
-        <option value="">Select Size</option>
-        <option value="S">Small</option>
-        <option value="M">Medium</option>
-        <option value="L">Large</option>
-      `;
-      notification.appendChild(sizeDropdown);
+      // Fetch product data and populate size dropdown
+      getProductData(jobInfo.productUrl).then(productData => {
+        if (productData) {
+          const sizesAvailability = getSizesAvailability(productData, jobInfo.colorVariant);
+          
+          // Create and populate size dropdown
+          const sizeDropdown = document.createElement('select');
+          sizeDropdown.style.marginBottom = '10px';
+          sizeDropdown.style.width = '100%';
+          sizeDropdown.style.padding = '5px';
+          sizeDropdown.innerHTML = '<option value="">Select Size</option>';
+          sizesAvailability.forEach(({ size, available }) => {
+            sizeDropdown.innerHTML += `<option value="${size}" ${available ? '' : 'disabled'}>${size}${available ? '' : ' (Out of Stock)'}</option>`;
+          });
+          notification.appendChild(sizeDropdown);
+
+          // Add to Cart button
+          const addToCartButton = document.createElement('button');
+          addToCartButton.textContent = 'Add to Cart';
+          addToCartButton.style.padding = '5px 10px';
+          addToCartButton.style.backgroundColor = '#4CAF50';
+          addToCartButton.style.color = 'white';
+          addToCartButton.style.border = 'none';
+          addToCartButton.style.borderRadius = '3px';
+          addToCartButton.style.cursor = 'pointer';
+          addToCartButton.style.flex = '2';
+          addToCartButton.style.marginRight = '5px';
+          addToCartButton.onclick = () => {
+            const selectedSize = sizeDropdown.value;
+            if (!selectedSize) {
+              alert('Please select a size');
+              return;
+            }
+            console.log('Add to cart clicked. Color:', jobInfo.colorVariant, 'Size:', selectedSize);
+            // We'll implement the actual add to cart functionality in the next step
+          };
+          notification.appendChild(addToCartButton);
+
+          // Disable Add to Cart button if no sizes are available
+          if (sizesAvailability.every(sizeObj => !sizeObj.available)) {
+            addToCartButton.disabled = true;
+            addToCartButton.style.backgroundColor = '#ccc';
+            addToCartButton.style.cursor = 'not-allowed';
+            addToCartButton.textContent = 'Out of Stock';
+          }
+        } else {
+          console.error('Failed to fetch product data');
+        }
+      });
 
       // Create button container
       const buttonContainer = document.createElement('div');
       buttonContainer.style.display = 'flex';
       buttonContainer.style.justifyContent = 'space-between';
       buttonContainer.style.marginTop = '10px';
-
-      // Create "Add to Cart" button
-      const addToCartButton = document.createElement('button');
-      addToCartButton.textContent = 'Add to Cart';
-      addToCartButton.style.padding = '5px 10px';
-      addToCartButton.style.backgroundColor = '#4CAF50';
-      addToCartButton.style.color = 'white';
-      addToCartButton.style.border = 'none';
-      addToCartButton.style.borderRadius = '3px';
-      addToCartButton.style.cursor = 'pointer';
-      addToCartButton.style.flex = '2';
-      addToCartButton.style.marginRight = '5px';
-      addToCartButton.onclick = () => {
-        // Add to cart functionality will be implemented later
-        console.log('Add to cart clicked');
-      };
 
       // Modify existing buttons
       const saveButton = document.createElement('button');
