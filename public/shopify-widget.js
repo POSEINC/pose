@@ -814,9 +814,11 @@ console.log('Shopify try-on widget script started');
     // Colored rectangle
     const coloredRectangle = document.createElement('div');
     coloredRectangle.style.backgroundColor = '#f9f9f8';
-    coloredRectangle.style.padding = '10px 20px'; // Reduce top and bottom padding from 20px to 10px
+    coloredRectangle.style.padding = '10px 20px';
     coloredRectangle.style.borderRadius = '8px';
     coloredRectangle.style.marginBottom = '20px';
+    coloredRectangle.style.boxShadow = 'none'; // Ensure no shadow
+    coloredRectangle.style.border = 'none'; // Ensure no border
 
     // Add subtext
     const sectionSubtext = document.createElement('p');
