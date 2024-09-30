@@ -795,8 +795,9 @@ console.log('Shopify try-on widget script started');
         height: 50px;
         line-height: 50px;
         padding: 0;
-        background-color: #f9f9f8;
-        border: 2px dashed #ccc;
+        background-color: #000000;
+        color: #ffffff;
+        border: none;
         border-radius: 4px;
         cursor: pointer;
         transition: all 0.3s ease;
@@ -818,9 +819,9 @@ console.log('Shopify try-on widget script started');
     sectionSubtext.textContent = colorVariant
       ? `See how ${productTitle} in ${colorVariant} looks on you, no dressing room required.`
       : `See how ${productTitle} looks on you, no dressing room required.`;
-    sectionSubtext.style.fontSize = '13px';
+    sectionSubtext.style.fontSize = '14px';
     sectionSubtext.style.color = '#333';
-    sectionSubtext.style.margin = '0 0 15px 0';
+    sectionSubtext.style.margin = '0 0 0 0';
 
     // Create short subtext
     const dataSubtext = document.createElement('p');
@@ -916,8 +917,8 @@ console.log('Shopify try-on widget script started');
       const coloredRectangle = document.querySelector('.try-on-widget-rectangle');
       if (coloredRectangle) {
         coloredRectangle.innerHTML = `
-          <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 13px;">Quick pro tips</h3>
-          <ul style="list-style-type: none; padding: 0; margin: 0; text-align: center;">
+          <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 15px;">Quick pro tips</h3>
+          <ul style="list-style-type: none; padding: 0; margin: 0; text-align: center; font-size: 13px;">
             <li style="margin-bottom: 10px;">Solo: be the only one in the photo.</li>
             <li style="margin-bottom: 10px;">Pose: stand naturally facing forward.</li>
             <li style="margin-bottom: 10px;">Full-body: use a head-to-toe photo.</li>
@@ -930,8 +931,9 @@ console.log('Shopify try-on widget script started');
             height: 50px;
             line-height: 50px;
             padding: 0;
-            background-color: #f9f9f8;
-            border: 2px dashed #ccc;
+            background-color: #000000;
+            color: #ffffff;
+            border: none;
             border-radius: 4px;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -942,13 +944,10 @@ console.log('Shopify try-on widget script started');
         // Add event listener for the "Got it" button
         const gotItButton = document.getElementById('gotItButton');
         gotItButton.addEventListener('mouseenter', () => {
-          gotItButton.style.backgroundColor = '#f0f0f0';
-          gotItButton.style.borderColor = '#999';
-          gotItButton.style.margin = '0 0 0 0';
+            gotItButton.style.backgroundColor = '#333333';
         });
         gotItButton.addEventListener('mouseleave', () => {
-          gotItButton.style.backgroundColor = '#f9f9f8';
-          gotItButton.style.borderColor = '#ccc';
+            gotItButton.style.backgroundColor = '#000000';
         });
         gotItButton.addEventListener('click', () => {
           photoUpload.click();
