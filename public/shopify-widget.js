@@ -890,9 +890,15 @@ console.log('Shopify try-on widget script started');
         const humanImg = e.target.result;
         console.log('Image uploaded:', humanImg.substring(0, 50) + '...');
         
-        // Call the API or process the image here
-        // For now, we'll just log the image data
-        console.log('Processing image:', humanImg.substring(0, 50) + '...');
+        // Update the rectangle content to show processing
+        showProcessingMessage();
+        
+        // Call the API
+        callReplicateAPI(humanImg, {
+          product_title: productTitle,
+          color: getSelectedColorVariant(),
+          size: getSelectedSizeVariant()
+        });
       };
       reader.onerror = function(error) {
         console.error('Error reading file:', error);
@@ -910,7 +916,7 @@ console.log('Shopify try-on widget script started');
       const coloredRectangle = document.querySelector('.try-on-widget-rectangle');
       if (coloredRectangle) {
         coloredRectangle.innerHTML = `
-          <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 18px;">Quick pro tips</h3>
+          <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 13px;">Quick pro tips</h3>
           <ul style="list-style-type: none; padding: 0; margin: 0; text-align: center;">
             <li style="margin-bottom: 10px;">Solo: be the only one in the photo.</li>
             <li style="margin-bottom: 10px;">Pose: stand naturally facing forward.</li>
@@ -938,6 +944,7 @@ console.log('Shopify try-on widget script started');
         gotItButton.addEventListener('mouseenter', () => {
           gotItButton.style.backgroundColor = '#f0f0f0';
           gotItButton.style.borderColor = '#999';
+          gotItButton.style.margin = '0 0 0 0';
         });
         gotItButton.addEventListener('mouseleave', () => {
           gotItButton.style.backgroundColor = '#f9f9f8';
