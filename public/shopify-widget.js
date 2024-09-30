@@ -543,11 +543,12 @@ console.log('Shopify try-on widget script started');
     }
   }
 
-    // Reset the upload photo button
+  // Reset the upload photo button
+  function resetUploadButton() {
     const uploadPhotoButton = document.querySelector('.try-on-widget button');
     if (uploadPhotoButton) {
       uploadPhotoButton.textContent = 'Upload a photo';
-      uploadPhotoButton.disabled = true;
+      uploadPhotoButton.disabled = false;
     }
   }
 
