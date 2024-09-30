@@ -667,18 +667,18 @@ console.log('Shopify try-on widget script started');
     .try-on-widget-container {
       max-width: 600px;
       margin: 0 auto; 
-      position: relative; 
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     .try-on-widget-title {
       margin-top: 0;
-      margin-bottom: 20px; // Increase bottom margin
-      position: absolute; // Add this line
-      top: -30px; // Adjust this value as needed
-      left: 50%; // Add this line
-      transform: translateX(-50%); // Add this line
-      background-color: #ffffff; // Add this line
-      padding: 0 10px; // Add this line
-      z-index: 1; // Add this line
+      margin-bottom: 20px;
+      position: relative;
+      background-color: #ffffff;
+      padding: 0 10px;
+      z-index: 1;
     }
     .try-on-widget-rectangle {
       background-color: #f9f9f8;
@@ -693,9 +693,7 @@ console.log('Shopify try-on widget script started');
       align-items: center;
       width: 100%;
       max-width: 400px;
-      height: 200px; // Set a fixed height
-      margin-left: auto;
-      margin-right: auto;
+      height: 200px;
     }
     .try-on-widget-button {
       width: 100%;
@@ -709,50 +707,30 @@ console.log('Shopify try-on widget script started');
       border-radius: 4px;
       cursor: pointer;
       transition: all 0.3s ease;
-      
-      // New properties for text centering
       display: flex;
       justify-content: center;
       align-items: center;
       text-align: center;
       font-size: 14px;
     }
-    .try-on-widget-button:hover {
-      background-color: #333333;
-    }
-    .try-on-widget-spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #3498db;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 20px;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .try-on-widget-result-image {
-      max-width: 100%;
-      height: auto;
-      margin-bottom: 20px;
-      border-radius: 4px;
-    }
     .try-on-widget-subtext {
       font-size: 14px;
       color: #333;
       margin: 0 0 10px 0;
+      text-align: center;
+      max-width: 300px;
     }
     .try-on-widget-data-subtext {
       font-size: 10px;
       color: #666;
       margin: 5px 0 0 0;
+      text-align: center;
     }
     .try-on-widget-powered-by {
       font-size: 10px;
       color: #666;
       margin: 2px 0 0 0;
+      text-align: center;
     }
     .try-on-widget-message {
       font-size: 16px;
