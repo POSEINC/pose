@@ -845,29 +845,31 @@ console.log('Shopify try-on widget script started');
     sectionSubtext.textContent = colorVariant
       ? `See how ${productTitle} in ${colorVariant} looks on you, no dressing room required.`
       : `See how ${productTitle} looks on you, no dressing room required.`;
-    sectionSubtext.style.fontSize = '16px';
+    sectionSubtext.style.fontSize = '13px';
     sectionSubtext.style.color = '#333';
-    sectionSubtext.style.margin = '0 0 10px 0';
+    sectionSubtext.style.margin = '0 0 15px 0';
 
     // Create "Upload a photo" button
     const uploadButton = document.createElement('button');
     uploadButton.textContent = 'Upload a photo';
     uploadButton.className = 'btn';
     uploadButton.style.marginBottom = '10px';
+    uploadButton.style.margin = '0 0 0 0';
 
     // Create short subtext
     const dataSubtext = document.createElement('p');
     dataSubtext.textContent = 'Your data is never shared or stored.';
-    dataSubtext.style.fontSize = '12px';
+    dataSubtext.style.fontSize = '10px';
     dataSubtext.style.color = '#666';
     dataSubtext.style.margin = '0';
 
     // Add "POWERED BY" text
     const poweredBy = document.createElement('p');
     poweredBy.innerHTML = 'POWERED BY <strong>FITTING ROOM®</strong>';
-    poweredBy.style.fontSize = '12px';
+    poweredBy.style.fontSize = '10px';
     poweredBy.style.color = '#666';
     poweredBy.style.marginTop = '10px';
+    poweredBy.style.margin = '0 0 0 0';
 
     // Append elements to the colored rectangle
     coloredRectangle.appendChild(sectionSubtext);
