@@ -792,12 +792,12 @@ console.log('Shopify try-on widget script started');
     const style = document.createElement('style');
     style.textContent = `
       .try-on-widget-rectangle {
-        background-color: #f9f9f8 !important;
+        background-color: #e0e0e0 !important;
         padding: 10px 20px !important;
         border-radius: 8px !important;
         margin-bottom: 20px !important;
         box-shadow: none !important;
-        border: none !important;
+        border: 1px solid #999 !important; // Added a border
         display: block !important;
       }
     `;
@@ -830,12 +830,12 @@ console.log('Shopify try-on widget script started');
     const coloredRectangle = document.createElement('div');
     coloredRectangle.className = 'try-on-widget-rectangle';
     coloredRectangle.style.cssText = `
-      background-color: #f9f9f8;
+      background-color: #e0e0e0;
       padding: 10px 20px;
       border-radius: 8px;
       margin-bottom: 20px;
       box-shadow: none;
-      border: none;
+      border: 1px solid #999;
       display: block;
     `;
 
@@ -1097,6 +1097,19 @@ console.log('Shopify try-on widget script started');
     `;
     debugElement.textContent = 'Debug: If you can see this, the widget is inserted correctly.';
     widgetContainer.appendChild(debugElement);
+
+    // Add this after creating the coloredRectangle
+    console.log('Colored Rectangle created:', coloredRectangle);
+
+    // Add this just before appending coloredRectangle to widgetContainer
+    console.log('Appending Colored Rectangle. Contents:', coloredRectangle.innerHTML);
+
+    // Modify the debug element to include more information
+    debugElement.innerHTML = `
+      Debug: Widget inserted correctly.<br>
+      Colored Rectangle children: ${coloredRectangle.childElementCount}<br>
+      First child: ${coloredRectangle.firstElementChild ? coloredRectangle.firstElementChild.tagName : 'None'}
+    `;
   }
 
   // Start the global status checker on all pages
