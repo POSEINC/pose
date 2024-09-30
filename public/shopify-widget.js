@@ -788,17 +788,17 @@ console.log('Shopify try-on widget script started');
 
     const colorVariant = getSelectedColorVariant();
 
-    // Update the style tag
+    // Define styles in the style tag
     const style = document.createElement('style');
     style.textContent = `
       .try-on-widget-rectangle {
-        background-color: #f9f9f8 !important;
-        padding: 20px !important;
-        border-radius: 8px !important;
-        margin-bottom: 20px !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
-        border: 1px solid #e0e0e0 !important;
-        display: block !important;
+        background-color: #f9f9f8;
+        padding: 30px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        border: 1px solid #e0e0e0;
+        display: block;
       }
     `;
     document.head.appendChild(style);
@@ -826,18 +826,10 @@ console.log('Shopify try-on widget script started');
     sectionTitle.style.marginTop = '0';
     sectionTitle.style.marginBottom = '10px';
 
-    // Update the colored rectangle creation
+    // Create the colored rectangle
     const coloredRectangle = document.createElement('div');
     coloredRectangle.className = 'try-on-widget-rectangle';
-    coloredRectangle.style.cssText = `
-      background-color: #f9f9f8;
-      padding: 20px 0 0 0 ;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      border: 1px solid #e0e0e0;
-      display: block;
-    `;
+    // No inline styles needed here
 
     // Add subtext
     const sectionSubtext = document.createElement('p');
