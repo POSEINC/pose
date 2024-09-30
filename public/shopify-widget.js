@@ -592,14 +592,14 @@ console.log('Shopify try-on widget script started');
             clearInterval(pollInterval);
             console.log('Job completed successfully:', data.output);
             updateStoredJobStatus('completed', data.output);
-            displayResult(data.output);
+            showNotification('Look how great you look!', data.output);
             setUploadBoxState(false); // Enable the upload box
             resetUploadBox(); // Reset the upload box
           } else if (data.status === 'failed') {
             clearInterval(pollInterval);
             console.error('Processing failed:', data.error);
             updateStoredJobStatus('failed');
-            displayResult(`Error: Processing failed - ${data.error}`);
+            showNotification('Virtual try-on processing failed. Please try again.');
             setUploadBoxState(false); // Enable the upload box
             resetUploadBox(); // Reset the upload box
           } else if (data.status === 'processing') {
@@ -608,7 +608,7 @@ console.log('Shopify try-on widget script started');
               clearInterval(pollInterval);
               console.error('Polling timeout reached');
               updateStoredJobStatus('timeout');
-              displayResult('Error: Processing timeout');
+              showNotification('Error: Processing timeout. Please try again.');
               setUploadBoxState(false); // Enable the upload box
               resetUploadBox(); // Reset the upload box
             }
@@ -616,7 +616,7 @@ console.log('Shopify try-on widget script started');
             clearInterval(pollInterval);
             console.error('Unexpected status:', data.status);
             updateStoredJobStatus('error');
-            displayResult('Error: Unexpected response from server');
+            showNotification('Error: Unexpected response from server. Please try again.');
             setUploadBoxState(false); // Enable the upload box
             resetUploadBox(); // Reset the upload box
           }
@@ -624,7 +624,7 @@ console.log('Shopify try-on widget script started');
           console.error('Error polling job status:', error);
           clearInterval(pollInterval);
           updateStoredJobStatus('error');
-          displayResult(`Error: Unable to get processing status - ${error.message}`);
+          showNotification(`Error: Unable to get processing status - ${error.message}`);
           setUploadBoxState(false); // Enable the upload box
           resetUploadBox(); // Reset the upload box
         }
@@ -632,21 +632,40 @@ console.log('Shopify try-on widget script started');
     }, 3000);
   }
 
+  // Add this function to reset the upload box
+  function resetUploadBox() {
+    const coloredRectangle = document.querySelector('.try-on-widget-rectangle');
+    if (coloredRectangle) {
+      coloredRectangle.innerHTML = `
+        <p class="try-on-widget-subtext">See how ${productTitle} looks on you, no dressing room required.</p>
+        <button class="try-on-widget-button">Upload a photo</button>
+        <p class="try-on-widget-data-subtext">Your data is never shared or stored.</p>
+      `;
+      const uploadButton = coloredRectangle.querySelector('.try-on-widget-button');
+      if (uploadButton) {
+        uploadButton.addEventListener('click', (e) => {
+          e.preventDefault();
+          showQuickTips();
+        });
+      }
+    }
+  }
+
   // Define all styles in the style tag
   const style = document.createElement('style');
   style.textContent = `
     .try-on-widget-rectangle {
       background-color: #f9f9f8;
-      padding: 30px;
+      padding: 10px;
       border-radius: 8px;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       border: 1px solid #e0e0e0;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      min-height: 300px;
+      min-height: 100px;
       width: 100%;
       max-width: 400px;
       margin-left: auto;
@@ -655,7 +674,7 @@ console.log('Shopify try-on widget script started');
     .try-on-widget-button {
       width: 100%;
       max-width: 300px;
-      height: 50px;
+      height: 30px;
       line-height: 50px;
       padding: 0;
       background-color: #000000;
