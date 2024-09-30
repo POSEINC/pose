@@ -811,14 +811,23 @@ console.log('Shopify try-on widget script started');
     sectionTitle.style.marginTop = '0';
     sectionTitle.style.marginBottom = '10px'; // Reduce this value from 20px to 10px
 
+    // Create a style tag for our custom CSS
+    const style = document.createElement('style');
+    style.textContent = `
+      .try-on-widget-rectangle {
+        background-color: #f9f9f8;
+        padding: 10px 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: none;
+        border: none;
+      }
+    `;
+    document.head.appendChild(style);
+
     // Colored rectangle
     const coloredRectangle = document.createElement('div');
-    coloredRectangle.style.backgroundColor = '#f9f9f8';
-    coloredRectangle.style.padding = '10px 20px';
-    coloredRectangle.style.borderRadius = '8px';
-    coloredRectangle.style.marginBottom = '20px';
-    coloredRectangle.style.boxShadow = 'none'; // Ensure no shadow
-    coloredRectangle.style.border = 'none'; // Ensure no border
+    coloredRectangle.className = 'try-on-widget-rectangle';
 
     // Add subtext
     const sectionSubtext = document.createElement('p');
