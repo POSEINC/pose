@@ -831,7 +831,7 @@ console.log('Shopify try-on widget script started');
     coloredRectangle.className = 'try-on-widget-rectangle';
     coloredRectangle.style.cssText = `
       background-color: #f9f9f8;
-      padding: 20px;
+      padding: 20px 0 0 0 ;
       border-radius: 8px;
       margin-bottom: 20px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
@@ -853,15 +853,21 @@ console.log('Shopify try-on widget script started');
     const uploadButton = document.createElement('button');
     uploadButton.textContent = 'Upload a photo';
     uploadButton.className = 'btn';
-    uploadButton.style.marginBottom = '10px';
-    uploadButton.style.margin = '0 0 0 0';
+    uploadButton.style.cssText = `
+        margin: 10px 0;
+        width: 200px; // Adjust this value to make the button wider or narrower
+        max-width: 100%; // This ensures the button doesn't overflow on smaller screens
+        height: 50px; // Adjust this value to change the button's height
+        line-height: 50px; // This helps center the text vertically
+        padding: 0; // Remove default padding to have more precise control
+    `;
 
     // Create short subtext
     const dataSubtext = document.createElement('p');
     dataSubtext.textContent = 'Your data is never shared or stored.';
     dataSubtext.style.fontSize = '10px';
     dataSubtext.style.color = '#666';
-    dataSubtext.style.margin = '0';
+    dataSubtext.style.margin = '5px 0 0 0';
 
     // Add "POWERED BY" text
     const poweredBy = document.createElement('p');
