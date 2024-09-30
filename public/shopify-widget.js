@@ -872,6 +872,27 @@ console.log('Shopify try-on widget script started');
       return;
     }
 
+    // Create hidden file input
+    const photoUpload = document.createElement('input');
+    photoUpload.type = 'file';
+    photoUpload.id = 'photoUpload';
+    photoUpload.accept = 'image/*';
+    photoUpload.style.display = 'none';
+    document.body.appendChild(photoUpload);
+
+    // Modify the click event for the upload button
+    uploadButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      photoUpload.click();
+    });
+
+    // Add event listener for file selection
+    photoUpload.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        handleFileUpload(e.target.files[0]);
+      }
+    });
+
     function handleFileUpload(file) {
       console.log('handleFileUpload function called');
       const reader = new FileReader();
@@ -1030,17 +1051,6 @@ console.log('Shopify try-on widget script started');
     setupVariantObserver();
     console.log('Current color variant:', getSelectedColorVariant());
     console.log('Current size variant:', getSelectedSizeVariant());
-
-    // Modify the click event for the new upload button
-    uploadButton.addEventListener('click', (e) => {
-      e.preventDefault();
-      if (!modalShown && localStorage.getItem('dontShowTryOnTips') !== 'true') {
-        modal.style.display = 'block';
-        modalShown = true;
-      } else {
-        photoUpload.click();
-      }
-    });
   }
 
   // Start the global status checker on all pages
