@@ -656,6 +656,30 @@ console.log('Shopify try-on widget script started');
   // Define all styles in the style tag
   const style = document.createElement('style');
   style.textContent = `
+    .try-on-widget {
+      padding: 40px 0;
+      margin: 40px 0;
+      border-top: 1px solid #e8e8e8;
+      border-bottom: 1px solid #e8e8e8;
+      line-height: 1.25;
+      text-align: center;
+    }
+    .try-on-widget-container {
+      max-width: 600px;
+      margin: 0 auto; 
+      position: relative; 
+    }
+    .try-on-widget-title {
+      margin-top: 0;
+      margin-bottom: 20px; // Increase bottom margin
+      position: absolute; // Add this line
+      top: -30px; // Adjust this value as needed
+      left: 50%; // Add this line
+      transform: translateX(-50%); // Add this line
+      background-color: #ffffff; // Add this line
+      padding: 0 10px; // Add this line
+      z-index: 1; // Add this line
+    }
     .try-on-widget-rectangle {
       background-color: #f9f9f8;
       padding: 20px;
@@ -714,22 +738,6 @@ console.log('Shopify try-on widget script started');
       height: auto;
       margin-bottom: 20px;
       border-radius: 4px;
-    }
-    .try-on-widget {
-      padding: 40px 0;
-      margin: 40px 0;
-      border-top: 1px solid #e8e8e8;
-      border-bottom: 1px solid #e8e8e8;
-      line-height: 1.25;
-      text-align: center;
-    }
-    .try-on-widget-container {
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    .try-on-widget-title {
-      margin-top: 0;
-      margin-bottom: 10px;
     }
     .try-on-widget-subtext {
       font-size: 14px;
