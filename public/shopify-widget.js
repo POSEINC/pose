@@ -689,7 +689,7 @@ console.log('Shopify try-on widget script started');
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: 300px;
+    min-height: 250px;
     width: 100%;
     max-width: 400px;
     margin-left: auto;
@@ -1080,7 +1080,7 @@ console.log('Shopify try-on widget script started');
       const currentProductImage = getSelectedVariantImageUrl() || productImage;
       console.log('Garment Image:', currentProductImage);
       console.log('Human Image:', humanImg.substring(0, 50) + '...');
-      console.log('Garment Description:', JSON.stringify(garmentDes));
+      console.log('Garment Description:', productTitle);
       
       try {
         const garmImgUrl = currentProductImage.startsWith('//') ? 'https:' + currentProductImage : currentProductImage;
@@ -1094,7 +1094,7 @@ console.log('Shopify try-on widget script started');
           body: JSON.stringify({ 
             garm_img: garmImgUrl, 
             human_img: humanImgUrl, 
-            garment_des: garmentDes 
+            garment_des: productTitle  // Use productTitle directly as garment_des
           }),
         });
 
