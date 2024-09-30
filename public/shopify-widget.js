@@ -475,7 +475,7 @@ console.log('Shopify try-on widget script started');
 
   function setupVariantObserver() {
     // Get the section subtext element
-    const sectionSubtext = document.querySelector('.section-header__subtext');
+    const sectionSubtext = document.querySelector('.try-on-widget-subtext');
 
     variantObserver = new MutationObserver(() => {
       const newColor = getSelectedColorVariant();
@@ -486,8 +486,10 @@ console.log('Shopify try-on widget script started');
       console.log('Selected Size:', newSize);
       console.log('Updated product image:', newImageUrl);
 
-      if (newColor && sectionSubtext) {
-        let subtext = `See how ${productTitle} in ${newColor} looks on you, no dressing room required.`;
+      if (sectionSubtext) {
+        let subtext = newColor
+          ? `See how ${productTitle} in ${newColor} looks on you, no dressing room required.`
+          : `See how ${productTitle} looks on you, no dressing room required.`;
         sectionSubtext.textContent = subtext;
         
         if (newImageUrl) {
@@ -674,8 +676,7 @@ console.log('Shopify try-on widget script started');
     .try-on-widget-button {
       width: 100%;
       max-width: 300px;
-      height: 30px;
-      line-height: 50px;
+      height: 40px;
       padding: 0;
       background-color: #000000;
       color: #ffffff;
@@ -683,6 +684,13 @@ console.log('Shopify try-on widget script started');
       border-radius: 4px;
       cursor: pointer;
       transition: all 0.3s ease;
+      
+      // New properties for text centering
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      font-size: 14px;
     }
     .try-on-widget-button:hover {
       background-color: #333333;
@@ -898,8 +906,9 @@ console.log('Shopify try-on widget script started');
     // Add subtext
     const sectionSubtext = document.createElement('p');
     sectionSubtext.className = 'try-on-widget-subtext';
-    sectionSubtext.textContent = colorVariant
-      ? `See how ${productTitle} in ${colorVariant} looks on you, no dressing room required.`
+    const initialColor = getSelectedColorVariant();
+    sectionSubtext.textContent = initialColor
+      ? `See how ${productTitle} in ${initialColor} looks on you, no dressing room required.`
       : `See how ${productTitle} looks on you, no dressing room required.`;
 
     // Create short subtext
