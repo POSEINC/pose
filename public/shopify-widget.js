@@ -677,6 +677,62 @@ console.log('Shopify try-on widget script started');
     }, 3000);
   }
 
+  // Add this variable definition before the showQuickTips function
+  const coloredRectangleStyle = `
+    background-color: #f9f9f8;
+    padding: 30px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #e0e0e0;
+    display: block;
+  `;
+
+  // Modify the showQuickTips function
+  function showQuickTips() {
+    const coloredRectangle = document.querySelector('.try-on-widget-rectangle');
+    if (coloredRectangle) {
+      coloredRectangle.style.cssText = coloredRectangleStyle;
+      coloredRectangle.innerHTML = `
+        <div>
+          <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 15px;">Quick pro tips</h3>
+          <ul style="list-style-type: none; padding: 0; margin: 0; text-align: center; font-size: 13px;">
+            <li style="margin-bottom: 10px;">Solo: be the only one in the photo.</li>
+            <li style="margin-bottom: 10px;">Pose: stand naturally facing forward.</li>
+            <li style="margin-bottom: 10px;">Full-body: use a head-to-toe photo.</li>
+            <li style="margin-bottom: 10px;">Clothing: fitted items work better.</li>
+          </ul>
+        </div>
+        <button id="gotItButton" class="btn" style="
+          margin: 10px 0 0;
+          width: 100%;
+          max-width: 300px;
+          height: 50px;
+          line-height: 50px;
+          padding: 0;
+          background-color: #000000;
+          color: #ffffff;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        ">Got it</button>
+      `;
+
+      // Add event listener for the "Got it" button
+      const gotItButton = document.getElementById('gotItButton');
+      gotItButton.addEventListener('mouseenter', () => {
+          gotItButton.style.backgroundColor = '#333333';
+      });
+      gotItButton.addEventListener('mouseleave', () => {
+          gotItButton.style.backgroundColor = '#000000';
+      });
+      gotItButton.addEventListener('click', () => {
+        photoUpload.click();
+      });
+    }
+  }
+
   // Only proceed with product-specific code if we're on a product page
   if (isProductPage()) {
    
@@ -908,51 +964,6 @@ console.log('Shopify try-on widget script started');
         uploadPhotoButton.style.color = '#f44336';
       };
       reader.readAsDataURL(file);
-    }
-
-    // Add this new function to show quick tips
-    function showQuickTips() {
-      const coloredRectangle = document.querySelector('.try-on-widget-rectangle');
-      if (coloredRectangle) {
-        coloredRectangle.style.cssText = coloredRectangleStyle;
-        coloredRectangle.innerHTML = `
-          <div>
-            <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 15px;">Quick pro tips</h3>
-            <ul style="list-style-type: none; padding: 0; margin: 0; text-align: center; font-size: 13px;">
-              <li style="margin-bottom: 10px;">Solo: be the only one in the photo.</li>
-              <li style="margin-bottom: 10px;">Pose: stand naturally facing forward.</li>
-              <li style="margin-bottom: 10px;">Full-body: use a head-to-toe photo.</li>
-              <li style="margin-bottom: 10px;">Clothing: fitted items work better.</li>
-            </ul>
-          </div>
-          <button id="gotItButton" class="btn" style="
-            margin: 10px 0 0;
-            width: 100%;
-            max-width: 300px;
-            height: 50px;
-            line-height: 50px;
-            padding: 0;
-            background-color: #000000;
-            color: #ffffff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-          ">Got it</button>
-        `;
-
-        // Add event listener for the "Got it" button
-        const gotItButton = document.getElementById('gotItButton');
-        gotItButton.addEventListener('mouseenter', () => {
-            gotItButton.style.backgroundColor = '#333333';
-        });
-        gotItButton.addEventListener('mouseleave', () => {
-            gotItButton.style.backgroundColor = '#000000';
-        });
-        gotItButton.addEventListener('click', () => {
-          photoUpload.click();
-        });
-      }
     }
 
     // Function to call Replicate API
