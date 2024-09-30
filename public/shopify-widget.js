@@ -829,7 +829,20 @@ console.log('Shopify try-on widget script started');
     // Create the colored rectangle
     const coloredRectangle = document.createElement('div');
     coloredRectangle.className = 'try-on-widget-rectangle';
-    // No inline styles needed here
+
+    // Create upload box
+    const uploadBox = document.createElement('div');
+    uploadBox.id = 'uploadBox';
+    uploadBox.style.width = '100%';
+    uploadBox.style.height = '200px';
+    uploadBox.style.border = '2px dashed #ccc';
+    uploadBox.style.borderRadius = '4px';
+    uploadBox.style.display = 'flex';
+    uploadBox.style.alignItems = 'center';
+    uploadBox.style.justifyContent = 'center';
+    uploadBox.style.marginBottom = '10px';
+    uploadBox.style.position = 'relative';
+    uploadBox.innerHTML = '<p style="text-align: center; margin: 0; padding: 20px;">Click to add a photo of yourself.<br><br>Your data is never saved or shared.</p>';
 
     // Add subtext
     const sectionSubtext = document.createElement('p');
@@ -871,6 +884,7 @@ console.log('Shopify try-on widget script started');
 
     // Append elements to the colored rectangle
     coloredRectangle.appendChild(sectionSubtext);
+    coloredRectangle.appendChild(uploadBox);
     coloredRectangle.appendChild(uploadPhotoButton);
     coloredRectangle.appendChild(dataSubtext);
 
@@ -921,34 +935,40 @@ console.log('Shopify try-on widget script started');
         const humanImg = e.target.result;
         console.log('Image uploaded:', humanImg.substring(0, 50) + '...');
         
-        console.log('Image preview added to uploadBox');
+        const uploadBox = document.getElementById('uploadBox');
+        if (uploadBox) {
+          uploadBox.innerHTML = `<img src="${humanImg}" style="max-width: 100%; max-height: 100%; object-fit: contain;">`;
+          console.log('Image preview added to uploadBox');
 
-        // Add an overlay with instructions
-        const overlay = document.createElement('div');
-        overlay.style.position = 'absolute';
-        overlay.style.top = '0';
-        overlay.style.left = '0';
-        overlay.style.width = '100%';
-        overlay.style.height = '100%';
-        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-        overlay.style.color = 'white';
-        overlay.style.display = 'flex';
-        overlay.style.alignItems = 'center';
-        overlay.style.justifyContent = 'center';
-        overlay.style.opacity = '0';
-        overlay.style.transition = 'opacity 0.3s';
-        overlay.innerHTML = '<p style="text-align: center; padding: 10px;">Click to replace image</p>';
-
-        uploadBox.appendChild(overlay);
-
-        // Show overlay on hover
-        uploadBox.addEventListener('mouseenter', () => {
-          overlay.style.opacity = '1';
-        });
-
-        uploadBox.addEventListener('mouseleave', () => {
+          // Add an overlay with instructions
+          const overlay = document.createElement('div');
+          overlay.style.position = 'absolute';
+          overlay.style.top = '0';
+          overlay.style.left = '0';
+          overlay.style.width = '100%';
+          overlay.style.height = '100%';
+          overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+          overlay.style.color = 'white';
+          overlay.style.display = 'flex';
+          overlay.style.alignItems = 'center';
+          overlay.style.justifyContent = 'center';
           overlay.style.opacity = '0';
-        });
+          overlay.style.transition = 'opacity 0.3s';
+          overlay.innerHTML = '<p style="text-align: center; padding: 10px;">Click to replace image</p>';
+
+          uploadBox.appendChild(overlay);
+
+          // Show overlay on hover
+          uploadBox.addEventListener('mouseenter', () => {
+            overlay.style.opacity = '1';
+          });
+
+          uploadBox.addEventListener('mouseleave', () => {
+            overlay.style.opacity = '0';
+          });
+        } else {
+          console.error('Upload box not found');
+        }
       };
       reader.onerror = function(error) {
         console.error('Error reading file:', error);
