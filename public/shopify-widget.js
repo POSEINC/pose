@@ -534,59 +534,25 @@ console.log('Shopify try-on widget script started');
 
   // Modify the displayInitialWaitingMessage function
   function displayInitialWaitingMessage() {
-    // Update the upload box to show a loading message
-    const uploadBox = document.getElementById('uploadBox');
-    if (uploadBox) {
-      uploadBox.innerHTML = `
-        <p style="text-align: center; margin: 0; padding: 20px; font-size: 13px; line-height: 1.4;">
-          Generation takes 60-90 seconds.<br><br>
-          Feel free to browse the site - we'll notify you when it's ready!
-        </p>
-      `;
-    }
-
     // Update the upload photo button to show it's processing
-    const uploadPhotoButton = document.querySelector('.try-on-widget button');
-    if (uploadPhotoButton) {
-      uploadPhotoButton.textContent = 'Processing...';
-      uploadPhotoButton.disabled = true;
-    }
+    uploadPhotoButton.textContent = 'Processing...';
+    uploadPhotoButton.disabled = true;
+    uploadPhotoButton.style.backgroundColor = '#f0f0f0';
+    uploadPhotoButton.style.borderColor = '#ccc';
+    uploadPhotoButton.style.color = '#666';
 
     // Show the status indicator
     updateStatusIndicator('processing', `Trying on ${productTitle} in ${getSelectedColorVariant() || 'selected color'}`);
-
-    // Disable the upload box
-    setUploadBoxState(true);
   }
 
   // Modify the displayResult function
   function displayResult(output) {
-    // Reset the upload box
-    const uploadBox = document.getElementById('uploadBox');
-    if (uploadBox) {
-      uploadBox.innerHTML = '';
-      uploadBox.style.display = 'flex';
-      uploadBox.style.flexDirection = 'column';
-      uploadBox.style.alignItems = 'center';
-      uploadBox.style.justifyContent = 'center';
-      
-      const uploadText = document.createElement('p');
-      uploadText.innerHTML = 'Click to add a photo of yourself.<br><br>Your data is never saved or shared.';
-      uploadText.style.margin = '0';
-      uploadText.style.padding = '0';
-      uploadText.style.maxWidth = '100%';
-      uploadText.style.wordWrap = 'break-word';
-      uploadText.style.fontSize = '14px';
-      
-      uploadBox.appendChild(uploadText);
-    }
-
     // Reset the upload photo button
-    const uploadPhotoButton = document.querySelector('.try-on-widget button');
-    if (uploadPhotoButton) {
-      uploadPhotoButton.textContent = 'Upload a photo';
-      uploadPhotoButton.disabled = false;
-    }
+    uploadPhotoButton.textContent = 'Upload a photo';
+    uploadPhotoButton.disabled = false;
+    uploadPhotoButton.style.backgroundColor = '#f9f9f8';
+    uploadPhotoButton.style.borderColor = '#ccc';
+    uploadPhotoButton.style.color = 'inherit';
 
     // Hide the status indicator
     updateStatusIndicator('none');
@@ -599,12 +565,6 @@ console.log('Shopify try-on widget script started');
     } else {
       showNotification('Error: Unable to generate try-on image. Please try again.');
     }
-
-    // Enable the upload box
-    setUploadBoxState(false);
-
-    // Reset the upload box
-    resetUploadBox();
   }
 
   // Add this new function to reset the upload box
@@ -719,13 +679,7 @@ console.log('Shopify try-on widget script started');
 
   // Only proceed with product-specific code if we're on a product page
   if (isProductPage()) {
-    // Move imagePreview declaration to the top
-    const imagePreview = document.createElement('img');
-    imagePreview.id = 'imagePreview';
-    imagePreview.style.maxWidth = '100%';
-    imagePreview.style.maxHeight = '200px';
-    imagePreview.style.display = 'none'; // Hidden by default
-
+   
     // Update these selectors to match your page structure
     const productTitleElement = document.querySelector('.product-single__title, .product__title, h1.title');
     let productImageElement = document.querySelector('.product__image, .product-single__image, .featured-image');
@@ -830,19 +784,33 @@ console.log('Shopify try-on widget script started');
     const coloredRectangle = document.createElement('div');
     coloredRectangle.className = 'try-on-widget-rectangle';
 
-    // Create upload box
-    const uploadBox = document.createElement('div');
-    uploadBox.id = 'uploadBox';
-    uploadBox.style.width = '100%';
-    uploadBox.style.height = '200px';
-    uploadBox.style.border = '2px dashed #ccc';
-    uploadBox.style.borderRadius = '4px';
-    uploadBox.style.display = 'flex';
-    uploadBox.style.alignItems = 'center';
-    uploadBox.style.justifyContent = 'center';
-    uploadBox.style.marginBottom = '10px';
-    uploadBox.style.position = 'relative';
-    uploadBox.innerHTML = '<p style="text-align: center; margin: 0; padding: 20px;">Click to add a photo of yourself.<br><br>Your data is never saved or shared.</p>';
+    // Modify the "Upload a photo" button creation and styling
+    const uploadPhotoButton = document.createElement('button');
+    uploadPhotoButton.textContent = 'Upload a photo';
+    uploadPhotoButton.className = 'btn';
+    uploadPhotoButton.style.cssText = `
+        margin: 10px 0;
+        width: 100%;
+        max-width: 300px;
+        height: 50px;
+        line-height: 50px;
+        padding: 0;
+        background-color: #f9f9f8;
+        border: 2px dashed #ccc;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    `;
+
+    // Add hover effect
+    uploadPhotoButton.addEventListener('mouseenter', () => {
+        uploadPhotoButton.style.backgroundColor = '#f0f0f0';
+        uploadPhotoButton.style.borderColor = '#999';
+    });
+    uploadPhotoButton.addEventListener('mouseleave', () => {
+        uploadPhotoButton.style.backgroundColor = '#f9f9f8';
+        uploadPhotoButton.style.borderColor = '#ccc';
+    });
 
     // Add subtext
     const sectionSubtext = document.createElement('p');
@@ -853,19 +821,6 @@ console.log('Shopify try-on widget script started');
     sectionSubtext.style.fontSize = '13px';
     sectionSubtext.style.color = '#333';
     sectionSubtext.style.margin = '0 0 15px 0';
-
-    // Create "Upload a photo" button
-    const uploadPhotoButton = document.createElement('button');
-    uploadPhotoButton.textContent = 'Upload a photo';
-    uploadPhotoButton.className = 'btn';
-    uploadPhotoButton.style.cssText = `
-        margin: 10px 0;
-        width: 200px; // Adjust this value to make the button wider or narrower
-        max-width: 100%; // This ensures the button doesn't overflow on smaller screens
-        height: 50px; // Adjust this value to change the button's height
-        line-height: 50px; // This helps center the text vertically
-        padding: 0; // Remove default padding to have more precise control
-    `;
 
     // Create short subtext
     const dataSubtext = document.createElement('p');
@@ -884,7 +839,6 @@ console.log('Shopify try-on widget script started');
 
     // Append elements to the colored rectangle
     coloredRectangle.appendChild(sectionSubtext);
-    coloredRectangle.appendChild(uploadBox);
     coloredRectangle.appendChild(uploadPhotoButton);
     coloredRectangle.appendChild(dataSubtext);
 
@@ -927,6 +881,7 @@ console.log('Shopify try-on widget script started');
       }
     });
 
+    // Modify the handleFileUpload function
     function handleFileUpload(file) {
       console.log('handleFileUpload function called');
       const reader = new FileReader();
@@ -935,47 +890,20 @@ console.log('Shopify try-on widget script started');
         const humanImg = e.target.result;
         console.log('Image uploaded:', humanImg.substring(0, 50) + '...');
         
-        const uploadBox = document.getElementById('uploadBox');
-        if (uploadBox) {
-          uploadBox.innerHTML = `<img src="${humanImg}" style="max-width: 100%; max-height: 100%; object-fit: contain;">`;
-          console.log('Image preview added to uploadBox');
+        // Update the button text and style
+        uploadPhotoButton.textContent = 'Photo uploaded';
+        uploadPhotoButton.style.backgroundColor = '#e6f7e6';
+        uploadPhotoButton.style.borderColor = '#4CAF50';
+        uploadPhotoButton.style.color = '#4CAF50';
 
-          // Add an overlay with instructions
-          const overlay = document.createElement('div');
-          overlay.style.position = 'absolute';
-          overlay.style.top = '0';
-          overlay.style.left = '0';
-          overlay.style.width = '100%';
-          overlay.style.height = '100%';
-          overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-          overlay.style.color = 'white';
-          overlay.style.display = 'flex';
-          overlay.style.alignItems = 'center';
-          overlay.style.justifyContent = 'center';
-          overlay.style.opacity = '0';
-          overlay.style.transition = 'opacity 0.3s';
-          overlay.innerHTML = '<p style="text-align: center; padding: 10px;">Click to replace image</p>';
-
-          uploadBox.appendChild(overlay);
-
-          // Show overlay on hover
-          uploadBox.addEventListener('mouseenter', () => {
-            overlay.style.opacity = '1';
-          });
-
-          uploadBox.addEventListener('mouseleave', () => {
-            overlay.style.opacity = '0';
-          });
-        } else {
-          console.error('Upload box not found');
-        }
       };
       reader.onerror = function(error) {
         console.error('Error reading file:', error);
         // Add visual feedback for error
-        uploadBox.style.border = '2px solid #f44336';
-        uploadBox.style.backgroundColor = '#ffebee';
-        uploadBox.innerHTML = '<p style="color: #f44336; padding: 20px;">Error uploading image. Please try again.</p>';
+        uploadPhotoButton.textContent = 'Error uploading image. Try again.';
+        uploadPhotoButton.style.backgroundColor = '#ffebee';
+        uploadPhotoButton.style.borderColor = '#f44336';
+        uploadPhotoButton.style.color = '#f44336';
       };
       reader.readAsDataURL(file);
     }
