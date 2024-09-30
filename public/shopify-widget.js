@@ -805,12 +805,10 @@ console.log('Shopify try-on widget script started');
 
     // Add hover effect
     uploadPhotoButton.addEventListener('mouseenter', () => {
-        uploadPhotoButton.style.backgroundColor = '#f0f0f0';
-        uploadPhotoButton.style.borderColor = '#999';
+        uploadPhotoButton.style.backgroundColor = '#333333';
     });
     uploadPhotoButton.addEventListener('mouseleave', () => {
-        uploadPhotoButton.style.backgroundColor = '#f9f9f8';
-        uploadPhotoButton.style.borderColor = '#ccc';
+        uploadPhotoButton.style.backgroundColor = '#000000';
     });
 
     // Add subtext
@@ -916,16 +914,19 @@ console.log('Shopify try-on widget script started');
     function showQuickTips() {
       const coloredRectangle = document.querySelector('.try-on-widget-rectangle');
       if (coloredRectangle) {
+        coloredRectangle.style.cssText = coloredRectangleStyle;
         coloredRectangle.innerHTML = `
-          <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 15px;">Quick pro tips</h3>
-          <ul style="list-style-type: none; padding: 0; margin: 0; text-align: center; font-size: 13px;">
-            <li style="margin-bottom: 10px;">Solo: be the only one in the photo.</li>
-            <li style="margin-bottom: 10px;">Pose: stand naturally facing forward.</li>
-            <li style="margin-bottom: 10px;">Full-body: use a head-to-toe photo.</li>
-            <li style="margin-bottom: 15px;">Clothing: fitted items work better.</li>
-          </ul>
+          <div>
+            <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 15px;">Quick pro tips</h3>
+            <ul style="list-style-type: none; padding: 0; margin: 0; text-align: center; font-size: 13px;">
+              <li style="margin-bottom: 10px;">Solo: be the only one in the photo.</li>
+              <li style="margin-bottom: 10px;">Pose: stand naturally facing forward.</li>
+              <li style="margin-bottom: 10px;">Full-body: use a head-to-toe photo.</li>
+              <li style="margin-bottom: 10px;">Clothing: fitted items work better.</li>
+            </ul>
+          </div>
           <button id="gotItButton" class="btn" style="
-            margin: 10px 0;
+            margin: 10px 0 0;
             width: 100%;
             max-width: 300px;
             height: 50px;
@@ -939,7 +940,6 @@ console.log('Shopify try-on widget script started');
             transition: all 0.3s ease;
           ">Got it</button>
         `;
-        coloredRectangle.style.textAlign = 'center';
 
         // Add event listener for the "Got it" button
         const gotItButton = document.getElementById('gotItButton');
