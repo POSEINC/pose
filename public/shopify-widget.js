@@ -666,19 +666,19 @@ console.log('Shopify try-on widget script started');
     }
     .try-on-widget-container {
       max-width: 600px;
-      margin: 0 auto; 
-      position: relative; 
+      margin: 0 auto;
+      position: relative;
     }
     .try-on-widget-title {
       margin-top: 0;
-      margin-bottom: 20px; // Increase bottom margin
-      position: absolute; // Add this line
-      top: -30px; // Adjust this value as needed
-      left: 50%; // Add this line
-      transform: translateX(-50%); // Add this line
-      background-color: #ffffff; // Add this line
-      padding: 0 10px; // Add this line
-      z-index: 1; // Add this line
+      margin-bottom: 20px;
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #ffffff;
+      padding: 0 10px;
+      z-index: 1;
     }
     .try-on-widget-rectangle {
       background-color: #f9f9f8;
@@ -766,6 +766,16 @@ console.log('Shopify try-on widget script started');
       opacity: 0.5;
       pointer-events: none;
     }
+    .try-on-widget-tips {
+      list-style-type: none;
+      padding: 0;
+      margin: 0 0 15px 0;
+      text-align: left;
+    }
+
+    .try-on-widget-tips li {
+      margin-bottom: 5px;
+    }
   `;
   document.head.appendChild(style);
 
@@ -775,7 +785,7 @@ console.log('Shopify try-on widget script started');
     if (coloredRectangle) {
       coloredRectangle.innerHTML = `
         <h3>Quick pro tips</h3>
-        <ul>
+        <ul class="try-on-widget-tips">
           <li>Solo: be the only one in the photo.</li>
           <li>Pose: stand naturally facing forward.</li>
           <li>Full-body: use a head-to-toe photo.</li>
