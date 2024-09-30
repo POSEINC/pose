@@ -516,78 +516,32 @@ console.log('Shopify try-on widget script started');
   }
 
   // Add this new function
-  function setUploadBoxState(disabled) {
-    const uploadBox = document.getElementById('uploadBox');
-    const photoUpload = document.getElementById('photoUpload');
-    if (uploadBox && photoUpload) {
-      if (disabled) {
-        uploadBox.style.pointerEvents = 'none';
-        uploadBox.style.opacity = '0.5';
-        photoUpload.disabled = true;
+  function setUploadBoxState(isDisabled) {
+    const uploadBox = document.querySelector('.try-on-widget-rectangle');
+    const uploadButton = document.querySelector('.try-on-widget-button');
+    
+    if (uploadBox && uploadButton) {
+      if (isDisabled) {
+        uploadBox.classList.add('disabled');
+        uploadButton.disabled = true;
       } else {
-        uploadBox.style.pointerEvents = 'auto';
-        uploadBox.style.opacity = '1';
-        photoUpload.disabled = false;
+        uploadBox.classList.remove('disabled');
+        uploadButton.disabled = false;
       }
     }
   }
 
   // Modify the displayInitialWaitingMessage function
   function displayInitialWaitingMessage() {
-    // Update the upload photo button to show it's processing
-    uploadPhotoButton.textContent = 'Processing...';
-    uploadPhotoButton.disabled = true;
-    uploadPhotoButton.style.backgroundColor = '#f0f0f0';
-    uploadPhotoButton.style.borderColor = '#ccc';
-    uploadPhotoButton.style.color = '#666';
-
-    // Show the status indicator
-    updateStatusIndicator('processing', `Trying on ${productTitle} in ${getSelectedColorVariant() || 'selected color'}`);
-  }
-
-  // Modify the displayResult function
-  function displayResult(output) {
-    // Reset the upload photo button
-    uploadPhotoButton.textContent = 'Upload a photo';
-    uploadPhotoButton.disabled = false;
-    uploadPhotoButton.style.backgroundColor = '#f9f9f8';
-    uploadPhotoButton.style.borderColor = '#ccc';
-    uploadPhotoButton.style.color = 'inherit';
-
-    // Hide the status indicator
-    updateStatusIndicator('none');
-
-    // Show the result in a notification
-    if (typeof output === 'string' && output.startsWith('http')) {
-      showNotification('Look how great you look!', output);
-    } else if (Array.isArray(output) && output.length > 0 && output[0].startsWith('http')) {
-      showNotification('Look how great you look!', output[0]);
-    } else {
-      showNotification('Error: Unable to generate try-on image. Please try again.');
+    const coloredRectangle = document.querySelector('.try-on-widget-rectangle');
+    if (coloredRectangle) {
+      coloredRectangle.innerHTML = `
+        <div class="try-on-widget-spinner"></div>
+        <p class="try-on-widget-message">Initializing try-on experience...</p>
+        <p class="try-on-widget-submessage">This may take a few moments.</p>
+      `;
     }
   }
-
-  // Add this new function to reset the upload box
-  function resetUploadBox() {
-    const uploadBox = document.getElementById('uploadBox');
-    if (uploadBox) {
-      uploadBox.innerHTML = '';
-      uploadBox.style.display = 'flex';
-      uploadBox.style.flexDirection = 'column';
-      uploadBox.style.alignItems = 'center';
-      uploadBox.style.justifyContent = 'center';
-      uploadBox.style.padding = '20px';
-      
-      const uploadText = document.createElement('p');
-      uploadText.innerHTML = 'Click to add a photo of yourself.<br><br>Your data is never saved or shared.';
-      uploadText.style.margin = '0';
-      uploadText.style.padding = '0';
-      uploadText.style.maxWidth = '100%';
-      uploadText.style.wordWrap = 'break-word';
-      uploadText.style.fontSize = '14px';
-      
-      uploadBox.appendChild(uploadText);
-    }
 
     // Reset the upload photo button
     const uploadPhotoButton = document.querySelector('.try-on-widget button');
@@ -677,154 +631,156 @@ console.log('Shopify try-on widget script started');
     }, 3000);
   }
 
-  // Modify this variable definition
-  const coloredRectangleStyle = `
-    background-color: #f9f9f8;
-    padding: 30px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    border: 1px solid #e0e0e0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 250px;
-    width: 100%;
-    max-width: 400px;
-    margin-left: auto;
-    margin-right: auto;
+  // Define all styles in the style tag
+  const style = document.createElement('style');
+  style.textContent = `
+    .try-on-widget-rectangle {
+      background-color: #f9f9f8;
+      padding: 30px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border: 1px solid #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 300px;
+      width: 100%;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .try-on-widget-button {
+      width: 100%;
+      max-width: 300px;
+      height: 50px;
+      line-height: 50px;
+      padding: 0;
+      background-color: #000000;
+      color: #ffffff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .try-on-widget-button:hover {
+      background-color: #333333;
+    }
+    .try-on-widget-spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .try-on-widget-result-image {
+      max-width: 100%;
+      height: auto;
+      margin-bottom: 20px;
+      border-radius: 4px;
+    }
+    .try-on-widget {
+      padding: 40px 0;
+      margin: 40px 0;
+      border-top: 1px solid #e8e8e8;
+      border-bottom: 1px solid #e8e8e8;
+      line-height: 1.25;
+      text-align: center;
+    }
+    .try-on-widget-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .try-on-widget-title {
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+    .try-on-widget-subtext {
+      font-size: 14px;
+      color: #333;
+      margin: 0 0 10px 0;
+    }
+    .try-on-widget-data-subtext {
+      font-size: 10px;
+      color: #666;
+      margin: 5px 0 0 0;
+    }
+    .try-on-widget-powered-by {
+      font-size: 10px;
+      color: #666;
+      margin: 2px 0 0 0;
+    }
+    .try-on-widget-message {
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    .try-on-widget-submessage {
+      font-size: 14px;
+      color: #666;
+    }
+    .try-on-widget-rectangle.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
   `;
+  document.head.appendChild(style);
 
-  // Modify the showQuickTips function
+  // Simplified functions
   function showQuickTips() {
     const coloredRectangle = document.querySelector('.try-on-widget-rectangle');
     if (coloredRectangle) {
-      coloredRectangle.style.cssText = coloredRectangleStyle;
       coloredRectangle.innerHTML = `
-        <div style="width: 100%;">
-          <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 18px;">Quick pro tips</h3>
-          <ul style="list-style-type: none; padding: 0; margin: 0 0 20px; text-align: left; font-size: 14px;">
-            <li style="margin-bottom: 10px;">• Solo: be the only one in the photo.</li>
-            <li style="margin-bottom: 10px;">• Pose: stand naturally facing forward.</li>
-            <li style="margin-bottom: 10px;">• Full-body: use a head-to-toe photo.</li>
-            <li style="margin-bottom: 10px;">• Clothing: fitted items work better.</li>
-          </ul>
-          <button id="gotItButton" class="btn" style="
-            width: 100%;
-            max-width: 300px;
-            height: 50px;
-            line-height: 50px;
-            padding: 0;
-            background-color: #000000;
-            color: #ffffff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-          ">Got it</button>
-        </div>
+        <h3>Quick pro tips</h3>
+        <ul>
+          <li>Solo: be the only one in the photo.</li>
+          <li>Pose: stand naturally facing forward.</li>
+          <li>Full-body: use a head-to-toe photo.</li>
+          <li>Clothing: fitted items work better.</li>
+        </ul>
+        <button id="gotItButton" class="try-on-widget-button">Got it</button>
       `;
-
-      // Add event listener for the "Got it" button
-      const gotItButton = document.getElementById('gotItButton');
-      gotItButton.addEventListener('mouseenter', () => {
-          gotItButton.style.backgroundColor = '#333333';
-      });
-      gotItButton.addEventListener('mouseleave', () => {
-          gotItButton.style.backgroundColor = '#000000';
-      });
-      gotItButton.addEventListener('click', () => {
+      document.getElementById('gotItButton').addEventListener('click', () => {
         photoUpload.click();
       });
     }
   }
 
-  // Modify the showProcessingMessage function (if it exists, otherwise create it)
-  function showProcessingMessage() {
+  function showWaitingMessage(message = 'Processing your image...', submessage = 'This may take a few moments.') {
     const coloredRectangle = document.querySelector('.try-on-widget-rectangle');
     if (coloredRectangle) {
-      coloredRectangle.style.cssText = coloredRectangleStyle;
       coloredRectangle.innerHTML = `
-        <div style="width: 100%; text-align: center;">
-          <div class="try-on-spinner" style="
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-          "></div>
-          <p style="font-size: 16px; margin-bottom: 10px;">Processing your image...</p>
-          <p style="font-size: 14px; color: #666;">This may take a few moments.</p>
-        </div>
+        <div class="try-on-widget-spinner"></div>
+        <p class="try-on-widget-message">${message}</p>
+        <p class="try-on-widget-submessage">${submessage}</p>
       `;
     }
   }
 
-  // Modify the displayResult function
   function displayResult(output) {
-    // Reset the upload photo button
-    uploadPhotoButton.textContent = 'Upload a photo';
-    uploadPhotoButton.disabled = false;
-    uploadPhotoButton.style.backgroundColor = '#f9f9f8';
-    uploadPhotoButton.style.borderColor = '#ccc';
-    uploadPhotoButton.style.color = 'inherit';
-
-    // Hide the status indicator
-    updateStatusIndicator('none');
-
     const coloredRectangle = document.querySelector('.try-on-widget-rectangle');
     if (coloredRectangle) {
-      coloredRectangle.style.cssText = coloredRectangleStyle;
       if (typeof output === 'string' && output.startsWith('http')) {
         coloredRectangle.innerHTML = `
-          <div style="width: 100%; text-align: center;">
-            <img src="${output}" alt="Try-on result" style="max-width: 100%; height: auto; margin-bottom: 20px; border-radius: 4px;">
-            <button id="tryAgainButton" class="btn" style="
-              width: 100%;
-              max-width: 300px;
-              height: 50px;
-              line-height: 50px;
-              padding: 0;
-              background-color: #000000;
-              color: #ffffff;
-              border: none;
-              border-radius: 4px;
-              cursor: pointer;
-              transition: all 0.3s ease;
-            ">Try another photo</button>
-          </div>
+          <img src="${output}" alt="Try-on result" class="try-on-widget-result-image">
+          <button id="tryAgainButton" class="try-on-widget-button">Try another photo</button>
         `;
-        
-        const tryAgainButton = document.getElementById('tryAgainButton');
-        tryAgainButton.addEventListener('click', () => {
+        document.getElementById('tryAgainButton').addEventListener('click', () => {
           resetUploadBox();
           showQuickTips();
         });
       } else {
         coloredRectangle.innerHTML = `
-          <div style="width: 100%; text-align: center;">
-            <p style="font-size: 16px; margin-bottom: 20px;">${output}</p>
-            <button id="tryAgainButton" class="btn" style="
-              width: 100%;
-              max-width: 300px;
-              height: 50px;
-              line-height: 50px;
-              padding: 0;
-              background-color: #000000;
-              color: #ffffff;
-              border: none;
-              border-radius: 4px;
-              cursor: pointer;
-              transition: all 0.3s ease;
-            ">Try again</button>
-          </div>
+          <p>${output}</p>
+          <button id="tryAgainButton" class="try-on-widget-button">Try again</button>
         `;
-        
-        const tryAgainButton = document.getElementById('tryAgainButton');
-        tryAgainButton.addEventListener('click', () => {
+        document.getElementById('tryAgainButton').addEventListener('click', () => {
           resetUploadBox();
           showQuickTips();
         });
@@ -897,51 +853,18 @@ console.log('Shopify try-on widget script started');
 
     const colorVariant = getSelectedColorVariant();
 
-    // Define styles in the style tag
-    const style = document.createElement('style');
-    style.textContent = `
-      .try-on-widget-rectangle {
-        background-color: #f9f9f8;
-        padding: 30px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        border: 1px solid #e0e0e0;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        min-height: 300px;
-        width: 100%;
-        max-width: 400px;
-        margin-left: auto;
-        margin-right: auto;
-      }
-    `;
-    document.head.appendChild(style);
-
     // Create the widget section
     const widgetSection = document.createElement('section');
     widgetSection.className = 'try-on-widget';
-    widgetSection.style.padding = '40px 0';
-    widgetSection.style.margin = '40px 0';
-    widgetSection.style.borderTop = '1px solid #e8e8e8';
-    widgetSection.style.borderBottom = '1px solid #e8e1';
-    widgetSection.style.lineHeight = '1.25';
-    widgetSection.style.textAlign = 'center';
 
     // Create a container for the widget content
     const widgetContainer = document.createElement('div');
-    widgetContainer.className = 'page-width';
-    widgetContainer.style.maxWidth = '600px';
-    widgetContainer.style.margin = '0 auto';
+    widgetContainer.className = 'try-on-widget-container';
 
     // Section title
     const sectionTitle = document.createElement('h2');
-    sectionTitle.className = 'section-header__title';
+    sectionTitle.className = 'try-on-widget-title';
     sectionTitle.textContent = 'See yourself wearing it';
-    sectionTitle.style.marginTop = '0';
-    sectionTitle.style.marginBottom = '10px';
 
     // Create the colored rectangle
     const coloredRectangle = document.createElement('div');
@@ -950,54 +873,24 @@ console.log('Shopify try-on widget script started');
     // Modify the "Upload a photo" button creation and styling
     const uploadPhotoButton = document.createElement('button');
     uploadPhotoButton.textContent = 'Upload a photo';
-    uploadPhotoButton.className = 'btn';
-    uploadPhotoButton.style.cssText = `
-        margin: 10px 0;
-        width: 100%;
-        max-width: 300px;
-        height: 50px;
-        line-height: 50px;
-        padding: 0;
-        background-color: #000000;
-        color: #ffffff;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    `;
-
-    // Add hover effect
-    uploadPhotoButton.addEventListener('mouseenter', () => {
-        uploadPhotoButton.style.backgroundColor = '#333333';
-    });
-    uploadPhotoButton.addEventListener('mouseleave', () => {
-        uploadPhotoButton.style.backgroundColor = '#000000';
-    });
+    uploadPhotoButton.className = 'try-on-widget-button';
 
     // Add subtext
     const sectionSubtext = document.createElement('p');
-    sectionSubtext.className = 'section-header__subtext';
+    sectionSubtext.className = 'try-on-widget-subtext';
     sectionSubtext.textContent = colorVariant
       ? `See how ${productTitle} in ${colorVariant} looks on you, no dressing room required.`
       : `See how ${productTitle} looks on you, no dressing room required.`;
-    sectionSubtext.style.fontSize = '14px';
-    sectionSubtext.style.color = '#333';
-    sectionSubtext.style.margin = '0 0 0 0';
 
     // Create short subtext
     const dataSubtext = document.createElement('p');
+    dataSubtext.className = 'try-on-widget-data-subtext';
     dataSubtext.textContent = 'Your data is never shared or stored.';
-    dataSubtext.style.fontSize = '10px';
-    dataSubtext.style.color = '#666';
-    dataSubtext.style.margin = '5px 0 0 0';
 
     // Add "POWERED BY" text
     const poweredBy = document.createElement('p');
+    poweredBy.className = 'try-on-widget-powered-by';
     poweredBy.innerHTML = 'POWERED BY <strong>FITTING ROOM®</strong>';
-    poweredBy.style.fontSize = '10px';
-    poweredBy.style.color = '#666';
-    poweredBy.style.marginTop = '10px';
-    poweredBy.style.margin = '2px 0 0 0';
 
     // Append elements to the colored rectangle
     coloredRectangle.appendChild(sectionSubtext);
@@ -1053,7 +946,7 @@ console.log('Shopify try-on widget script started');
         console.log('Image uploaded:', humanImg.substring(0, 50) + '...');
         
         // Update the rectangle content to show processing
-        showProcessingMessage();
+        showWaitingMessage();
         
         // Call the API
         callReplicateAPI(humanImg, {
