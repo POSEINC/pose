@@ -545,11 +545,11 @@ console.log('Shopify try-on widget script started');
       `;
     }
 
-    // Update the try-on button to show it's processing
-    const tryItOnButton = document.querySelector('.try-on-widget button');
-    if (tryItOnButton) {
-      tryItOnButton.textContent = 'Processing...';
-      tryItOnButton.disabled = true;
+    // Update the upload photo button to show it's processing
+    const uploadPhotoButton = document.querySelector('.try-on-widget button');
+    if (uploadPhotoButton) {
+      uploadPhotoButton.textContent = 'Processing...';
+      uploadPhotoButton.disabled = true;
     }
 
     // Show the status indicator
@@ -581,11 +581,11 @@ console.log('Shopify try-on widget script started');
       uploadBox.appendChild(uploadText);
     }
 
-    // Reset the try-on button
-    const tryItOnButton = document.querySelector('.try-on-widget button');
-    if (tryItOnButton) {
-      tryItOnButton.textContent = 'Try it on';
-      tryItOnButton.disabled = false;
+    // Reset the upload photo button
+    const uploadPhotoButton = document.querySelector('.try-on-widget button');
+    if (uploadPhotoButton) {
+      uploadPhotoButton.textContent = 'Upload a photo';
+      uploadPhotoButton.disabled = false;
     }
 
     // Hide the status indicator
@@ -629,11 +629,11 @@ console.log('Shopify try-on widget script started');
       uploadBox.appendChild(uploadText);
     }
 
-    // Reset the try-on button
-    const tryItOnButton = document.querySelector('.try-on-widget button');
-    if (tryItOnButton) {
-      tryItOnButton.textContent = 'Try it on';
-      tryItOnButton.disabled = true;
+    // Reset the upload photo button
+    const uploadPhotoButton = document.querySelector('.try-on-widget button');
+    if (uploadPhotoButton) {
+      uploadPhotoButton.textContent = 'Upload a photo';
+      uploadPhotoButton.disabled = true;
     }
   }
 
@@ -842,10 +842,10 @@ console.log('Shopify try-on widget script started');
     sectionSubtext.style.margin = '0 0 15px 0';
 
     // Create "Upload a photo" button
-    const uploadButton = document.createElement('button');
-    uploadButton.textContent = 'Upload a photo';
-    uploadButton.className = 'btn';
-    uploadButton.style.cssText = `
+    const uploadPhotoButton = document.createElement('button');
+    uploadPhotoButton.textContent = 'Upload a photo';
+    uploadPhotoButton.className = 'btn';
+    uploadPhotoButton.style.cssText = `
         margin: 10px 0;
         width: 200px; // Adjust this value to make the button wider or narrower
         max-width: 100%; // This ensures the button doesn't overflow on smaller screens
@@ -867,11 +867,11 @@ console.log('Shopify try-on widget script started');
     poweredBy.style.fontSize = '10px';
     poweredBy.style.color = '#666';
     poweredBy.style.marginTop = '10px';
-    poweredBy.style.margin = '0 0 0 0';
+    poweredBy.style.margin = '2px 0 0 0';
 
     // Append elements to the colored rectangle
     coloredRectangle.appendChild(sectionSubtext);
-    coloredRectangle.appendChild(uploadButton);
+    coloredRectangle.appendChild(uploadPhotoButton);
     coloredRectangle.appendChild(dataSubtext);
 
     // Append elements to the widget container
@@ -901,7 +901,7 @@ console.log('Shopify try-on widget script started');
     document.body.appendChild(photoUpload);
 
     // Modify the click event for the upload button
-    uploadButton.addEventListener('click', (e) => {
+    uploadPhotoButton.addEventListener('click', (e) => {
       e.preventDefault();
       photoUpload.click();
     });
@@ -920,21 +920,7 @@ console.log('Shopify try-on widget script started');
         console.log('FileReader onload event triggered');
         const humanImg = e.target.result;
         console.log('Image uploaded:', humanImg.substring(0, 50) + '...');
-
-        // Display the uploaded image preview
-        imagePreview.src = humanImg;
-        imagePreview.style.display = 'block';
-        imagePreview.style.width = '100%';
-        imagePreview.style.height = '100%';
-        imagePreview.style.objectFit = 'cover';
-        tryItOnButton.disabled = false;
         
-        // Clear the upload box and add the preview
-        uploadBox.innerHTML = '';
-        uploadBox.style.padding = '0'; // Remove padding
-        uploadBox.style.overflow = 'hidden'; // Hide overflow
-        uploadBox.appendChild(imagePreview);
-
         console.log('Image preview added to uploadBox');
 
         // Add an overlay with instructions
@@ -1026,92 +1012,12 @@ console.log('Shopify try-on widget script started');
       setUploadBoxState(true);
     }
 
-    const waitingMessages = [
-      "Get ready to strike a pose - your new look is loading!",
-      "Fashion magic in progress...",
-      "You're going to look great in this.",
-      "Summoning the style gods...",
-      "Transforming pixels into your perfect look.",
-      "Channeling your inner supermodel...",
-      "Sprinkling some virtual fairy dust on your outfit...",
-      "Turning up the fashion volume to eleven...",
-      "Buffing the digital runway for your grand entrance...",
-      "You're about to see yourself in a whole new light.",
-      "Tailoring pixels to perfection, just for you.",
-      "Your mirror's about to get jealous.",
-      "Hold onto your socks, if you're still wearing any.",
-      "Ironing out the virtual wrinkles.",
-      "This will be worth the wait.",
-      "Prepare to be amazed by your new style.",
-      "Stitching pixels... almost there!",
-      "Prepare to be amazed by your new style.",
-      "Excitement is just a few seconds away..."
-    ];
-
-    function updateWaitingMessage(pollCount) {
-      const messageIndex = pollCount % waitingMessages.length;
-      const message = waitingMessages[messageIndex];
-      const resultImage = document.getElementById('resultImage');
-      
-      // Reset styles for resultImage
-      resultImage.style.padding = '20px';
-      resultImage.style.backgroundColor = '#f0f0f0';
-      resultImage.style.display = 'flex';
-      resultImage.style.alignItems = 'center';
-      resultImage.style.justifyContent = 'center';
-      resultImage.style.textAlign = 'center';
-      resultImage.style.boxSizing = 'border-box';
-
-      resultImage.innerHTML = `<p style="margin: 0;">${message}</p>`;
-    }
-
     console.log('Try-on widget fully initialized');
 
     // Call setupVariantObserver after the widget is initialized
     setupVariantObserver();
     console.log('Current color variant:', getSelectedColorVariant());
     console.log('Current size variant:', getSelectedSizeVariant());
-
-    // After appending, log the computed style
-    setTimeout(() => {
-      const computedStyle = window.getComputedStyle(coloredRectangle);
-      console.log('Colored Rectangle Computed Style:', {
-        backgroundColor: computedStyle.backgroundColor,
-        padding: computedStyle.padding,
-        borderRadius: computedStyle.borderRadius,
-        marginBottom: computedStyle.marginBottom,
-        boxShadow: computedStyle.boxShadow,
-        border: computedStyle.border,
-        display: computedStyle.display
-      });
-    }, 0);
-
-    // Add this after appending coloredRectangle to widgetContainer
-    const debugElement = document.createElement('div');
-    debugElement.style.cssText = `
-      background-color: red;
-      padding: 5px;
-      margin-top: 10px;
-      color: white;
-      font-size: 12px;
-    `;
-    debugElement.textContent = 'Debug: If you can see this, the widget is inserted correctly.';
-    widgetContainer.appendChild(debugElement);
-
-    // Add this after creating the coloredRectangle
-    console.log('Colored Rectangle created:', coloredRectangle);
-
-    // Add this just before appending coloredRectangle to widgetContainer
-    console.log('Appending Colored Rectangle. Contents:', coloredRectangle.innerHTML);
-
-    // Modify the debug element to include more information
-    debugElement.innerHTML = `
-      Debug: Widget inserted correctly.<br>
-      Colored Rectangle children: ${coloredRectangle.childElementCount}<br>
-      First child: ${coloredRectangle.firstElementChild ? coloredRectangle.firstElementChild.tagName : 'None'}<br>
-      Rectangle visible: ${coloredRectangle.offsetParent !== null}<br>
-      Rectangle dimensions: ${JSON.stringify(coloredRectangle.getBoundingClientRect())}
-    `;
   }
 
   // Start the global status checker on all pages
