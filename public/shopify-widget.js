@@ -809,13 +809,12 @@ console.log('Shopify try-on widget script started');
     sectionTitle.className = 'section-header__title';
     sectionTitle.textContent = 'See yourself wearing it';
     sectionTitle.style.marginTop = '0';
-    sectionTitle.style.marginBottom = '20px';
-    sectionTitle.style.fontSize = '24px';
+    sectionTitle.style.marginBottom = '10px'; // Reduce this value from 20px to 10px
 
     // Colored rectangle
     const coloredRectangle = document.createElement('div');
     coloredRectangle.style.backgroundColor = '#f9f9f8';
-    coloredRectangle.style.padding = '20px';
+    coloredRectangle.style.padding = '10px 20px'; // Reduce top and bottom padding from 20px to 10px
     coloredRectangle.style.borderRadius = '8px';
     coloredRectangle.style.marginBottom = '20px';
 
@@ -827,7 +826,7 @@ console.log('Shopify try-on widget script started');
       : `See how ${productTitle} looks on you, no dressing room required.`;
     sectionSubtext.style.fontSize = '16px';
     sectionSubtext.style.color = '#333';
-    sectionSubtext.style.margin = '0 0 20px 0';
+    sectionSubtext.style.margin = '0 0 10px 0'; // Reduce bottom margin from 20px to 10px
 
     // Create "Upload a photo" button
     const uploadButton = document.createElement('button');
@@ -844,7 +843,7 @@ console.log('Shopify try-on widget script started');
 
     // Add "POWERED BY" text
     const poweredBy = document.createElement('p');
-    poweredBy.textContent = 'POWERED BY FITTING ROOM®';
+    poweredBy.innerHTML = 'POWERED BY <strong>FITTING ROOM®</strong>';
     poweredBy.style.fontSize = '12px';
     poweredBy.style.color = '#666';
     poweredBy.style.marginTop = '10px';
