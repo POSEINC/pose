@@ -792,12 +792,13 @@ console.log('Shopify try-on widget script started');
     const style = document.createElement('style');
     style.textContent = `
       .try-on-widget-rectangle {
-        background-color: #f9f9f8;
-        padding: 10px 20px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        box-shadow: none;
-        border: none;
+        background-color: #f9f9f8 !important;
+        padding: 10px 20px !important;
+        border-radius: 8px !important;
+        margin-bottom: 20px !important;
+        box-shadow: none !important;
+        border: none !important;
+        display: block !important;
       }
     `;
     document.head.appendChild(style);
@@ -828,6 +829,15 @@ console.log('Shopify try-on widget script started');
     // Colored rectangle
     const coloredRectangle = document.createElement('div');
     coloredRectangle.className = 'try-on-widget-rectangle';
+    coloredRectangle.style.cssText = `
+      background-color: #f9f9f8;
+      padding: 10px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: none;
+      border: none;
+      display: block;
+    `;
 
     // Add subtext
     const sectionSubtext = document.createElement('p');
@@ -1061,6 +1071,32 @@ console.log('Shopify try-on widget script started');
     setupVariantObserver();
     console.log('Current color variant:', getSelectedColorVariant());
     console.log('Current size variant:', getSelectedSizeVariant());
+
+    // After appending, log the computed style
+    setTimeout(() => {
+      const computedStyle = window.getComputedStyle(coloredRectangle);
+      console.log('Colored Rectangle Computed Style:', {
+        backgroundColor: computedStyle.backgroundColor,
+        padding: computedStyle.padding,
+        borderRadius: computedStyle.borderRadius,
+        marginBottom: computedStyle.marginBottom,
+        boxShadow: computedStyle.boxShadow,
+        border: computedStyle.border,
+        display: computedStyle.display
+      });
+    }, 0);
+
+    // Add this after appending coloredRectangle to widgetContainer
+    const debugElement = document.createElement('div');
+    debugElement.style.cssText = `
+      background-color: red;
+      padding: 5px;
+      margin-top: 10px;
+      color: white;
+      font-size: 12px;
+    `;
+    debugElement.textContent = 'Debug: If you can see this, the widget is inserted correctly.';
+    widgetContainer.appendChild(debugElement);
   }
 
   // Start the global status checker on all pages
