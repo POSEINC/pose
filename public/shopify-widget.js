@@ -871,7 +871,7 @@ console.log('Shopify try-on widget script started');
     // Modify the click event for the upload button
     uploadPhotoButton.addEventListener('click', (e) => {
       e.preventDefault();
-      photoUpload.click();
+      showQuickTips();
     });
 
     // Add event listener for file selection
@@ -890,12 +890,9 @@ console.log('Shopify try-on widget script started');
         const humanImg = e.target.result;
         console.log('Image uploaded:', humanImg.substring(0, 50) + '...');
         
-        // Update the button text and style
-        uploadPhotoButton.textContent = 'Photo uploaded';
-        uploadPhotoButton.style.backgroundColor = '#e6f7e6';
-        uploadPhotoButton.style.borderColor = '#4CAF50';
-        uploadPhotoButton.style.color = '#4CAF50';
-
+        // Call the API or process the image here
+        // For now, we'll just log the image data
+        console.log('Processing image:', humanImg.substring(0, 50) + '...');
       };
       reader.onerror = function(error) {
         console.error('Error reading file:', error);
@@ -906,6 +903,50 @@ console.log('Shopify try-on widget script started');
         uploadPhotoButton.style.color = '#f44336';
       };
       reader.readAsDataURL(file);
+    }
+
+    // Add this new function to show quick tips
+    function showQuickTips() {
+      const coloredRectangle = document.querySelector('.try-on-widget-rectangle');
+      if (coloredRectangle) {
+        coloredRectangle.innerHTML = `
+          <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 18px;">Quick pro tips</h3>
+          <ul style="list-style-type: none; padding: 0; margin: 0; text-align: center;">
+            <li style="margin-bottom: 10px;">Solo: be the only one in the photo.</li>
+            <li style="margin-bottom: 10px;">Pose: stand naturally facing forward.</li>
+            <li style="margin-bottom: 10px;">Full-body: use a head-to-toe photo.</li>
+            <li style="margin-bottom: 15px;">Clothing: fitted items work better.</li>
+          </ul>
+          <button id="gotItButton" class="btn" style="
+            margin: 10px 0;
+            width: 100%;
+            max-width: 300px;
+            height: 50px;
+            line-height: 50px;
+            padding: 0;
+            background-color: #f9f9f8;
+            border: 2px dashed #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+          ">Got it</button>
+        `;
+        coloredRectangle.style.textAlign = 'center';
+
+        // Add event listener for the "Got it" button
+        const gotItButton = document.getElementById('gotItButton');
+        gotItButton.addEventListener('mouseenter', () => {
+          gotItButton.style.backgroundColor = '#f0f0f0';
+          gotItButton.style.borderColor = '#999';
+        });
+        gotItButton.addEventListener('mouseleave', () => {
+          gotItButton.style.backgroundColor = '#f9f9f8';
+          gotItButton.style.borderColor = '#ccc';
+        });
+        gotItButton.addEventListener('click', () => {
+          photoUpload.click();
+        });
+      }
     }
 
     // Function to call Replicate API
