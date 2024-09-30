@@ -796,30 +796,28 @@ console.log('Shopify try-on widget script started');
     widgetSection.style.borderTop = '1px solid #e8e8e8';
     widgetSection.style.borderBottom = '1px solid #e8e8e1';
     widgetSection.style.lineHeight = '1.25';
+    widgetSection.style.textAlign = 'center';
 
     // Create a container for the widget content
     const widgetContainer = document.createElement('div');
     widgetContainer.className = 'page-width';
-    widgetContainer.style.display = 'flex';
-    widgetContainer.style.justifyContent = 'space-between';
-    widgetContainer.style.alignItems = 'flex-start'; // Align items to the top
-
-    // Left side: Title and subtext
-    const leftSection = document.createElement('div');
-    leftSection.style.width = '50%';
-    leftSection.style.display = 'flex';
-    leftSection.style.flexDirection = 'column';
-    leftSection.style.alignItems = 'center';
-    leftSection.style.textAlign = 'center';
+    widgetContainer.style.maxWidth = '600px';
+    widgetContainer.style.margin = '0 auto';
 
     // Section title
     const sectionTitle = document.createElement('h2');
     sectionTitle.className = 'section-header__title';
     sectionTitle.textContent = 'See yourself wearing it';
-    sectionTitle.style.marginTop = '0'; // Remove top margin to align with upload box
-    sectionTitle.style.marginBottom = '0px';
-    sectionTitle.style.textAlign = 'center';
-    sectionTitle.style.fontSize = '22px'; // Add this line to set the font size
+    sectionTitle.style.marginTop = '0';
+    sectionTitle.style.marginBottom = '20px';
+    sectionTitle.style.fontSize = '24px';
+
+    // Colored rectangle
+    const coloredRectangle = document.createElement('div');
+    coloredRectangle.style.backgroundColor = '#f9f9f8';
+    coloredRectangle.style.padding = '20px';
+    coloredRectangle.style.borderRadius = '8px';
+    coloredRectangle.style.marginBottom = '20px';
 
     // Add subtext
     const sectionSubtext = document.createElement('p');
@@ -827,166 +825,39 @@ console.log('Shopify try-on widget script started');
     sectionSubtext.textContent = colorVariant
       ? `See how ${productTitle} in ${colorVariant} looks on you, no dressing room required.`
       : `See how ${productTitle} looks on you, no dressing room required.`;
-    sectionSubtext.style.fontSize = '14px'; // Match the font size
-    sectionSubtext.style.color = '#333'; // Adjust color to match
-    sectionSubtext.style.textAlign = 'center';
-    sectionSubtext.style.margin = '10px 0 0 0'; // Add some top margin
-    sectionSubtext.style.padding = '0';
-    sectionSubtext.style.maxWidth = '100%';
-    sectionSubtext.style.wordWrap = 'break-word';
+    sectionSubtext.style.fontSize = '16px';
+    sectionSubtext.style.color = '#333';
+    sectionSubtext.style.margin = '0 0 20px 0';
 
-    leftSection.appendChild(sectionTitle);
-    leftSection.appendChild(sectionSubtext);
+    // Create "Upload a photo" button
+    const uploadButton = document.createElement('button');
+    uploadButton.textContent = 'Upload a photo';
+    uploadButton.className = 'btn';
+    uploadButton.style.marginBottom = '10px';
 
-    // Right side: Upload box and Try it on button
-    const uploadSection = document.createElement('div');
-    uploadSection.style.width = '45%';
-    uploadSection.style.display = 'flex';
-    uploadSection.style.flexDirection = 'column';
-    uploadSection.style.alignItems = 'center';
+    // Create short subtext
+    const dataSubtext = document.createElement('p');
+    dataSubtext.textContent = 'Your data is never shared or stored.';
+    dataSubtext.style.fontSize = '12px';
+    dataSubtext.style.color = '#666';
+    dataSubtext.style.margin = '0';
 
-    // Update the upload box creation
-    const uploadBox = document.createElement('div');
-    uploadBox.id = 'uploadBox';
-    uploadBox.style.width = '100%';
-    uploadBox.style.height = '160px';
-    uploadBox.style.border = '2px dashed #808080';
-    uploadBox.style.display = 'flex';
-    uploadBox.style.flexDirection = 'column';
-    uploadBox.style.alignItems = 'center';
-    uploadBox.style.justifyContent = 'center';
-    uploadBox.style.cursor = 'pointer';
-    uploadBox.style.position = 'relative';
-    uploadBox.style.textAlign = 'center';
-    uploadBox.style.paddingTop = '20px';
-    uploadBox.style.paddingRight = '10px';
-    uploadBox.style.paddingBottom = '20px';
-    uploadBox.style.paddingLeft = '10px';
-    uploadBox.style.boxSizing = 'border-box';
+    // Add "POWERED BY" text
+    const poweredBy = document.createElement('p');
+    poweredBy.textContent = 'POWERED BY FITTING ROOM®';
+    poweredBy.style.fontSize = '12px';
+    poweredBy.style.color = '#666';
+    poweredBy.style.marginTop = '10px';
 
-    // Create a paragraph element for the main text
-    const uploadText = document.createElement('p');
-    uploadText.innerHTML = 'Click to add a photo of yourself.<br><br>Your data is never saved or shared.';
-    uploadText.style.margin = '0';
-    uploadText.style.padding = '0';
-    uploadText.style.maxWidth = '100%';
-    uploadText.style.wordWrap = 'break-word';
-    uploadText.style.fontSize = '14px';
+    // Append elements to the colored rectangle
+    coloredRectangle.appendChild(sectionSubtext);
+    coloredRectangle.appendChild(uploadButton);
+    coloredRectangle.appendChild(dataSubtext);
 
-    // Add the text to the upload box
-    uploadBox.appendChild(uploadText);
-
-    // Create a modal for first-time users
-    const modal = document.createElement('div');
-    modal.style.display = 'none';
-    modal.style.position = 'fixed';
-    modal.style.zIndex = '1001';
-    modal.style.left = '0';
-    modal.style.top = '0';
-    modal.style.width = '100%';
-    modal.style.height = '100%';
-    modal.style.overflow = 'auto';
-    modal.style.backgroundColor = 'rgba(0,0,0,0.4)';
-
-    const modalContent = document.createElement('div');
-    modalContent.style.backgroundColor = '#fefefe';
-    modalContent.style.margin = '15% auto';
-    modalContent.style.padding = '20px';
-    modalContent.style.border = '1px solid #888';
-    modalContent.style.width = '80%';
-    modalContent.style.maxWidth = '600px';
-    modalContent.style.textAlign = 'center';
-    modalContent.innerHTML = `
-      <h2 style="text-align: center; margin-bottom: 20px;">Tips for the best try-on experience</h2>
-      <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
-        <div style="border: 1px solid #ddd; padding: 10px; border-radius: 5px;"><strong>Solo:</strong> Ensure you're the only person in the photo</div>
-        <div style="border: 1px solid #ddd; padding: 10px; border-radius: 5px;"><strong>Full-body:</strong> Use a photo that shows you head to toe</div>
-        <div style="border: 1px solid #ddd; padding: 10px; border-radius: 5px;"><strong>Pose:</strong> Stand naturally, facing the camera</div>
-        <div style="border: 1px solid #ddd; padding: 10px; border-radius: 5px;"><strong>Clothing:</strong> Wear fitted items that show your body shape</div>
-      </div>
-      <div style="margin-top: 20px;">
-        <button id="closeModal" style="padding: 10px 20px; cursor: pointer;">Got it!</button>
-        <label style="display: block; margin-top: 10px;">
-          <input type="checkbox" id="dontShowAgain"> Don't show this again
-        </label>
-      </div>
-    `;
-
-    modal.appendChild(modalContent);
-    document.body.appendChild(modal);
-
-    // Close modal functionality
-    document.getElementById('closeModal').addEventListener('click', () => {
-      modal.style.display = 'none';
-      if (document.getElementById('dontShowAgain').checked) {
-        localStorage.setItem('dontShowTryOnTips', 'true');
-      }
-      // Trigger file upload dialog after closing the modal
-      photoUpload.click();
-    });
-
-    // Show modal on first interaction, if not disabled
-    let modalShown = false;
-    uploadBox.addEventListener('click', (e) => {
-      e.preventDefault(); // Prevent default click behavior
-      if (!modalShown && localStorage.getItem('dontShowTryOnTips') !== 'true') {
-        modal.style.display = 'block';
-        modalShown = true;
-      } else {
-        // If modal has been shown before or is disabled, directly trigger file upload
-        photoUpload.click();
-      }
-    });
-
-    const photoUpload = document.createElement('input');
-    photoUpload.type = 'file';
-    photoUpload.id = 'photoUpload';
-    photoUpload.accept = 'image/*';
-    photoUpload.style.display = 'none';
-    photoUpload.addEventListener('change', (event) => {
-      console.log('File input change event triggered'); // Debug log
-      const file = event.target.files[0];
-      if (file) {
-        console.log('File selected:', file.name); // Debug log
-        handleFileUpload(file);
-      } else {
-        console.log('No file selected'); // Debug log
-      }
-    });
-
-    const tryItOnButton = document.createElement('button');
-    tryItOnButton.textContent = 'Try it on';
-    tryItOnButton.className = 'btn';
-    tryItOnButton.style.marginTop = '10px';
-    tryItOnButton.disabled = true; // Initially disabled
-
-    // Update the tryItOnButton click event listener
-    tryItOnButton.addEventListener('click', () => {
-      // Existing checks and logic
-      if (!productImage) {
-        console.error('Product image not found. Unable to proceed with try-on.');
-        showNotification('Error: Product image not found. Please refresh the page or contact support.');
-        return;
-      }
-
-      const humanImg = imagePreview.src;
-      if (!humanImg) {
-        console.error('Human image not uploaded');
-        showNotification('Error: Please upload an image first');
-        return;
-      }
-
-      displayInitialWaitingMessage();
-      callReplicateAPI(humanImg, productTitle);
-    });
-
-    uploadSection.appendChild(uploadBox);
-    uploadSection.appendChild(photoUpload);
-    uploadSection.appendChild(tryItOnButton);
-
-    // Append sections to the widget container
-    widgetContainer.appendChild(leftSection);
-    widgetContainer.appendChild(uploadSection);
+    // Append elements to the widget container
+    widgetContainer.appendChild(sectionTitle);
+    widgetContainer.appendChild(coloredRectangle);
+    widgetContainer.appendChild(poweredBy);
 
     // Append the container to the section
     widgetSection.appendChild(widgetContainer);
@@ -1159,6 +1030,17 @@ console.log('Shopify try-on widget script started');
     setupVariantObserver();
     console.log('Current color variant:', getSelectedColorVariant());
     console.log('Current size variant:', getSelectedSizeVariant());
+
+    // Modify the click event for the new upload button
+    uploadButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (!modalShown && localStorage.getItem('dontShowTryOnTips') !== 'true') {
+        modal.style.display = 'block';
+        modalShown = true;
+      } else {
+        photoUpload.click();
+      }
+    });
   }
 
   // Start the global status checker on all pages
