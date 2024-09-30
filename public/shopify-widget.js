@@ -788,16 +788,16 @@ console.log('Shopify try-on widget script started');
 
     const colorVariant = getSelectedColorVariant();
 
-    // Create a style tag for our custom CSS
+    // Update the style tag
     const style = document.createElement('style');
     style.textContent = `
       .try-on-widget-rectangle {
-        background-color: #e0e0e0 !important;
-        padding: 10px 20px !important;
+        background-color: #f9f9f8 !important;
+        padding: 20px !important;
         border-radius: 8px !important;
         margin-bottom: 20px !important;
         box-shadow: none !important;
-        border: 1px solid #999 !important; // Added a border
+        border: none !important;
         display: block !important;
       }
     `;
@@ -826,16 +826,16 @@ console.log('Shopify try-on widget script started');
     sectionTitle.style.marginTop = '0';
     sectionTitle.style.marginBottom = '10px';
 
-    // Colored rectangle
+    // Update the colored rectangle creation
     const coloredRectangle = document.createElement('div');
     coloredRectangle.className = 'try-on-widget-rectangle';
     coloredRectangle.style.cssText = `
-      background-color: #e0e0e0;
-      padding: 10px 20px;
+      background-color: #f9f9f8;
+      padding: 20px;
       border-radius: 8px;
       margin-bottom: 20px;
       box-shadow: none;
-      border: 1px solid #999;
+      border: none;
       display: block;
     `;
 
