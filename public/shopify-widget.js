@@ -658,7 +658,7 @@ console.log('Shopify try-on widget script started');
   style.textContent = `
     .try-on-widget-rectangle {
       background-color: #f9f9f8;
-      padding: 10px;
+      padding: 20px;
       border-radius: 8px;
       margin-bottom: 10px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
@@ -667,9 +667,9 @@ console.log('Shopify try-on widget script started');
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      min-height: 100px;
       width: 100%;
       max-width: 400px;
+      height: 200px; // Set a fixed height
       margin-left: auto;
       margin-right: auto;
     }
@@ -678,6 +678,7 @@ console.log('Shopify try-on widget script started');
       max-width: 300px;
       height: 40px;
       padding: 0;
+      margin: 20px 0 0 0;
       background-color: #000000;
       color: #ffffff;
       border: none;
