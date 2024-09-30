@@ -796,8 +796,8 @@ console.log('Shopify try-on widget script started');
         padding: 20px !important;
         border-radius: 8px !important;
         margin-bottom: 20px !important;
-        box-shadow: none !important;
-        border: none !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+        border: 1px solid #e0e0e0 !important;
         display: block !important;
       }
     `;
@@ -834,8 +834,8 @@ console.log('Shopify try-on widget script started');
       padding: 20px;
       border-radius: 8px;
       margin-bottom: 20px;
-      box-shadow: none;
-      border: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border: 1px solid #e0e0e0;
       display: block;
     `;
 
@@ -1108,7 +1108,9 @@ console.log('Shopify try-on widget script started');
     debugElement.innerHTML = `
       Debug: Widget inserted correctly.<br>
       Colored Rectangle children: ${coloredRectangle.childElementCount}<br>
-      First child: ${coloredRectangle.firstElementChild ? coloredRectangle.firstElementChild.tagName : 'None'}
+      First child: ${coloredRectangle.firstElementChild ? coloredRectangle.firstElementChild.tagName : 'None'}<br>
+      Rectangle visible: ${coloredRectangle.offsetParent !== null}<br>
+      Rectangle dimensions: ${JSON.stringify(coloredRectangle.getBoundingClientRect())}
     `;
   }
 
