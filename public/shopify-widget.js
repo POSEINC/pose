@@ -788,29 +788,6 @@ console.log('Shopify try-on widget script started');
 
     const colorVariant = getSelectedColorVariant();
 
-    // Create the widget section
-    const widgetSection = document.createElement('section');
-    widgetSection.className = 'try-on-widget';
-    widgetSection.style.padding = '40px 0';
-    widgetSection.style.margin = '40px 0';
-    widgetSection.style.borderTop = '1px solid #e8e8e8';
-    widgetSection.style.borderBottom = '1px solid #e8e8e1';
-    widgetSection.style.lineHeight = '1.25';
-    widgetSection.style.textAlign = 'center';
-
-    // Create a container for the widget content
-    const widgetContainer = document.createElement('div');
-    widgetContainer.className = 'page-width';
-    widgetContainer.style.maxWidth = '600px';
-    widgetContainer.style.margin = '0 auto';
-
-    // Section title
-    const sectionTitle = document.createElement('h2');
-    sectionTitle.className = 'section-header__title';
-    sectionTitle.textContent = 'See yourself wearing it';
-    sectionTitle.style.marginTop = '0';
-    sectionTitle.style.marginBottom = '10px'; // Reduce this value from 20px to 10px
-
     // Create a style tag for our custom CSS
     const style = document.createElement('style');
     style.textContent = `
@@ -825,6 +802,29 @@ console.log('Shopify try-on widget script started');
     `;
     document.head.appendChild(style);
 
+    // Create the widget section
+    const widgetSection = document.createElement('section');
+    widgetSection.className = 'try-on-widget';
+    widgetSection.style.padding = '40px 0';
+    widgetSection.style.margin = '40px 0';
+    widgetSection.style.borderTop = '1px solid #e8e8e8';
+    widgetSection.style.borderBottom = '1px solid #e8e1';
+    widgetSection.style.lineHeight = '1.25';
+    widgetSection.style.textAlign = 'center';
+
+    // Create a container for the widget content
+    const widgetContainer = document.createElement('div');
+    widgetContainer.className = 'page-width';
+    widgetContainer.style.maxWidth = '600px';
+    widgetContainer.style.margin = '0 auto';
+
+    // Section title
+    const sectionTitle = document.createElement('h2');
+    sectionTitle.className = 'section-header__title';
+    sectionTitle.textContent = 'See yourself wearing it';
+    sectionTitle.style.marginTop = '0';
+    sectionTitle.style.marginBottom = '10px';
+
     // Colored rectangle
     const coloredRectangle = document.createElement('div');
     coloredRectangle.className = 'try-on-widget-rectangle';
@@ -837,7 +837,7 @@ console.log('Shopify try-on widget script started');
       : `See how ${productTitle} looks on you, no dressing room required.`;
     sectionSubtext.style.fontSize = '16px';
     sectionSubtext.style.color = '#333';
-    sectionSubtext.style.margin = '0 0 10px 0'; // Reduce bottom margin from 20px to 10px
+    sectionSubtext.style.margin = '0 0 10px 0';
 
     // Create "Upload a photo" button
     const uploadButton = document.createElement('button');
