@@ -640,7 +640,6 @@ console.log('Shopify try-on widget script started');
     if (uploadArea) {
       uploadArea.innerHTML = `
         <ul class="try-on-widget-quick-tips-list">
-          <li>Quick tips</li>
           <li><strong>Solo:</strong> be the only one in the photo.</li>
           <li><strong>Pose:</strong> stand naturally facing forward.</li>
           <li><strong>Full-body:</strong> use a head-to-toe photo.</li>
@@ -752,7 +751,7 @@ console.log('Shopify try-on widget script started');
   document.head.appendChild(style);
 
   // Simplified functions
-  function showWaitingMessage(message = 'Give us a minute.', submessage = 'In the meantime, feel free to keep browsing.') {
+  function showWaitingMessage(message = 'Your image is generating.', submessage = 'Feel free to browse the site while you wait - we\'ll notify you in about a minute when it\'s ready.') {
     const coloredRectangle = document.querySelector('.try-on-widget-upload-area');
     if (coloredRectangle) {
       coloredRectangle.innerHTML = `
