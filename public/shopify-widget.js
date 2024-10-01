@@ -662,7 +662,7 @@ console.log('Shopify try-on widget script started');
   const style = document.createElement('style');
   style.textContent = `
     .try-on-widget-section {
-      padding: 40px 0;
+      padding: 20px 0; // Reduced from 40px to 20px
       margin: 40px 0;
       border-top: 1px solid #e8e8e8;
       border-bottom: 1px solid #e8e8e8;
@@ -679,7 +679,7 @@ console.log('Shopify try-on widget script started');
     }
     .try-on-widget-section-title {
       margin-top: 0;
-      margin-bottom: 20px;
+      margin-bottom: 10px; // Reduced from 20px to 10px
       position: relative;
       padding: 0 5px;
       z-index: 1;
@@ -775,17 +775,16 @@ console.log('Shopify try-on widget script started');
           <li><strong>Solo:</strong> be the only one in the photo.</li>
           <li><strong>Pose:</strong> stand naturally facing forward.</li>
           <li><strong>Full-body:</strong> use a head-to-toe photo.</li>
-          <li><strong>Clothing:</strong> fitted items work better.</li>
         </ul>
-        <button id="gotItButton" class="try-on-widget-upload-button">Got it</button>
+        <button class="try-on-widget-upload-button">Got it</button>
       `;
-      document.getElementById('gotItButton').addEventListener('click', () => {
+      uploadArea.querySelector('.try-on-widget-upload-button').addEventListener('click', () => {
         photoUpload.click();
       });
     }
   }
 
-  function showWaitingMessage(message = 'Processing your image...', submessage = 'This may take a few moments.') {
+  function showWaitingMessage(message = 'Give us a minute.', submessage = 'In the meantime, feel free to keep browsing.') {
     const coloredRectangle = document.querySelector('.try-on-widget-upload-area');
     if (coloredRectangle) {
       coloredRectangle.innerHTML = `
