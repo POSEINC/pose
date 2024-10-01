@@ -661,7 +661,7 @@ console.log('Shopify try-on widget script started');
   const style = document.createElement('style');
   style.textContent = `
     .try-on-widget-section {
-      padding: 20px 0; // Reduced from 40px to 20px
+      padding: 20px 0;
       margin: 40px 0;
       border-top: 1px solid #e8e8e8;
       border-bottom: 1px solid #e8e8e8;
@@ -678,7 +678,7 @@ console.log('Shopify try-on widget script started');
     }
     .try-on-widget-section-title {
       margin-top: 0;
-      margin-bottom: 10px; // Reduced from 20px to 10px
+      margin-bottom: 10px;
       position: relative;
       padding: 0 5px;
       z-index: 1;
@@ -698,8 +698,7 @@ console.log('Shopify try-on widget script started');
       max-width: 400px;
       height: 200px;
     }
-    .try-on-widget-upload-button,
-    #gotItButton {
+    .try-on-widget-upload-button {
       width: 100%;
       max-width: 300px;
       height: 40px;
@@ -716,13 +715,6 @@ console.log('Shopify try-on widget script started');
       align-items: center;
       text-align: center;
       font-size: 14px;
-    }
-    .try-on-widget-main-description {
-      font-size: 14px;
-      color: #333;
-      margin: 0 0 0 0;
-      text-align: center;
-      max-width: 300px;
     }
     .try-on-widget-privacy-notice {
       font-size: 10px;
@@ -752,17 +744,11 @@ console.log('Shopify try-on widget script started');
       list-style-type: none;
       font-size: 14px;
       padding: 0;
-      margin: 0 0 15px 0;
+      margin: 0 0 10px 0;
       text-align: left;
     }
     .try-on-widget-quick-tips-list li {
       margin-bottom: 5px;
-    }
-    .try-on-widget-quick-tips-title {
-      font-size: 16px;
-      margin: 0 0 5px 0;
-      padding: 0;
-      color: #333;
     }
   `;
   document.head.appendChild(style);
