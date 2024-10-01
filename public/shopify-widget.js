@@ -345,18 +345,21 @@ console.log('Shopify try-on widget script started');
     indicator.style.position = 'fixed';
     indicator.style.bottom = '20px';
     indicator.style.right = '20px';
-    indicator.style.backgroundColor = '#333';
-    indicator.style.color = 'white';
-    indicator.style.padding = '10px';
-    indicator.style.borderRadius = '5px';
+    indicator.style.backgroundColor = '#ffffff';
+    indicator.style.color = '#000000';
+    indicator.style.padding = '15px';
+    indicator.style.borderRadius = '8px';
     indicator.style.zIndex = '9998';
     indicator.style.display = 'none';
-    indicator.style.alignItems = 'center'; // Add this line
+    indicator.style.alignItems = 'center';
+    indicator.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+    indicator.style.border = '1px solid #e0e0e0';
+    indicator.style.maxWidth = '300px';
     
     const spinner = document.createElement('div');
     spinner.className = 'try-on-spinner';
     spinner.style.border = '2px solid #f3f3f3';
-    spinner.style.borderTop = '2px solid #3498db';
+    spinner.style.borderTop = '2px solid #000000';
     spinner.style.borderRadius = '50%';
     spinner.style.width = '16px';
     spinner.style.height = '16px';
@@ -365,6 +368,7 @@ console.log('Shopify try-on widget script started');
     spinner.style.display = 'none'; // Initially hidden
     
     const statusText = document.createElement('span');
+    statusText.style.fontSize = '14px';
     statusText.textContent = 'Try-on in progress...';
     
     indicator.appendChild(spinner);
@@ -391,7 +395,7 @@ console.log('Shopify try-on widget script started');
     
     if (status === 'processing') {
       indicator.style.display = 'flex';
-      spinner.style.display = 'block';
+      spinner.style.display = 'inline-block';
       statusText.textContent = customMessage || 'Try-on in progress...';
     } else {
       indicator.style.display = 'none';
