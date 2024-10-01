@@ -744,6 +744,15 @@ console.log('Shopify try-on widget script started');
       opacity: 0.5;
       pointer-events: none;
     }
+    .try-on-widget-tips {
+      list-style-type: none;
+      padding: 0;
+      margin: 10px 0;
+      text-align: center;
+    }
+    .try-on-widget-tips li {
+      margin-bottom: 5px;
+    }
   `;
   document.head.appendChild(style);
 
@@ -753,11 +762,11 @@ console.log('Shopify try-on widget script started');
     if (coloredRectangle) {
       coloredRectangle.innerHTML = `
         <h3>Quick pro tips</h3>
-        <ul>
-          <li>Solo: be the only one in the photo.</li>
-          <li>Pose: stand naturally facing forward.</li>
-          <li>Full-body: use a head-to-toe photo.</li>
-          <li>Clothing: fitted items work better.</li>
+        <ul class="try-on-widget-tips">
+          <li><strong>Solo:</strong> be the only one in the photo.</li>
+          <li><strong>Pose:</strong> stand naturally facing forward.</li>
+          <li><strong>Full-body:</strong> use a head-to-toe photo.</li>
+          <li><strong>Clothing:</strong> fitted items work better.</li>
         </ul>
         <button id="gotItButton" class="try-on-widget-button">Got it</button>
       `;
