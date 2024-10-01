@@ -475,7 +475,7 @@ console.log('Shopify try-on widget script started');
 
   function setupVariantObserver() {
     // Get the section subtext element
-    const sectionSubtext = document.querySelector('.try-on-widget-subtext');
+    const sectionSubtext = document.querySelector('.try-on-widget-main-description');
 
     variantObserver = new MutationObserver(() => {
       const newColor = getSelectedColorVariant();
@@ -547,7 +547,7 @@ console.log('Shopify try-on widget script started');
 
   // Reset the upload photo button
   function resetUploadButton() {
-    const uploadPhotoButton = document.querySelector('.try-on-widget button');
+    const uploadPhotoButton = document.querySelector('.try-on-widget-button');
     if (uploadPhotoButton) {
       uploadPhotoButton.textContent = 'Upload a photo';
       uploadPhotoButton.disabled = false;
@@ -756,17 +756,17 @@ console.log('Shopify try-on widget script started');
 
   // Simplified functions
   function showQuickTips() {
-    const coloredRectangle = document.querySelector('.try-on-widget-rectangle');
-    if (coloredRectangle) {
-      coloredRectangle.innerHTML = `
+    const uploadArea = document.querySelector('.try-on-widget-upload-area');
+    if (uploadArea) {
+      uploadArea.innerHTML = `
         <h3>Quick pro tips</h3>
         <ul class="try-on-widget-quick-tips-list">
-          <li><strong>Solo:</strong> be the only one in the photo.</li>
-          <li><strong>Pose:</strong> stand naturally facing forward.</li>
-          <li><strong>Full-body:</strong> use a head-to-toe photo.</li>
-          <li><strong>Clothing:</strong> fitted items work better.</li>
+          <li>Solo: be the only one in the photo.</li>
+          <li>Pose: stand naturally facing forward.</li>
+          <li>Full-body: use a head-to-toe photo.</li>
+          <li>Clothing: fitted items work better.</li>
         </ul>
-        <button id="gotItButton" class="try-on-widget-button">Got it</button>
+        <button id="gotItButton" class="try-on-widget-upload-button">Got it</button>
       `;
       document.getElementById('gotItButton').addEventListener('click', () => {
         photoUpload.click();
