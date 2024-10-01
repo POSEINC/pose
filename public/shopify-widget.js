@@ -748,19 +748,11 @@ console.log('Shopify try-on widget script started');
       margin: 0 0 5px 0;
       text-align: left;
     }
-    .try-on-widget-quick-tips-list li {
-      margin-bottom: 8px;  // Adjust this value to increase or decrease line spacing
-    }
-    .try-on-widget-quick-tips-title {
-      font-size: 14px;
-      text-align: center;
-      margin-bottom: 5px;
-    }
   `;
   document.head.appendChild(style);
 
   // Simplified functions
-  function showWaitingMessage(message = 'Your image is generating.', submessage = 'Feel free to browse the site while you wait - we\'ll notify you in about a minute when it\'s ready.') {
+  function showWaitingMessage(message = 'Give us a minute.', submessage = 'In the meantime, feel free to keep browsing.') {
     const coloredRectangle = document.querySelector('.try-on-widget-upload-area');
     if (coloredRectangle) {
       coloredRectangle.innerHTML = `
@@ -879,14 +871,12 @@ console.log('Shopify try-on widget script started');
     coloredRectangle.className = 'try-on-widget-upload-area';
 
     // Create the quick tips list
-    const quickTipsList = document.createElement('div');
+    const quickTipsList = document.createElement('ul');
+    quickTipsList.className = 'try-on-widget-quick-tips-list';
     quickTipsList.innerHTML = `
-      <p class="try-on-widget-quick-tips-title">Quick pro tips</p>
-      <ul class="try-on-widget-quick-tips-list">
-        <li><strong>Solo:</strong> be the only one in the photo.</li>
-        <li><strong>Pose:</strong> stand naturally facing forward.</li>
-        <li><strong>Full-body:</strong> use a head-to-toe photo.</li>
-      </ul>
+      <li><strong>Solo:</strong> be the only one in the photo.</li>
+      <li><strong>Pose:</strong> stand naturally facing forward.</li>
+      <li><strong>Full-body:</strong> use a head-to-toe photo.</li>
     `;
 
     // Modify the "Upload a photo" button creation and styling
