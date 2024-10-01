@@ -918,7 +918,7 @@ console.log('Shopify try-on widget script started');
     // Add "POWERED BY" text
     const poweredBy = document.createElement('p');
     poweredBy.className = 'try-on-widget-powered-by';
-    poweredBy.innerHTML = 'POWERED BY <strong>DREST®</strong>';
+    poweredBy.innerHTML = 'POWERED BY <strong>POSE®</strong>';
 
     // Append elements to the colored rectangle
     coloredRectangle.appendChild(quickTipsList);
