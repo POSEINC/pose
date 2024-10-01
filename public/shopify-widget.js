@@ -789,13 +789,20 @@ console.log('Shopify try-on widget script started');
       // Add new event listeners
       uploadButton.addEventListener('click', handleUploadButtonClick);
       photoUpload.addEventListener('change', handleFileUpload);
+    
+      console.log('File upload listeners initialized');
+    } else {
+      console.error('Could not find upload button or file input');
     }
   }
 
   function handleUploadButtonClick(e) {
     e.preventDefault();
+    e.stopPropagation();
     const photoUpload = document.getElementById('try-on-widget-photo-upload');
-    photoUpload.click();
+    if (photoUpload) {
+      photoUpload.click();
+    }
   }
 
   // Only proceed with product-specific code if we're on a product page
@@ -935,11 +942,8 @@ console.log('Shopify try-on widget script started');
     photoUpload.style.display = 'none';
     document.body.appendChild(photoUpload);
 
-    // Modify the click event for the upload button
-    uploadPhotoButton.addEventListener('click', (e) => {
-      e.preventDefault();
-      photoUpload.click();
-    });
+    // Call initializeFileUpload after creating the file input
+    initializeFileUpload();
 
     // Add event listener for file selection
     photoUpload.addEventListener('change', handleFileUpload);
