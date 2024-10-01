@@ -640,7 +640,6 @@ console.log('Shopify try-on widget script started');
     if (uploadArea) {
       uploadArea.innerHTML = `
         <ul class="try-on-widget-quick-tips-list">
-          <li>Quick tips</li>
           <li><strong>Solo:</strong> be the only one in the photo.</li>
           <li><strong>Pose:</strong> stand naturally facing forward.</li>
           <li><strong>Full-body:</strong> use a head-to-toe photo.</li>
