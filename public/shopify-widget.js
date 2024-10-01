@@ -932,15 +932,17 @@ console.log('Shopify try-on widget script started');
     });
 
     // Add event listener for file selection
-    photoUpload.addEventListener('change', (e) => {
-      if (e.target.files && e.target.files[0]) {
-        handleFileUpload(e.target.files[0]);
-      }
-    });
+    photoUpload.addEventListener('change', handleFileUpload);
 
     // Modify the handleFileUpload function
-    function handleFileUpload(file) {
+    function handleFileUpload(event) {
       console.log('handleFileUpload function called');
+
+      const file = event.target.files[0];
+      if (!file) {
+        console.error('No file selected');
+        return;
+      }
 
       const reader = new FileReader();
       reader.onload = function(e) {
