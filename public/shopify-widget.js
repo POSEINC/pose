@@ -941,14 +941,6 @@ console.log('Shopify try-on widget script started');
     // Modify the handleFileUpload function
     function handleFileUpload(file) {
       console.log('handleFileUpload function called');
-      
-      // Add this check at the beginning of the function
-      if (!file.type.startsWith('image/')) {
-        console.error('File is not an image');
-        showWaitingMessage('Error: Invalid file type', 'Please upload an image file');
-        setUploadBoxState(false);
-        return;
-      }
 
       const reader = new FileReader();
       reader.onload = function(e) {
