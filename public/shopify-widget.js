@@ -642,8 +642,9 @@ console.log('Shopify try-on widget script started');
       uploadArea.innerHTML = `
         <ul class="try-on-widget-quick-tips-list">
           <li><strong>Solo:</strong> be the only one in the photo.</li>
-          <li><strong>Pose®:</strong> stand naturally facing forward.</li>
           <li><strong>Full-body:</strong> use a head-to-toe photo.</li>
+          <li><strong>Pose®:</strong> stand naturally facing forward.</li>
+
         </ul>
         <button class="try-on-widget-upload-button">Upload a photo</button>
         <p class="try-on-widget-privacy-notice">Your data is never shared or stored.</p>
@@ -901,8 +902,9 @@ console.log('Shopify try-on widget script started');
     quickTipsList.className = 'try-on-widget-quick-tips-list';
     quickTipsList.innerHTML = `
       <li><strong>Solo:</strong> be the only one in the photo.</li>
-      <li><strong>Pose® :</strong> stand naturally facing forward.</li>
       <li><strong>Full-body:</strong> use a head-to-toe photo.</li>
+      <li><strong>Pose® :</strong> stand naturally facing forward.</li>
+
     `;
 
     // Modify the "Upload a photo" button creation and styling
