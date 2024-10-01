@@ -886,18 +886,19 @@ console.log('Shopify try-on widget script started');
     const coloredRectangle = document.createElement('div');
     coloredRectangle.className = 'try-on-widget-upload-area';
 
+    // Create the quick tips list
+    const quickTipsList = document.createElement('ul');
+    quickTipsList.className = 'try-on-widget-quick-tips-list';
+    quickTipsList.innerHTML = `
+      <li><strong>Solo:</strong> be the only one in the photo.</li>
+      <li><strong>Pose:</strong> stand naturally facing forward.</li>
+      <li><strong>Full-body:</strong> use a head-to-toe photo.</li>
+    `;
+
     // Modify the "Upload a photo" button creation and styling
     const uploadPhotoButton = document.createElement('button');
     uploadPhotoButton.textContent = 'Upload a photo';
     uploadPhotoButton.className = 'try-on-widget-upload-button';
-
-    // Add subtext
-    const sectionSubtext = document.createElement('p');
-    sectionSubtext.className = 'try-on-widget-main-description';
-    const initialColor = getSelectedColorVariant();
-    sectionSubtext.textContent = initialColor
-      ? `See how ${productTitle} in ${initialColor} looks on you, no dressing room required.`
-      : `See how ${productTitle} looks on you, no dressing room required.`;
 
     // Create short subtext
     const dataSubtext = document.createElement('p');
@@ -910,7 +911,7 @@ console.log('Shopify try-on widget script started');
     poweredBy.innerHTML = 'POWERED BY <strong>FITTING ROOM®</strong>';
 
     // Append elements to the colored rectangle
-    coloredRectangle.appendChild(sectionSubtext);
+    coloredRectangle.appendChild(quickTipsList);
     coloredRectangle.appendChild(uploadPhotoButton);
     coloredRectangle.appendChild(dataSubtext);
 
