@@ -595,15 +595,13 @@ console.log('Shopify try-on widget script started');
             console.log('Job completed successfully:', data.output);
             updateStoredJobStatus('completed', data.output);
             showNotification('Look how great you look!', data.output);
-            setUploadBoxState(false); // Enable the upload box
-            resetUploadBox(); // Reset the upload box
+            resetWidget();
           } else if (data.status === 'failed') {
             clearInterval(pollInterval);
             console.error('Processing failed:', data.error);
             updateStoredJobStatus('failed');
             showNotification('Virtual try-on processing failed. Please try again.');
-            setUploadBoxState(false); // Enable the upload box
-            resetUploadBox(); // Reset the upload box
+            resetWidget();
           } else if (data.status === 'processing') {
             console.log('Still processing...');
             if (pollCount >= maxPolls) {
@@ -611,31 +609,28 @@ console.log('Shopify try-on widget script started');
               console.error('Polling timeout reached');
               updateStoredJobStatus('timeout');
               showNotification('Error: Processing timeout. Please try again.');
-              setUploadBoxState(false); // Enable the upload box
-              resetUploadBox(); // Reset the upload box
+              resetWidget();
             }
           } else {
             clearInterval(pollInterval);
             console.error('Unexpected status:', data.status);
             updateStoredJobStatus('error');
             showNotification('Error: Unexpected response from server. Please try again.');
-            setUploadBoxState(false); // Enable the upload box
-            resetUploadBox(); // Reset the upload box
+            resetWidget();
           }
         } catch (error) {
           console.error('Error polling job status:', error);
           clearInterval(pollInterval);
           updateStoredJobStatus('error');
           showNotification(`Error: Unable to get processing status - ${error.message}`);
-          setUploadBoxState(false); // Enable the upload box
-          resetUploadBox(); // Reset the upload box
+          resetWidget();
         }
       }, 5000);
     }, 3000);
   }
 
   // Modify the resetUploadBox function
-  function resetUploadBox() {
+  function resetWidget() {
     const uploadArea = document.querySelector('.try-on-widget-upload-area');
     if (uploadArea) {
       uploadArea.innerHTML = `
@@ -647,13 +642,7 @@ console.log('Shopify try-on widget script started');
         <button class="try-on-widget-upload-button">Upload a photo</button>
         <p class="try-on-widget-privacy-notice">Your data is never shared or stored.</p>
       `;
-      const uploadButton = uploadArea.querySelector('.try-on-widget-upload-button');
-      if (uploadButton) {
-        uploadButton.addEventListener('click', (e) => {
-          e.preventDefault();
-          photoUpload.click();
-        });
-      }
+      initializeFileUpload();
     }
   }
 
@@ -771,8 +760,7 @@ console.log('Shopify try-on widget script started');
           <button id="tryAgainButton" class="try-on-widget-button">Try another photo</button>
         `;
         document.getElementById('tryAgainButton').addEventListener('click', () => {
-          resetUploadBox();
-          showQuickTips();
+          resetWidget();
         });
       } else {
         coloredRectangle.innerHTML = `
@@ -780,10 +768,23 @@ console.log('Shopify try-on widget script started');
           <button id="tryAgainButton" class="try-on-widget-button">Try again</button>
         `;
         document.getElementById('tryAgainButton').addEventListener('click', () => {
-          resetUploadBox();
-          showQuickTips();
+          resetWidget();
         });
       }
+    }
+  }
+
+  function initializeFileUpload() {
+    const photoUpload = document.getElementById('try-on-widget-photo-upload');
+    const uploadButton = document.querySelector('.try-on-widget-upload-button');
+
+    if (uploadButton && photoUpload) {
+      uploadButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        photoUpload.click();
+      });
+
+      photoUpload.addEventListener('change', handleFileUpload);
     }
   }
 
@@ -919,7 +920,7 @@ console.log('Shopify try-on widget script started');
     // Create hidden file input
     const photoUpload = document.createElement('input');
     photoUpload.type = 'file';
-    photoUpload.id = 'photoUpload';
+    photoUpload.id = 'try-on-widget-photo-upload';
     photoUpload.accept = 'image/*';
     photoUpload.style.display = 'none';
     document.body.appendChild(photoUpload);
@@ -940,6 +941,15 @@ console.log('Shopify try-on widget script started');
     // Modify the handleFileUpload function
     function handleFileUpload(file) {
       console.log('handleFileUpload function called');
+      
+      // Add this check at the beginning of the function
+      if (!file.type.startsWith('image/')) {
+        console.error('File is not an image');
+        showWaitingMessage('Error: Invalid file type', 'Please upload an image file');
+        setUploadBoxState(false);
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = function(e) {
         console.log('FileReader onload event triggered');
@@ -1030,6 +1040,9 @@ console.log('Shopify try-on widget script started');
 
   // Start the global status checker on all pages
   startGlobalStatusChecker();
+
+  // Call this function when the widget is first initialized
+  initializeFileUpload();
 
   console.log('Try-on widget script initialization complete');
 })();
