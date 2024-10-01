@@ -638,13 +638,12 @@ console.log('Shopify try-on widget script started');
   function resetUploadBox() {
     const uploadArea = document.querySelector('.try-on-widget-upload-area');
     if (uploadArea) {
-      const colorVariant = getSelectedColorVariant();
-      const description = colorVariant
-        ? `See how ${productTitle} in ${colorVariant} looks on you, no dressing room required.`
-        : `See how ${productTitle} looks on you, no dressing room required.`;
-
       uploadArea.innerHTML = `
-        <p class="try-on-widget-main-description">${description}</p>
+        <ul class="try-on-widget-quick-tips-list">
+          <li><strong>Solo:</strong> be the only one in the photo.</li>
+          <li><strong>Pose:</strong> stand naturally facing forward.</li>
+          <li><strong>Full-body:</strong> use a head-to-toe photo.</li>
+        </ul>
         <button class="try-on-widget-upload-button">Upload a photo</button>
         <p class="try-on-widget-privacy-notice">Your data is never shared or stored.</p>
       `;
@@ -652,7 +651,7 @@ console.log('Shopify try-on widget script started');
       if (uploadButton) {
         uploadButton.addEventListener('click', (e) => {
           e.preventDefault();
-          showQuickTips();
+          photoUpload.click();
         });
       }
     }
@@ -753,8 +752,11 @@ console.log('Shopify try-on widget script started');
       list-style-type: none;
       font-size: 14px;
       padding: 0;
-      margin: 10px 0;
-      text-align: center;
+      margin: 0 0 15px 0;
+      text-align: left;
+    }
+    .try-on-widget-quick-tips-list li {
+      margin-bottom: 5px;
     }
     .try-on-widget-quick-tips-title {
       font-size: 16px;
@@ -766,24 +768,6 @@ console.log('Shopify try-on widget script started');
   document.head.appendChild(style);
 
   // Simplified functions
-  function showQuickTips() {
-    const uploadArea = document.querySelector('.try-on-widget-upload-area');
-    if (uploadArea) {
-      uploadArea.innerHTML = `
-        <p class="try-on-widget-quick-tips-title">Quick pro tips</p>
-        <ul class="try-on-widget-quick-tips-list">
-          <li><strong>Solo:</strong> be the only one in the photo.</li>
-          <li><strong>Pose:</strong> stand naturally facing forward.</li>
-          <li><strong>Full-body:</strong> use a head-to-toe photo.</li>
-        </ul>
-        <button class="try-on-widget-upload-button">Got it</button>
-      `;
-      uploadArea.querySelector('.try-on-widget-upload-button').addEventListener('click', () => {
-        photoUpload.click();
-      });
-    }
-  }
-
   function showWaitingMessage(message = 'Give us a minute.', submessage = 'In the meantime, feel free to keep browsing.') {
     const coloredRectangle = document.querySelector('.try-on-widget-upload-area');
     if (coloredRectangle) {
@@ -959,7 +943,7 @@ console.log('Shopify try-on widget script started');
     // Modify the click event for the upload button
     uploadPhotoButton.addEventListener('click', (e) => {
       e.preventDefault();
-      showQuickTips();
+      photoUpload.click();
     });
 
     // Add event listener for file selection
