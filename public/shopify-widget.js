@@ -676,8 +676,7 @@ console.log('Shopify try-on widget script started');
       margin-top: 0;
       margin-bottom: 20px;
       position: relative;
-      background-color: #ffffff;
-      padding: 0 10px;
+      padding: 0 5px;
       z-index: 1;
     }
     .try-on-widget-upload-area {
@@ -716,7 +715,7 @@ console.log('Shopify try-on widget script started');
     .try-on-widget-main-description {
       font-size: 14px;
       color: #333;
-      margin: 0 0 10px 0;
+      margin: 0 0 0 0;
       text-align: center;
       max-width: 300px;
     }
@@ -746,10 +745,17 @@ console.log('Shopify try-on widget script started');
     }
     .try-on-widget-quick-tips-list {
       list-style-type: none;
-      font-size: 10px;
+      font-size: 14px;
       padding: 0;
       margin: 10px 0;
       text-align: center;
+    }
+    .try-on-widget-quick-tips h3 {
+      font-size: 16px;
+      margin: 0px 10 0 0;
+      padding: 0 0 0 0;
+      color: #333;
+      font-weight: normal; 
     }
   `;
   document.head.appendChild(style);
