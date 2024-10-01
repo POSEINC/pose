@@ -61,11 +61,13 @@ console.log('Shopify try-on widget script started');
         updateStoredJobStatus('completed', data.output);
         updateStatusIndicator('completed');
         showNotification('Look how great you look!', data.output);
+        resetWidget(); // Add this line
       } else if (data.status === 'failed') {
         console.log('Job failed, updating status and showing notification');
         updateStoredJobStatus('failed');
         updateStatusIndicator('none');
         showNotification('Virtual try-on processing failed. Please try again.');
+        resetWidget(); // Add this line
       }
     } catch (error) {
       console.error('Error checking job status:', error);
@@ -642,6 +644,7 @@ console.log('Shopify try-on widget script started');
         <button class="try-on-widget-upload-button">Upload a photo</button>
         <p class="try-on-widget-privacy-notice">Your data is never shared or stored.</p>
       `;
+      setUploadBoxState(false); // Enable the upload functionality
       initializeFileUpload();
     }
   }
@@ -779,13 +782,20 @@ console.log('Shopify try-on widget script started');
     const uploadButton = document.querySelector('.try-on-widget-upload-button');
 
     if (uploadButton && photoUpload) {
-      uploadButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        photoUpload.click();
-      });
+      // Remove existing event listeners before adding new ones
+      uploadButton.removeEventListener('click', handleUploadButtonClick);
+      photoUpload.removeEventListener('change', handleFileUpload);
 
+      // Add new event listeners
+      uploadButton.addEventListener('click', handleUploadButtonClick);
       photoUpload.addEventListener('change', handleFileUpload);
     }
+  }
+
+  function handleUploadButtonClick(e) {
+    e.preventDefault();
+    const photoUpload = document.getElementById('try-on-widget-photo-upload');
+    photoUpload.click();
   }
 
   // Only proceed with product-specific code if we're on a product page
@@ -970,6 +980,9 @@ console.log('Shopify try-on widget script started');
         setUploadBoxState(false);
       };
       reader.readAsDataURL(file);
+
+      // Reset the file input to allow selecting the same file again
+      event.target.value = '';
     }
 
     // Function to call Replicate API
