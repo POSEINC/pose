@@ -708,6 +708,11 @@ console.log('Shopify try-on widget script started');
       text-align: center;
       font-size: 14px;
     }
+
+    .try-on-widget-upload-button:hover {
+      background-color: #333333;
+    }
+
     .try-on-widget-privacy-notice {
       font-size: 10px;
       color: #666;
@@ -909,7 +914,7 @@ console.log('Shopify try-on widget script started');
     // Add "POWERED BY" text
     const poweredBy = document.createElement('p');
     poweredBy.className = 'try-on-widget-powered-by';
-    poweredBy.innerHTML = 'POWERED BY <strong>FITTING ROOM®</strong>';
+    poweredBy.innerHTML = 'POWERED BY <strong>DREST®</strong>';
 
     // Append elements to the colored rectangle
     coloredRectangle.appendChild(quickTipsList);
