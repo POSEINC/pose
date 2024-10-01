@@ -519,8 +519,8 @@ console.log('Shopify try-on widget script started');
 
   // Add this new function
   function setUploadBoxState(isDisabled) {
-    const uploadBox = document.querySelector('.try-on-widget-rectangle');
-    const uploadButton = document.querySelector('.try-on-widget-button');
+    const uploadBox = document.querySelector('.try-on-widget-upload-area');
+    const uploadButton = document.querySelector('.try-on-widget-upload-button');
     
     if (uploadBox && uploadButton) {
       if (isDisabled) {
@@ -733,7 +733,7 @@ console.log('Shopify try-on widget script started');
       text-align: center;
     }
     .try-on-widget-processing-message {
-      font-size: 16px;
+      font-size: 14px;
       margin-bottom: 10px;
     }
     .try-on-widget-processing-submessage {
@@ -767,10 +767,10 @@ console.log('Shopify try-on widget script started');
       uploadArea.innerHTML = `
         <p class="try-on-widget-quick-tips-title">Quick pro tips</p>
         <ul class="try-on-widget-quick-tips-list">
-          <li>Solo: be the only one in the photo.</li>
-          <li>Pose: stand naturally facing forward.</li>
-          <li>Full-body: use a head-to-toe photo.</li>
-          <li>Clothing: fitted items work better.</li>
+          <li><strong>Solo:</strong> be the only one in the photo.</li>
+          <li><strong>Pose:</strong> stand naturally facing forward.</li>
+          <li><strong>Full-body:</strong> use a head-to-toe photo.</li>
+          <li><strong>Clothing:</strong> fitted items work better.</li>
         </ul>
         <button id="gotItButton" class="try-on-widget-upload-button">Got it</button>
       `;
@@ -781,7 +781,7 @@ console.log('Shopify try-on widget script started');
   }
 
   function showWaitingMessage(message = 'Processing your image...', submessage = 'This may take a few moments.') {
-    const coloredRectangle = document.querySelector('.try-on-widget-rectangle');
+    const coloredRectangle = document.querySelector('.try-on-widget-upload-area');
     if (coloredRectangle) {
       coloredRectangle.innerHTML = `
         <div class="try-on-widget-spinner"></div>
@@ -977,6 +977,9 @@ console.log('Shopify try-on widget script started');
         // Update the rectangle content to show processing
         showWaitingMessage();
         
+        // Disable the upload functionality
+        setUploadBoxState(true);
+        
         // Call the API
         callReplicateAPI(humanImg, {
           product_title: productTitle,
@@ -987,10 +990,8 @@ console.log('Shopify try-on widget script started');
       reader.onerror = function(error) {
         console.error('Error reading file:', error);
         // Add visual feedback for error
-        uploadPhotoButton.textContent = 'Error uploading image. Try again.';
-        uploadPhotoButton.style.backgroundColor = '#ffebee';
-        uploadPhotoButton.style.borderColor = '#f44336';
-        uploadPhotoButton.style.color = '#f44336';
+        showWaitingMessage('Error uploading image', 'Please try again');
+        setUploadBoxState(false);
       };
       reader.readAsDataURL(file);
     }
