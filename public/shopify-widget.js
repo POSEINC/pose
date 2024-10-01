@@ -694,7 +694,8 @@ console.log('Shopify try-on widget script started');
       max-width: 400px;
       height: 200px;
     }
-    .try-on-widget-upload-button {
+    .try-on-widget-upload-button,
+    #gotItButton {
       width: 100%;
       max-width: 300px;
       height: 40px;
@@ -750,12 +751,11 @@ console.log('Shopify try-on widget script started');
       margin: 10px 0;
       text-align: center;
     }
-    .try-on-widget-quick-tips h3 {
+    .try-on-widget-quick-tips-title {
       font-size: 16px;
-      margin: 0px 10 0 0;
-      padding: 0 0 0 0;
+      margin: 0 0 5px 0;
+      padding: 0;
       color: #333;
-      font-weight: normal; 
     }
   `;
   document.head.appendChild(style);
@@ -765,7 +765,7 @@ console.log('Shopify try-on widget script started');
     const uploadArea = document.querySelector('.try-on-widget-upload-area');
     if (uploadArea) {
       uploadArea.innerHTML = `
-        <h3>Quick pro tips</h3>
+        <p class="try-on-widget-quick-tips-title">Quick pro tips</p>
         <ul class="try-on-widget-quick-tips-list">
           <li>Solo: be the only one in the photo.</li>
           <li>Pose: stand naturally facing forward.</li>
