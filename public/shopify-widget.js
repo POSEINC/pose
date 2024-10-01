@@ -524,10 +524,10 @@ console.log('Shopify try-on widget script started');
     
     if (uploadBox && uploadButton) {
       if (isDisabled) {
-        uploadBox.classList.add('disabled');
+        uploadBox.classList.add('try-on-widget-upload-area-disabled');
         uploadButton.disabled = true;
       } else {
-        uploadBox.classList.remove('disabled');
+        uploadBox.classList.remove('try-on-widget-upload-area-disabled');
         uploadButton.disabled = false;
       }
     }
@@ -656,7 +656,7 @@ console.log('Shopify try-on widget script started');
   // Define all styles in the style tag
   const style = document.createElement('style');
   style.textContent = `
-    .try-on-widget {
+    .try-on-widget-section {
       padding: 40px 0;
       margin: 40px 0;
       border-top: 1px solid #e8e8e8;
@@ -664,7 +664,7 @@ console.log('Shopify try-on widget script started');
       line-height: 1.25;
       text-align: center;
     }
-    .try-on-widget-container {
+    .try-on-widget-content-container {
       max-width: 600px;
       margin: 0 auto; 
       position: relative;
@@ -672,7 +672,7 @@ console.log('Shopify try-on widget script started');
       flex-direction: column;
       align-items: center;
     }
-    .try-on-widget-title {
+    .try-on-widget-section-title {
       margin-top: 0;
       margin-bottom: 20px;
       position: relative;
@@ -680,7 +680,7 @@ console.log('Shopify try-on widget script started');
       padding: 0 10px;
       z-index: 1;
     }
-    .try-on-widget-rectangle {
+    .try-on-widget-upload-area {
       background-color: #f9f9f8;
       padding: 20px;
       border-radius: 8px;
@@ -695,7 +695,7 @@ console.log('Shopify try-on widget script started');
       max-width: 400px;
       height: 200px;
     }
-    .try-on-widget-button {
+    .try-on-widget-upload-button {
       width: 100%;
       max-width: 300px;
       height: 40px;
@@ -713,14 +713,14 @@ console.log('Shopify try-on widget script started');
       text-align: center;
       font-size: 14px;
     }
-    .try-on-widget-subtext {
+    .try-on-widget-main-description {
       font-size: 14px;
       color: #333;
       margin: 0 0 10px 0;
       text-align: center;
       max-width: 300px;
     }
-    .try-on-widget-data-subtext {
+    .try-on-widget-privacy-notice {
       font-size: 10px;
       color: #666;
       margin: 5px 0 0 0;
@@ -732,26 +732,24 @@ console.log('Shopify try-on widget script started');
       margin: 2px 0 0 0;
       text-align: center;
     }
-    .try-on-widget-message {
+    .try-on-widget-processing-message {
       font-size: 16px;
       margin-bottom: 10px;
     }
-    .try-on-widget-submessage {
+    .try-on-widget-processing-submessage {
       font-size: 14px;
       color: #666;
     }
-    .try-on-widget-rectangle.disabled {
+    .try-on-widget-upload-area-disabled {
       opacity: 0.5;
       pointer-events: none;
     }
-    .try-on-widget-tips {
+    .try-on-widget-quick-tips-list {
       list-style-type: none;
+      font-size: 10px;
       padding: 0;
       margin: 10px 0;
       text-align: center;
-    }
-    .try-on-widget-tips li {
-      margin-bottom: 5px;
     }
   `;
   document.head.appendChild(style);
@@ -762,7 +760,7 @@ console.log('Shopify try-on widget script started');
     if (coloredRectangle) {
       coloredRectangle.innerHTML = `
         <h3>Quick pro tips</h3>
-        <ul class="try-on-widget-tips">
+        <ul class="try-on-widget-quick-tips-list">
           <li><strong>Solo:</strong> be the only one in the photo.</li>
           <li><strong>Pose:</strong> stand naturally facing forward.</li>
           <li><strong>Full-body:</strong> use a head-to-toe photo.</li>
@@ -781,8 +779,8 @@ console.log('Shopify try-on widget script started');
     if (coloredRectangle) {
       coloredRectangle.innerHTML = `
         <div class="try-on-widget-spinner"></div>
-        <p class="try-on-widget-message">${message}</p>
-        <p class="try-on-widget-submessage">${submessage}</p>
+        <p class="try-on-widget-processing-message">${message}</p>
+        <p class="try-on-widget-processing-submessage">${submessage}</p>
       `;
     }
   }
@@ -879,29 +877,29 @@ console.log('Shopify try-on widget script started');
 
     // Create the widget section
     const widgetSection = document.createElement('section');
-    widgetSection.className = 'try-on-widget';
+    widgetSection.className = 'try-on-widget-section';
 
     // Create a container for the widget content
     const widgetContainer = document.createElement('div');
-    widgetContainer.className = 'try-on-widget-container';
+    widgetContainer.className = 'try-on-widget-content-container';
 
     // Section title
     const sectionTitle = document.createElement('h2');
-    sectionTitle.className = 'try-on-widget-title';
+    sectionTitle.className = 'try-on-widget-section-title';
     sectionTitle.textContent = 'See yourself wearing it';
 
     // Create the colored rectangle
     const coloredRectangle = document.createElement('div');
-    coloredRectangle.className = 'try-on-widget-rectangle';
+    coloredRectangle.className = 'try-on-widget-upload-area';
 
     // Modify the "Upload a photo" button creation and styling
     const uploadPhotoButton = document.createElement('button');
     uploadPhotoButton.textContent = 'Upload a photo';
-    uploadPhotoButton.className = 'try-on-widget-button';
+    uploadPhotoButton.className = 'try-on-widget-upload-button';
 
     // Add subtext
     const sectionSubtext = document.createElement('p');
-    sectionSubtext.className = 'try-on-widget-subtext';
+    sectionSubtext.className = 'try-on-widget-main-description';
     const initialColor = getSelectedColorVariant();
     sectionSubtext.textContent = initialColor
       ? `See how ${productTitle} in ${initialColor} looks on you, no dressing room required.`
@@ -909,7 +907,7 @@ console.log('Shopify try-on widget script started');
 
     // Create short subtext
     const dataSubtext = document.createElement('p');
-    dataSubtext.className = 'try-on-widget-data-subtext';
+    dataSubtext.className = 'try-on-widget-privacy-notice';
     dataSubtext.textContent = 'Your data is never shared or stored.';
 
     // Add "POWERED BY" text
