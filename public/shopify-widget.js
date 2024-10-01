@@ -634,16 +634,21 @@ console.log('Shopify try-on widget script started');
     }, 3000);
   }
 
-  // Add this function to reset the upload box
+  // Modify the resetUploadBox function
   function resetUploadBox() {
-    const coloredRectangle = document.querySelector('.try-on-widget-rectangle');
-    if (coloredRectangle) {
-      coloredRectangle.innerHTML = `
-        <p class="try-on-widget-subtext">See how ${productTitle} looks on you, no dressing room required.</p>
-        <button class="try-on-widget-button">Upload a photo</button>
-        <p class="try-on-widget-data-subtext">Your data is never shared or stored.</p>
+    const uploadArea = document.querySelector('.try-on-widget-upload-area');
+    if (uploadArea) {
+      const colorVariant = getSelectedColorVariant();
+      const description = colorVariant
+        ? `See how ${productTitle} in ${colorVariant} looks on you, no dressing room required.`
+        : `See how ${productTitle} looks on you, no dressing room required.`;
+
+      uploadArea.innerHTML = `
+        <p class="try-on-widget-main-description">${description}</p>
+        <button class="try-on-widget-upload-button">Upload a photo</button>
+        <p class="try-on-widget-privacy-notice">Your data is never shared or stored.</p>
       `;
-      const uploadButton = coloredRectangle.querySelector('.try-on-widget-button');
+      const uploadButton = uploadArea.querySelector('.try-on-widget-upload-button');
       if (uploadButton) {
         uploadButton.addEventListener('click', (e) => {
           e.preventDefault();
@@ -732,13 +737,13 @@ console.log('Shopify try-on widget script started');
       margin: 2px 0 0 0;
       text-align: center;
     }
-    .try-on-widget-processing-message {
-      font-size: 14px;
-      margin-bottom: 10px;
-    }
+    .try-on-widget-processing-message,
     .try-on-widget-processing-submessage {
       font-size: 14px;
       color: #666;
+    }
+    .try-on-widget-processing-message {
+      margin-bottom: 10px;
     }
     .try-on-widget-upload-area-disabled {
       opacity: 0.5;
