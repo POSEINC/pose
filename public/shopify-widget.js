@@ -193,22 +193,25 @@ console.log('Shopify try-on widget script started');
       // Create "Add to Cart" button
       const addToCartButton = document.createElement('button');
       addToCartButton.textContent = 'Add to Cart';
-      addToCartButton.style.padding = '6px 10px'; // Reduced padding
-      addToCartButton.style.backgroundColor = '#000000';
-      addToCartButton.style.color = '#ffffff';
+      addToCartButton.style.padding = '6px 10px';
+      addToCartButton.style.backgroundColor = '#4CAF50';
+      addToCartButton.style.color = 'white';
       addToCartButton.style.border = 'none';
       addToCartButton.style.borderRadius = '4px';
       addToCartButton.style.cursor = 'pointer';
-      addToCartButton.style.flex = '2';
-      addToCartButton.style.marginRight = '4px'; // Reduced margin
+      addToCartButton.style.flex = '1';
       addToCartButton.style.fontSize = '11px';
       addToCartButton.style.transition = 'background-color 0.3s ease';
-      addToCartButton.onmouseover = () => { addToCartButton.style.backgroundColor = '#333333'; };
-      addToCartButton.onmouseout = () => { addToCartButton.style.backgroundColor = '#000000'; };
-      addToCartButton.onclick = () => {
+      addToCartButton.onmouseover = () => { addToCartButton.style.backgroundColor = '#45a049'; };
+      addToCartButton.onmouseout = () => { addToCartButton.style.backgroundColor = '#4CAF50'; };
+      addToCartButton.onclick = async () => {
         const selectedSize = sizeDropdown.value;
         if (selectedSize) {
-          addToCart(selectedSize);
+          addToCartButton.disabled = true;
+          addToCartButton.textContent = 'Adding...';
+          await addToCart(selectedSize);
+          addToCartButton.disabled = false;
+          addToCartButton.textContent = 'Add to Cart';
         } else {
           alert('Please select a size');
         }
@@ -1113,101 +1116,61 @@ console.log('Shopify try-on widget script started');
     return variantId;
   }
 
-  // Modify the constructVariantId function
-  async function constructVariantId(productUrl, color, size) {
+  // Update the addToCart function
+  async function addToCart(size) {
+    const jobInfo = getStoredJobInformation();
+    if (!jobInfo) {
+      console.error('No job information found');
+      alert('Unable to add item to cart. Please try again.');
+      return;
+    }
+    console.log('Job info for add to cart:', jobInfo);
+
+    // Extract the product handle from the URL
+    const urlParts = jobInfo.productUrl.split('/');
+    const productHandle = urlParts[urlParts.length - 1].split('?')[0];
+
     try {
-      const response = await fetch(productUrl + '.js');
+      // Fetch the product data using the Shopify AJAX API
+      const response = await fetch(`/products/${productHandle}.js`);
       if (!response.ok) {
         throw new Error(`Failed to fetch product data: ${response.status} ${response.statusText}`);
       }
-      const contentType = response.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        throw new Error(`Expected JSON but received ${contentType}`);
-      }
       const productData = await response.json();
-      
       console.log('Product data:', productData);
 
+      // Find the variant that matches the color and size
       const variant = productData.variants.find(v => 
-        (v.option1 === color && v.option2 === size) ||
-        (v.option1 === size && v.option2 === color) ||
-        (v.title.includes(color) && v.title.includes(size))
+        v.title.includes(jobInfo.colorVariant) && v.title.includes(size)
       );
 
-      console.log('Found variant:', variant);
-
-      return variant ? variant.id : null;
-    } catch (error) {
-      console.error('Error constructing variant ID:', error);
-      return null;
-    }
-  }
-
-  // Modify the addToCart function
-  async function addToCart(size) {
-    const jobInfo = getStoredJobInformation();
-    console.log('Job info for add to cart:', jobInfo);
-    let variantId = jobInfo && jobInfo.variantId;
-    
-    if (!variantId) {
-      console.log('Variant ID not found in stored job info, attempting to construct variant ID');
-      variantId = await constructVariantId(jobInfo.productUrl, jobInfo.colorVariant, size);
-    }
-
-    if (!variantId) {
-      console.log('No specific variant ID found, fetching product data');
-      try {
-        const response = await fetch(jobInfo.productUrl + '.js');
-        if (!response.ok) {
-          throw new Error(`Failed to fetch product data: ${response.status} ${response.statusText}`);
-        }
-        const contentType = response.headers.get("content-type");
-        if (!contentType || !contentType.includes("application/json")) {
-          throw new Error(`Expected JSON but received ${contentType}`);
-        }
-        const productData = await response.json();
-        console.log('Product data:', productData);
-        
-        // Try to find a variant that matches the color and size
-        const matchingVariant = productData.variants.find(v => 
-          v.title.includes(jobInfo.colorVariant) && v.title.includes(size)
-        );
-
-        if (matchingVariant) {
-          variantId = matchingVariant.id;
-          console.log('Found matching variant:', matchingVariant);
-        } else {
-          variantId = productData.variants[0].id;
-          console.log('Using first available variant:', variantId);
-        }
-      } catch (error) {
-        console.error('Error fetching product data:', error);
-        alert('Unable to add item to cart. Please try again on the product page.');
-        return;
+      if (!variant) {
+        throw new Error('No matching variant found');
       }
-    }
 
-    try {
-      const response = await fetch('/cart/add.js', {
+      console.log('Selected variant:', variant);
+
+      // Add the item to the cart using the Shopify AJAX API
+      const addToCartResponse = await fetch('/cart/add.js', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          id: variantId,
+          id: variant.id,
           quantity: 1,
           properties: {
             'Size': size,
-            'Color': jobInfo ? jobInfo.colorVariant : 'N/A'
+            'Color': jobInfo.colorVariant
           }
         }),
       });
 
-      if (!response.ok) {
+      if (!addToCartResponse.ok) {
         throw new Error('Failed to add item to cart');
       }
 
-      const result = await response.json();
+      const result = await addToCartResponse.json();
       console.log('Item added to cart:', result);
       alert('Item added to cart successfully!');
     } catch (error) {
