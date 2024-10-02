@@ -23,6 +23,8 @@ console.log('Shopify try-on widget script started');
       notified: false
     };
     localStorage.setItem('currentTryOnJob', JSON.stringify(jobInfo));
+    // Add this line to reset the notificationClosed flag when a new job starts
+    localStorage.removeItem('notificationClosed');
     console.log('Job information stored:', jobInfo);
   }
 
