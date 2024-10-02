@@ -193,17 +193,18 @@ console.log('Shopify try-on widget script started');
       // Create "Add to Cart" button
       const addToCartButton = document.createElement('button');
       addToCartButton.textContent = 'Add to Cart';
-      addToCartButton.style.padding = '6px 10px';
-      addToCartButton.style.backgroundColor = '#4CAF50';
-      addToCartButton.style.color = 'white';
+      addToCartButton.style.padding = '6px 10px'; // Reduced padding
+      addToCartButton.style.backgroundColor = '#000000';
+      addToCartButton.style.color = '#ffffff';
       addToCartButton.style.border = 'none';
       addToCartButton.style.borderRadius = '4px';
       addToCartButton.style.cursor = 'pointer';
-      addToCartButton.style.flex = '1';
+      addToCartButton.style.flex = '2';
+      addToCartButton.style.marginRight = '4px'; // Reduced margin
       addToCartButton.style.fontSize = '11px';
       addToCartButton.style.transition = 'background-color 0.3s ease';
-      addToCartButton.onmouseover = () => { addToCartButton.style.backgroundColor = '#45a049'; };
-      addToCartButton.onmouseout = () => { addToCartButton.style.backgroundColor = '#4CAF50'; };
+      addToCartButton.onmouseover = () => { addToCartButton.style.backgroundColor = '#333333'; };
+      addToCartButton.onmouseout = () => { addToCartButton.style.backgroundColor = '#000000'; };
       addToCartButton.onclick = async () => {
         const selectedSize = sizeDropdown.value;
         if (selectedSize) {
@@ -390,7 +391,7 @@ console.log('Shopify try-on widget script started');
     indicator.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
     indicator.style.border = '1px solid #e0e0e0';
     indicator.style.maxWidth = '200px';
-    indicator.style.fontSize = '12px'; // Single font size declaration for the indicator
+    indicator.style.fontSize = '13px'; // Single font size declaration for the indicator
 
     const spinner = document.createElement('div');
     spinner.className = 'try-on-spinner';
