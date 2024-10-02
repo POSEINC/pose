@@ -399,7 +399,7 @@ console.log('Shopify try-on widget script started');
     spinner.style.width = '13px';
     spinner.style.height = '13px';
     spinner.style.animation = 'spin 1s linear infinite';
-    spinner.style.margin = '0 16px 0 16px'; // Increased right margin to add more space
+    spinner.style.margin = '0 16px 0 12px'; // Increased right margin to add more space
     spinner.style.flexShrink = '0';
     spinner.style.display = 'none'; // Initially hidden
 
