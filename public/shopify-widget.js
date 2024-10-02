@@ -1160,10 +1160,7 @@ console.log('Shopify try-on widget script started');
         body: JSON.stringify({
           id: variant.id,
           quantity: 1,
-          properties: {
-            'Size': size,
-            'Color': jobInfo.colorVariant
-          }
+          // Remove the properties object
         }),
       });
 
