@@ -400,10 +400,12 @@ console.log('Shopify try-on widget script started');
     spinner.style.width = '13px';
     spinner.style.height = '13px';
     spinner.style.animation = 'spin 1s linear infinite';
+    spinner.style.marginRight = '8px';
     spinner.style.flexShrink = '0'; // Prevent spinner from shrinking
     spinner.style.display = 'none'; // Initially hidden
 
     const statusText = document.createElement('span');
+    statusText.style.marginRight = '8px'; // Add right margin to text
 
     indicator.appendChild(spinner);
     indicator.appendChild(statusText);
