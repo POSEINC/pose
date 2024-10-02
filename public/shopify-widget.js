@@ -1171,8 +1171,8 @@ console.log('Shopify try-on widget script started');
       const result = await addToCartResponse.json();
       console.log('Item added to cart:', result);
 
-      // Set a flag in localStorage to show a message after page reload
-      localStorage.setItem('showAddedMessage', 'true');
+      // Set a timestamp when the item is added
+      localStorage.setItem('itemAddedTimestamp', Date.now().toString());
 
       // Refresh the current page
       window.location.reload();
@@ -1183,21 +1183,24 @@ console.log('Shopify try-on widget script started');
     }
   }
 
-  // Function to update the "Add to Cart" button text
+  // Update the updateAddToCartButton function
   function updateAddToCartButton() {
     const addToCartButton = document.querySelector('.try-on-widget-add-to-cart-button');
-    if (addToCartButton && localStorage.getItem('showAddedMessage') === 'true') {
-      addToCartButton.textContent = 'Added!';
-      addToCartButton.disabled = true;
-      
-      setTimeout(() => {
-        addToCartButton.textContent = 'Add to Cart';
-        addToCartButton.disabled = false;
-        localStorage.removeItem('showAddedMessage');
-      }, 5000);
+    if (addToCartButton) {
+      const itemAddedTimestamp = localStorage.getItem('itemAddedTimestamp');
+      if (itemAddedTimestamp && Date.now() - parseInt(itemAddedTimestamp) < 5000) {
+        addToCartButton.textContent = 'Added!';
+        addToCartButton.disabled = true;
+        
+        setTimeout(() => {
+          addToCartButton.textContent = 'Add to Cart';
+          addToCartButton.disabled = false;
+          localStorage.removeItem('itemAddedTimestamp');
+        }, 5000 - (Date.now() - parseInt(itemAddedTimestamp)));
+      }
     }
   }
 
-  // Add this line at the end of the main IIFE (Immediately Invoked Function Expression)
+  // Make sure this line is at the end of your main IIFE
   document.addEventListener('DOMContentLoaded', updateAddToCartButton);
 })();
