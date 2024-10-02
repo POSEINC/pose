@@ -374,7 +374,6 @@ console.log('Shopify try-on widget script started');
   }
 
   // Add these functions outside of the isProductPage() check, so they're available globally
-
   function createStatusIndicator() {
     const indicator = document.createElement('div');
     indicator.id = 'try-on-status-indicator';
@@ -383,7 +382,7 @@ console.log('Shopify try-on widget script started');
     indicator.style.right = '20px';
     indicator.style.backgroundColor = '#ffffff';
     indicator.style.color = '#000000';
-    indicator.style.padding = '10px';
+    indicator.style.padding = '8px'; // Changed from 10px to 8px
     indicator.style.borderRadius = '6px';
     indicator.style.zIndex = '9998';
     indicator.style.display = 'none';
@@ -391,7 +390,7 @@ console.log('Shopify try-on widget script started');
     indicator.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
     indicator.style.border = '1px solid #e0e0e0';
     indicator.style.maxWidth = '225px';
-    indicator.style.fontSize = '13px'; // Single font size declaration for the indicator
+    indicator.style.fontSize = '13px';
 
     const spinner = document.createElement('div');
     spinner.className = 'try-on-spinner';
@@ -402,10 +401,11 @@ console.log('Shopify try-on widget script started');
     spinner.style.height = '13px';
     spinner.style.animation = 'spin 1s linear infinite';
     spinner.style.marginRight = '8px';
-    spinner.style.marginLeft = '8px';
+    spinner.style.flexShrink = '0'; // Prevent spinner from shrinking
     spinner.style.display = 'none'; // Initially hidden
 
     const statusText = document.createElement('span');
+    statusText.style.marginRight = '8px'; // Add right margin to text
 
     indicator.appendChild(spinner);
     indicator.appendChild(statusText);
