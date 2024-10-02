@@ -93,13 +93,16 @@ console.log('Shopify try-on widget script started');
     notification.style.position = 'fixed';
     notification.style.bottom = '20px';
     notification.style.right = '20px';
-    notification.style.backgroundColor = '#333';
-    notification.style.color = 'white';
+    notification.style.backgroundColor = '#ffffff';
+    notification.style.color = '#000000';
     notification.style.padding = '15px';
-    notification.style.borderRadius = '5px';
+    notification.style.borderRadius = '8px';
     notification.style.zIndex = '9999';
-    notification.style.maxWidth = '300px';
+    notification.style.maxWidth = '225px'; // Reduced by 25%
     notification.style.textAlign = 'center';
+    notification.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+    notification.style.border = '1px solid #e0e0e0';
+    notification.style.fontSize = '14px';
 
     // Add message to notification
     const messageElement = document.createElement('p');
@@ -180,14 +183,17 @@ console.log('Shopify try-on widget script started');
       // Create "Add to Cart" button
       const addToCartButton = document.createElement('button');
       addToCartButton.textContent = 'Add to Cart';
-      addToCartButton.style.padding = '5px 10px';
-      addToCartButton.style.backgroundColor = '#4CAF50';
-      addToCartButton.style.color = 'white';
+      addToCartButton.style.padding = '8px 12px';
+      addToCartButton.style.backgroundColor = '#000000';
+      addToCartButton.style.color = '#ffffff';
       addToCartButton.style.border = 'none';
-      addToCartButton.style.borderRadius = '3px';
+      addToCartButton.style.borderRadius = '4px';
       addToCartButton.style.cursor = 'pointer';
       addToCartButton.style.flex = '2';
       addToCartButton.style.marginRight = '5px';
+      addToCartButton.style.transition = 'background-color 0.3s ease';
+      addToCartButton.onmouseover = () => { addToCartButton.style.backgroundColor = '#333333'; };
+      addToCartButton.onmouseout = () => { addToCartButton.style.backgroundColor = '#000000'; };
       addToCartButton.onclick = () => {
         // Add to cart functionality will be implemented later
         console.log('Add to cart clicked');
@@ -196,27 +202,33 @@ console.log('Shopify try-on widget script started');
       // Modify existing buttons
       const saveButton = document.createElement('button');
       saveButton.textContent = 'Save';
-      saveButton.style.padding = '5px 10px';
-      saveButton.style.backgroundColor = '#008CBA';
-      saveButton.style.color = 'white';
-      saveButton.style.border = 'none';
-      saveButton.style.borderRadius = '3px';
+      saveButton.style.padding = '8px 12px';
+      saveButton.style.backgroundColor = '#f0f0f0';
+      saveButton.style.color = '#000000';
+      saveButton.style.border = '1px solid #e0e0e0';
+      saveButton.style.borderRadius = '4px';
       saveButton.style.cursor = 'pointer';
       saveButton.style.flex = '1';
       saveButton.style.marginRight = '5px';
+      saveButton.style.transition = 'background-color 0.3s ease';
+      saveButton.onmouseover = () => { saveButton.style.backgroundColor = '#e0e0e0'; };
+      saveButton.onmouseout = () => { saveButton.style.backgroundColor = '#f0f0f0'; };
       saveButton.onclick = () => {
         saveImage(output);
       };
 
       const viewProductButton = document.createElement('button');
       viewProductButton.textContent = 'View';
-      viewProductButton.style.padding = '5px 10px';
-      viewProductButton.style.backgroundColor = '#008CBA';
-      viewProductButton.style.color = 'white';
-      viewProductButton.style.border = 'none';
-      viewProductButton.style.borderRadius = '3px';
+      viewProductButton.style.padding = '8px 12px';
+      viewProductButton.style.backgroundColor = '#f0f0f0';
+      viewProductButton.style.color = '#000000';
+      viewProductButton.style.border = '1px solid #e0e0e0';
+      viewProductButton.style.borderRadius = '4px';
       viewProductButton.style.cursor = 'pointer';
       viewProductButton.style.flex = '1';
+      viewProductButton.style.transition = 'background-color 0.3s ease';
+      viewProductButton.onmouseover = () => { viewProductButton.style.backgroundColor = '#e0e0e0'; };
+      viewProductButton.onmouseout = () => { viewProductButton.style.backgroundColor = '#f0f0f0'; };
       viewProductButton.onclick = () => {
         const jobInfo = getStoredJobInformation();
         if (jobInfo && jobInfo.productUrl) {
@@ -239,12 +251,13 @@ console.log('Shopify try-on widget script started');
     const closeButton = document.createElement('button');
     closeButton.textContent = 'X';
     closeButton.style.position = 'absolute';
-    closeButton.style.top = '15px';
+    closeButton.style.top = '5px';
     closeButton.style.right = '5px';
     closeButton.style.background = 'none';
     closeButton.style.border = 'none';
-    closeButton.style.color = 'white';
+    closeButton.style.color = '#000000';
     closeButton.style.cursor = 'pointer';
+    closeButton.style.fontSize = '16px';
     closeButton.onclick = () => {
       notification.remove();
       localStorage.setItem('notificationClosed', 'true');
