@@ -10,6 +10,7 @@ console.log('Shopify try-on widget script started');
 
   // Function to store job information
   function storeJobInformation(jobId, productImage, productTitle, productUrl, colorVariant) {
+    const variantId = getSelectedVariantId(); // We'll create this function
     const priceElement = document.querySelector('.price__regular .price-item--regular');
     const jobInfo = {
       jobId: jobId,
@@ -17,6 +18,7 @@ console.log('Shopify try-on widget script started');
       productTitle: productTitle,
       productUrl: productUrl,
       colorVariant: colorVariant,
+      variantId: variantId, // Add this line
       price: priceElement ? priceElement.textContent.trim() : 'N/A',
       status: 'processing',
       timestamp: Date.now(),
@@ -201,8 +203,12 @@ console.log('Shopify try-on widget script started');
       addToCartButton.onmouseover = () => { addToCartButton.style.backgroundColor = '#333333'; };
       addToCartButton.onmouseout = () => { addToCartButton.style.backgroundColor = '#000000'; };
       addToCartButton.onclick = () => {
-        // Add to cart functionality will be implemented later
-        console.log('Add to cart clicked');
+        const selectedSize = sizeDropdown.value;
+        if (selectedSize) {
+          addToCart(selectedSize);
+        } else {
+          alert('Please select a size');
+        }
       };
 
       // Modify existing buttons
@@ -1095,4 +1101,50 @@ console.log('Shopify try-on widget script started');
   initializeFileUpload();
 
   console.log('Try-on widget script initialization complete');
+
+  // Add this new function to get the selected variant ID
+  function getSelectedVariantId() {
+    const variantSelector = document.querySelector('select[name="id"], input[name="id"]:checked');
+    return variantSelector ? variantSelector.value : null;
+  }
+
+  async function addToCart(size) {
+    const jobInfo = getStoredJobInformation();
+    if (!jobInfo || !jobInfo.variantId) {
+      console.error('No variant ID found');
+      alert('Unable to add item to cart. Please try again on the product page.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/cart/add.js', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: jobInfo.variantId,
+          quantity: 1,
+          properties: {
+            'Size': size,
+            'Color': jobInfo.colorVariant
+          }
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to add item to cart');
+      }
+
+      const result = await response.json();
+      console.log('Item added to cart:', result);
+      alert('Item added to cart successfully!');
+      
+      // Optionally, update the cart count or open the cart drawer here
+      // This depends on how your theme handles cart updates
+    } catch (error) {
+      console.error('Error adding item to cart:', error);
+      alert('Unable to add item to cart. It may be out of stock or unavailable in the selected size.');
+    }
+  }
 })();
