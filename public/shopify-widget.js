@@ -1118,11 +1118,15 @@ console.log('Shopify try-on widget script started');
     try {
       const response = await fetch(productUrl + '.js');
       if (!response.ok) {
-        throw new Error('Failed to fetch product data');
+        throw new Error(`Failed to fetch product data: ${response.status} ${response.statusText}`);
+      }
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error(`Expected JSON but received ${contentType}`);
       }
       const productData = await response.json();
       
-      console.log('Product data:', productData); // Add this line for debugging
+      console.log('Product data:', productData);
 
       const variant = productData.variants.find(v => 
         (v.option1 === color && v.option2 === size) ||
@@ -1130,7 +1134,7 @@ console.log('Shopify try-on widget script started');
         (v.title.includes(color) && v.title.includes(size))
       );
 
-      console.log('Found variant:', variant); // Add this line for debugging
+      console.log('Found variant:', variant);
 
       return variant ? variant.id : null;
     } catch (error) {
@@ -1152,20 +1156,34 @@ console.log('Shopify try-on widget script started');
 
     if (!variantId) {
       console.log('No specific variant ID found, fetching product data');
-      const productData = await fetch(jobInfo.productUrl + '.js').then(res => res.json());
-      console.log('Product data:', productData);
-      
-      // Try to find a variant that matches the color and size
-      const matchingVariant = productData.variants.find(v => 
-        v.title.includes(jobInfo.colorVariant) && v.title.includes(size)
-      );
+      try {
+        const response = await fetch(jobInfo.productUrl + '.js');
+        if (!response.ok) {
+          throw new Error(`Failed to fetch product data: ${response.status} ${response.statusText}`);
+        }
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          throw new Error(`Expected JSON but received ${contentType}`);
+        }
+        const productData = await response.json();
+        console.log('Product data:', productData);
+        
+        // Try to find a variant that matches the color and size
+        const matchingVariant = productData.variants.find(v => 
+          v.title.includes(jobInfo.colorVariant) && v.title.includes(size)
+        );
 
-      if (matchingVariant) {
-        variantId = matchingVariant.id;
-        console.log('Found matching variant:', matchingVariant);
-      } else {
-        variantId = productData.variants[0].id;
-        console.log('Using first available variant:', variantId);
+        if (matchingVariant) {
+          variantId = matchingVariant.id;
+          console.log('Found matching variant:', matchingVariant);
+        } else {
+          variantId = productData.variants[0].id;
+          console.log('Using first available variant:', variantId);
+        }
+      } catch (error) {
+        console.error('Error fetching product data:', error);
+        alert('Unable to add item to cart. Please try again on the product page.');
+        return;
       }
     }
 
