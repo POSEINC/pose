@@ -402,6 +402,7 @@ console.log('Shopify try-on widget script started');
     spinner.style.height = '13px';
     spinner.style.animation = 'spin 1s linear infinite';
     spinner.style.marginRight = '8px';
+    spinner.style.marginLeft = '8px';
     spinner.style.display = 'none'; // Initially hidden
 
     const statusText = document.createElement('span');
@@ -1183,6 +1184,7 @@ console.log('Shopify try-on widget script started');
     }
   }
 
+  // Modify the showCartAddedMessage function
   function showCartAddedMessage() {
     if (localStorage.getItem('showCartAddedMessage') === 'true') {
       const messageContainer = document.createElement('div');
@@ -1208,5 +1210,6 @@ console.log('Shopify try-on widget script started');
     }
   }
 
+  // Add this line at the end of the main IIFE (Immediately Invoked Function Expression)
   document.addEventListener('DOMContentLoaded', showCartAddedMessage);
 })();
