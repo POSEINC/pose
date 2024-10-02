@@ -386,11 +386,12 @@ console.log('Shopify try-on widget script started');
     indicator.style.zIndex = '9998';
     indicator.style.display = 'none';
     indicator.style.alignItems = 'center';
-    indicator.style.justifyContent = 'space-between'; // Add this line
+    indicator.style.justifyContent = 'center'; // Changed to center
     indicator.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
     indicator.style.border = '1px solid #e0e0e0';
     indicator.style.maxWidth = '225px';
     indicator.style.fontSize = '13px';
+    indicator.style.textAlign = 'center'; // Added to center text
 
     const spinner = document.createElement('div');
     spinner.className = 'try-on-spinner';
@@ -405,7 +406,8 @@ console.log('Shopify try-on widget script started');
     spinner.style.display = 'none'; // Initially hidden
 
     const statusText = document.createElement('span');
-    statusText.style.marginRight = '8px'; // Add right margin to text
+    statusText.style.flex = '1'; // Allow text to take up remaining space
+    statusText.style.textAlign = 'center'; // Center the text
 
     indicator.appendChild(spinner);
     indicator.appendChild(statusText);
