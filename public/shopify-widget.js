@@ -1113,9 +1113,36 @@ console.log('Shopify try-on widget script started');
     return variantId;
   }
 
+  // Modify the constructVariantId function
+  async function constructVariantId(productUrl, color, size) {
+    try {
+      const response = await fetch(productUrl + '.js');
+      if (!response.ok) {
+        throw new Error('Failed to fetch product data');
+      }
+      const productData = await response.json();
+      
+      console.log('Product data:', productData); // Add this line for debugging
+
+      const variant = productData.variants.find(v => 
+        (v.option1 === color && v.option2 === size) ||
+        (v.option1 === size && v.option2 === color) ||
+        (v.title.includes(color) && v.title.includes(size))
+      );
+
+      console.log('Found variant:', variant); // Add this line for debugging
+
+      return variant ? variant.id : null;
+    } catch (error) {
+      console.error('Error constructing variant ID:', error);
+      return null;
+    }
+  }
+
+  // Modify the addToCart function
   async function addToCart(size) {
     const jobInfo = getStoredJobInformation();
-    console.log('Job info for add to cart:', jobInfo); // Add this line for debugging
+    console.log('Job info for add to cart:', jobInfo);
     let variantId = jobInfo && jobInfo.variantId;
     
     if (!variantId) {
@@ -1124,9 +1151,22 @@ console.log('Shopify try-on widget script started');
     }
 
     if (!variantId) {
-      console.error('No variant ID found');
-      alert('Unable to add item to cart. Please try again on the product page.');
-      return;
+      console.log('No specific variant ID found, fetching product data');
+      const productData = await fetch(jobInfo.productUrl + '.js').then(res => res.json());
+      console.log('Product data:', productData);
+      
+      // Try to find a variant that matches the color and size
+      const matchingVariant = productData.variants.find(v => 
+        v.title.includes(jobInfo.colorVariant) && v.title.includes(size)
+      );
+
+      if (matchingVariant) {
+        variantId = matchingVariant.id;
+        console.log('Found matching variant:', matchingVariant);
+      } else {
+        variantId = productData.variants[0].id;
+        console.log('Using first available variant:', variantId);
+      }
     }
 
     try {
@@ -1155,27 +1195,6 @@ console.log('Shopify try-on widget script started');
     } catch (error) {
       console.error('Error adding item to cart:', error);
       alert('Unable to add item to cart. It may be out of stock or unavailable in the selected size.');
-    }
-  }
-
-  async function constructVariantId(productUrl, color, size) {
-    try {
-      const response = await fetch(productUrl + '.js');
-      if (!response.ok) {
-        throw new Error('Failed to fetch product data');
-      }
-      const productData = await response.json();
-      
-      const variant = productData.variants.find(v => 
-        v.option1 === color && v.option2 === size ||
-        v.option1 === size && v.option2 === color ||
-        v.option1 === color && v.option2 === size
-      );
-
-      return variant ? variant.id : null;
-    } catch (error) {
-      console.error('Error constructing variant ID:', error);
-      return null;
     }
   }
 })();
