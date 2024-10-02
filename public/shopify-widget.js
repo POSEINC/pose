@@ -356,7 +356,7 @@ console.log('Shopify try-on widget script started');
     indicator.style.alignItems = 'center';
     indicator.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
     indicator.style.border = '1px solid #e0e0e0';
-    indicator.style.maxWidth = '250px';
+    indicator.style.maxWidth = '175px';
     indicator.style.fontSize = '12px'; // Single font size declaration for the indicator
 
     const spinner = document.createElement('div');
@@ -364,8 +364,8 @@ console.log('Shopify try-on widget script started');
     spinner.style.border = '2px solid #f3f3f3';
     spinner.style.borderTop = '2px solid #000000';
     spinner.style.borderRadius = '50%';
-    spinner.style.width = '12px';
-    spinner.style.height = '12px';
+    spinner.style.width = '13px';
+    spinner.style.height = '13px';
     spinner.style.animation = 'spin 1s linear infinite';
     spinner.style.marginRight = '8px';
     spinner.style.display = 'none'; // Initially hidden
