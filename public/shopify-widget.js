@@ -643,7 +643,7 @@ console.log('Shopify try-on widget script started');
         <ul class="try-on-widget-quick-tips-list">
           <li><strong>Solo:</strong> be the only one in the photo.</li>
           <li><strong>Full-body:</strong> use a head-to-toe photo.</li>
-          <li><strong>Pose®:</strong> stand naturally facing forward.</li>
+          <li><strong>Pose:</strong> stand naturally facing forward.</li>
 
         </ul>
         <button class="try-on-widget-upload-button">Upload a photo</button>
@@ -903,7 +903,7 @@ console.log('Shopify try-on widget script started');
     quickTipsList.innerHTML = `
       <li><strong>Solo:</strong> be the only one in the photo.</li>
       <li><strong>Full-body:</strong> use a head-to-toe photo.</li>
-      <li><strong>Pose® :</strong> stand naturally facing forward.</li>
+      <li><strong>Pose :</strong> stand naturally facing forward.</li>
 
     `;
 
