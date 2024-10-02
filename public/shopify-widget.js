@@ -1168,11 +1168,10 @@ console.log('Shopify try-on widget script started');
         throw new Error('Failed to add item to cart');
       }
 
-      const result = await addToCartResponse.json();
-      console.log('Item added to cart:', result);
-
+      console.log('Item added to cart successfully');
       // Set a timestamp when the item is added
       localStorage.setItem('itemAddedTimestamp', Date.now().toString());
+      console.log('itemAddedTimestamp set:', localStorage.getItem('itemAddedTimestamp'));
 
       // Refresh the current page
       window.location.reload();
@@ -1185,22 +1184,40 @@ console.log('Shopify try-on widget script started');
 
   // Update the updateAddToCartButton function
   function updateAddToCartButton() {
+    console.log('updateAddToCartButton called');
     const addToCartButton = document.querySelector('.try-on-widget-add-to-cart-button');
     if (addToCartButton) {
+      console.log('Add to Cart button found');
       const itemAddedTimestamp = localStorage.getItem('itemAddedTimestamp');
+      console.log('itemAddedTimestamp:', itemAddedTimestamp);
       if (itemAddedTimestamp && Date.now() - parseInt(itemAddedTimestamp) < 5000) {
+        console.log('Showing Added! message');
         addToCartButton.textContent = 'Added!';
         addToCartButton.disabled = true;
         
         setTimeout(() => {
+          console.log('Reverting button state');
           addToCartButton.textContent = 'Add to Cart';
           addToCartButton.disabled = false;
           localStorage.removeItem('itemAddedTimestamp');
         }, 5000 - (Date.now() - parseInt(itemAddedTimestamp)));
+      } else {
+        console.log('Not showing Added! message');
       }
+    } else {
+      console.log('Add to Cart button not found');
     }
   }
 
   // Make sure this line is at the end of your main IIFE
-  document.addEventListener('DOMContentLoaded', updateAddToCartButton);
+  document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOMContentLoaded event fired');
+    updateAddToCartButton();
+  });
+
+  // Add this line to also update the button when the page is fully loaded
+  window.addEventListener('load', () => {
+    console.log('Window load event fired');
+    updateAddToCartButton();
+  });
 })();
