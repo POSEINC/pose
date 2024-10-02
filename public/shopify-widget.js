@@ -349,33 +349,32 @@ console.log('Shopify try-on widget script started');
     indicator.style.right = '20px';
     indicator.style.backgroundColor = '#ffffff';
     indicator.style.color = '#000000';
-    indicator.style.padding = '15px';
-    indicator.style.borderRadius = '8px';
+    indicator.style.padding = '10px';
+    indicator.style.borderRadius = '6px';
     indicator.style.zIndex = '9998';
     indicator.style.display = 'none';
     indicator.style.alignItems = 'center';
     indicator.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
     indicator.style.border = '1px solid #e0e0e0';
-    indicator.style.maxWidth = '300px';
-    
+    indicator.style.maxWidth = '250px';
+    indicator.style.fontSize = '12px'; // Single font size declaration for the indicator
+
     const spinner = document.createElement('div');
     spinner.className = 'try-on-spinner';
     spinner.style.border = '2px solid #f3f3f3';
     spinner.style.borderTop = '2px solid #000000';
     spinner.style.borderRadius = '50%';
-    spinner.style.width = '16px';
-    spinner.style.height = '16px';
+    spinner.style.width = '12px';
+    spinner.style.height = '12px';
     spinner.style.animation = 'spin 1s linear infinite';
-    spinner.style.marginRight = '10px';
+    spinner.style.marginRight = '8px';
     spinner.style.display = 'none'; // Initially hidden
-    
+
     const statusText = document.createElement('span');
-    statusText.style.fontSize = '14px';
-    statusText.textContent = 'Try-on in progress...';
-    
+
     indicator.appendChild(spinner);
     indicator.appendChild(statusText);
-    
+
     // Add keyframe animation for the spinner
     const style = document.createElement('style');
     style.textContent = `
@@ -385,7 +384,7 @@ console.log('Shopify try-on widget script started');
       }
     `;
     document.head.appendChild(style);
-    
+
     document.body.appendChild(indicator);
     return indicator;
   }
@@ -749,6 +748,14 @@ console.log('Shopify try-on widget script started');
       padding: 0;
       margin: 0 0 5px 0;
       text-align: left;
+    }
+    .try-on-widget-powered-by a {
+      color: inherit;
+      text-decoration: none;
+    }
+    .try-on-widget-powered-by a:hover {
+      text-decoration: none;
+      color: inherit;
     }
   `;
   document.head.appendChild(style);
