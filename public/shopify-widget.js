@@ -1161,7 +1161,6 @@ console.log('Shopify try-on widget script started');
         body: JSON.stringify({
           id: variant.id,
           quantity: 1,
-          // Remove the properties object
         }),
       });
 
@@ -1172,44 +1171,11 @@ console.log('Shopify try-on widget script started');
       const result = await addToCartResponse.json();
       console.log('Item added to cart:', result);
 
-      // Set a flag in localStorage to show a message after page reload
-      localStorage.setItem('showCartAddedMessage', 'true');
-
-      // Refresh the current page
-      window.location.reload();
-
+      // Instead, you might want to update the cart count or show a mini cart
+      // This will depend on your theme
     } catch (error) {
       console.error('Error adding item to cart:', error);
       alert('Unable to add item to cart. It may be out of stock or unavailable in the selected size.');
     }
   }
-
-  // Modify the showCartAddedMessage function
-  function showCartAddedMessage() {
-    if (localStorage.getItem('showCartAddedMessage') === 'true') {
-      const messageContainer = document.createElement('div');
-      messageContainer.style.position = 'fixed';
-      messageContainer.style.top = '20px';
-      messageContainer.style.right = '20px';
-      messageContainer.style.backgroundColor = '#4CAF50';
-      messageContainer.style.color = 'white';
-      messageContainer.style.padding = '15px';
-      messageContainer.style.borderRadius = '5px';
-      messageContainer.style.zIndex = '9999';
-      messageContainer.textContent = 'Item added to cart successfully!';
-
-      document.body.appendChild(messageContainer);
-
-      // Remove the message after 5 seconds
-      setTimeout(() => {
-        document.body.removeChild(messageContainer);
-      }, 5000);
-
-      // Clear the flag
-      localStorage.removeItem('showCartAddedMessage');
-    }
-  }
-
-  // Add this line at the end of the main IIFE (Immediately Invoked Function Expression)
-  document.addEventListener('DOMContentLoaded', showCartAddedMessage);
 })();
