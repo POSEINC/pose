@@ -390,7 +390,7 @@ console.log('Shopify try-on widget script started');
     indicator.style.alignItems = 'center';
     indicator.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
     indicator.style.border = '1px solid #e0e0e0';
-    indicator.style.maxWidth = '200px';
+    indicator.style.maxWidth = '225px';
     indicator.style.fontSize = '13px'; // Single font size declaration for the indicator
 
     const spinner = document.createElement('div');
@@ -1160,10 +1160,7 @@ console.log('Shopify try-on widget script started');
         body: JSON.stringify({
           id: variant.id,
           quantity: 1,
-          properties: {
-            'Size': size,
-            'Color': jobInfo.colorVariant
-          }
+          // Remove the properties object
         }),
       });
 
