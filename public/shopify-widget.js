@@ -11,6 +11,7 @@ console.log('Shopify try-on widget script started');
   // Function to store job information
   function storeJobInformation(jobId, productImage, productTitle, productUrl, colorVariant) {
     const variantId = getSelectedVariantId();
+    const sizeVariant = getSelectedSizeVariant();
     const priceElement = document.querySelector('.price__regular .price-item--regular');
     const jobInfo = {
       jobId: jobId,
@@ -18,6 +19,7 @@ console.log('Shopify try-on widget script started');
       productTitle: productTitle,
       productUrl: productUrl,
       colorVariant: colorVariant,
+      sizeVariant: sizeVariant,
       variantId: variantId,
       price: priceElement ? priceElement.textContent.trim() : 'N/A',
       status: 'processing',
@@ -1117,8 +1119,8 @@ console.log('Shopify try-on widget script started');
     let variantId = jobInfo && jobInfo.variantId;
     
     if (!variantId) {
-      console.log('Variant ID not found in stored job info, attempting to get current variant ID');
-      variantId = getSelectedVariantId();
+      console.log('Variant ID not found in stored job info, attempting to construct variant ID');
+      variantId = await constructVariantId(jobInfo.productUrl, jobInfo.colorVariant, size);
     }
 
     if (!variantId) {
@@ -1153,6 +1155,27 @@ console.log('Shopify try-on widget script started');
     } catch (error) {
       console.error('Error adding item to cart:', error);
       alert('Unable to add item to cart. It may be out of stock or unavailable in the selected size.');
+    }
+  }
+
+  async function constructVariantId(productUrl, color, size) {
+    try {
+      const response = await fetch(productUrl + '.js');
+      if (!response.ok) {
+        throw new Error('Failed to fetch product data');
+      }
+      const productData = await response.json();
+      
+      const variant = productData.variants.find(v => 
+        v.option1 === color && v.option2 === size ||
+        v.option1 === size && v.option2 === color ||
+        v.option1 === color && v.option2 === size
+      );
+
+      return variant ? variant.id : null;
+    } catch (error) {
+      console.error('Error constructing variant ID:', error);
+      return null;
     }
   }
 })();
