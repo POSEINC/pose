@@ -193,14 +193,15 @@ console.log('Shopify try-on widget script started');
       // Create "Add to Cart" button
       const addToCartButton = document.createElement('button');
       addToCartButton.textContent = 'Add to Cart';
-      addToCartButton.style.padding = '6px 10px'; // Reduced padding
+      addToCartButton.className = 'try-on-widget-add-to-cart-button';
+      addToCartButton.style.padding = '6px 10px';
       addToCartButton.style.backgroundColor = '#000000';
       addToCartButton.style.color = '#ffffff';
       addToCartButton.style.border = 'none';
       addToCartButton.style.borderRadius = '4px';
       addToCartButton.style.cursor = 'pointer';
       addToCartButton.style.flex = '2';
-      addToCartButton.style.marginRight = '4px'; // Reduced margin
+      addToCartButton.style.marginRight = '4px';
       addToCartButton.style.fontSize = '11px';
       addToCartButton.style.transition = 'background-color 0.3s ease';
       addToCartButton.onmouseover = () => { addToCartButton.style.backgroundColor = '#333333'; };
@@ -211,8 +212,6 @@ console.log('Shopify try-on widget script started');
           addToCartButton.disabled = true;
           addToCartButton.textContent = 'Adding...';
           await addToCart(selectedSize);
-          addToCartButton.disabled = false;
-          addToCartButton.textContent = 'Add to Cart';
         } else {
           alert('Please select a size');
         }
@@ -1161,6 +1160,7 @@ console.log('Shopify try-on widget script started');
         body: JSON.stringify({
           id: variant.id,
           quantity: 1,
+          // Remove the properties object
         }),
       });
 
@@ -1171,11 +1171,33 @@ console.log('Shopify try-on widget script started');
       const result = await addToCartResponse.json();
       console.log('Item added to cart:', result);
 
-      // Instead, you might want to update the cart count or show a mini cart
-      // This will depend on your theme
+      // Set a flag in localStorage to show a message after page reload
+      localStorage.setItem('showAddedMessage', 'true');
+
+      // Refresh the current page
+      window.location.reload();
+
     } catch (error) {
       console.error('Error adding item to cart:', error);
       alert('Unable to add item to cart. It may be out of stock or unavailable in the selected size.');
     }
   }
+
+  // Function to update the "Add to Cart" button text
+  function updateAddToCartButton() {
+    const addToCartButton = document.querySelector('.try-on-widget-add-to-cart-button');
+    if (addToCartButton && localStorage.getItem('showAddedMessage') === 'true') {
+      addToCartButton.textContent = 'Added!';
+      addToCartButton.disabled = true;
+      
+      setTimeout(() => {
+        addToCartButton.textContent = 'Add to Cart';
+        addToCartButton.disabled = false;
+        localStorage.removeItem('showAddedMessage');
+      }, 5000);
+    }
+  }
+
+  // Add this line at the end of the main IIFE (Immediately Invoked Function Expression)
+  document.addEventListener('DOMContentLoaded', updateAddToCartButton);
 })();
