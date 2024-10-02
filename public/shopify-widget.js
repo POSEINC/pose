@@ -59,15 +59,16 @@ console.log('Shopify try-on widget script started');
       if (data.status === 'completed') {
         console.log('Job completed, updating status and showing notification');
         updateStoredJobStatus('completed', data.output);
+        localStorage.removeItem('notificationClosed'); // Reset the flag for new completed jobs
         updateStatusIndicator('completed');
         showNotification('Look how great you look!', data.output);
-        resetWidget(); // Add this line
+        resetWidget();
       } else if (data.status === 'failed') {
         console.log('Job failed, updating status and showing notification');
         updateStoredJobStatus('failed');
         updateStatusIndicator('none');
         showNotification('Virtual try-on processing failed. Please try again.');
-        resetWidget(); // Add this line
+        resetWidget();
       }
     } catch (error) {
       console.error('Error checking job status:', error);
@@ -260,34 +261,29 @@ console.log('Shopify try-on widget script started');
   function startGlobalStatusChecker() {
     console.log('Starting global status checker');
     
-    // Check immediately on page load
-    const jobInfo = getStoredJobInformation();
-    const notificationClosed = localStorage.getItem('notificationClosed') === 'true';
-    
-    if (jobInfo && jobInfo.status === 'processing') {
-      const customMessage = `Trying on ${jobInfo.productTitle} in ${jobInfo.colorVariant || 'selected color'}`;
-      updateStatusIndicator('processing', customMessage);
-    } else if (jobInfo && jobInfo.status === 'completed' && !notificationClosed && !document.getElementById('try-on-notification')) {
-      showNotification('Look how great you look!', jobInfo.output);
-    }
-
-    setInterval(() => {
+    function checkAndUpdateNotification() {
       const jobInfo = getStoredJobInformation();
       const notificationClosed = localStorage.getItem('notificationClosed') === 'true';
-      console.log('Checking stored job information:', jobInfo);
+      
       if (jobInfo && jobInfo.status === 'processing') {
-        console.log('Found processing job, checking status');
         const customMessage = `Trying on ${jobInfo.productTitle} in ${jobInfo.colorVariant || 'selected color'}`;
         updateStatusIndicator('processing', customMessage);
-        checkJobStatus(jobInfo.jobId);
-      } else if (jobInfo && jobInfo.status === 'completed' && !notificationClosed && !document.getElementById('try-on-notification')) {
-        console.log('Found completed job, showing notification');
+      } else if (jobInfo && jobInfo.status === 'completed') {
+        if (!notificationClosed && !document.getElementById('try-on-notification')) {
+          localStorage.removeItem('notificationClosed'); // Reset the flag for new completed jobs
+          showNotification('Look how great you look!', jobInfo.output);
+        }
         updateStatusIndicator('completed');
-        showNotification('Look how great you look!', jobInfo.output);
       } else {
         updateStatusIndicator('none');
       }
-    }, 5000); // Check every 5 seconds
+    }
+
+    // Check immediately on page load
+    checkAndUpdateNotification();
+
+    // Set up interval for periodic checks
+    setInterval(checkAndUpdateNotification, 5000); // Check every 5 seconds
   }
 
   // Move createLightbox function here, outside of any other function
