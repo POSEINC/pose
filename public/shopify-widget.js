@@ -56,10 +56,22 @@ console.log('Shopify try-on widget script started');
       const data = await response.json();
       console.log(`Status check for job ${jobId}:`, data);
 
-      return data;
+      if (data.status === 'completed') {
+        console.log('Job completed, updating status and showing notification');
+        updateStoredJobStatus('completed', data.output);
+        updateStatusIndicator('completed');
+        showNotification('Look how great you look!', data.output);
+        resetWidget(); // Add this line
+      } else if (data.status === 'failed') {
+        console.log('Job failed, updating status and showing notification');
+        updateStoredJobStatus('failed');
+        updateStatusIndicator('none');
+        showNotification('Virtual try-on processing failed. Please try again.');
+        resetWidget(); // Add this line
+      }
     } catch (error) {
       console.error('Error checking job status:', error);
-      throw error;
+      updateStatusIndicator('none');
     }
   }
 
@@ -248,36 +260,34 @@ console.log('Shopify try-on widget script started');
   function startGlobalStatusChecker() {
     console.log('Starting global status checker');
     
-    function checkAndUpdateNotification() {
+    // Check immediately on page load
+    const jobInfo = getStoredJobInformation();
+    const notificationClosed = localStorage.getItem('notificationClosed') === 'true';
+    
+    if (jobInfo && jobInfo.status === 'processing') {
+      const customMessage = `Trying on ${jobInfo.productTitle} in ${jobInfo.colorVariant || 'selected color'}`;
+      updateStatusIndicator('processing', customMessage);
+    } else if (jobInfo && jobInfo.status === 'completed' && !notificationClosed && !document.getElementById('try-on-notification')) {
+      showNotification('Look how great you look!', jobInfo.output);
+    }
+
+    setInterval(() => {
       const jobInfo = getStoredJobInformation();
       const notificationClosed = localStorage.getItem('notificationClosed') === 'true';
-      
-      if (jobInfo) {
-        console.log('Current job info:', jobInfo);
-        if (jobInfo.status === 'processing') {
-          const customMessage = `Trying on ${jobInfo.productTitle} in ${jobInfo.colorVariant || 'selected color'}`;
-          updateStatusIndicator('processing', customMessage);
-          // Continue polling for processing jobs
-          pollJobStatus(jobInfo.jobId);
-        } else if (jobInfo.status === 'completed') {
-          if (!notificationClosed && !document.getElementById('try-on-notification')) {
-            localStorage.removeItem('notificationClosed'); // Reset the flag for new completed jobs
-            showNotification('Look how great you look!', jobInfo.output);
-          }
-          updateStatusIndicator('completed');
-        } else {
-          updateStatusIndicator('none');
-        }
+      console.log('Checking stored job information:', jobInfo);
+      if (jobInfo && jobInfo.status === 'processing') {
+        console.log('Found processing job, checking status');
+        const customMessage = `Trying on ${jobInfo.productTitle} in ${jobInfo.colorVariant || 'selected color'}`;
+        updateStatusIndicator('processing', customMessage);
+        checkJobStatus(jobInfo.jobId);
+      } else if (jobInfo && jobInfo.status === 'completed' && !notificationClosed && !document.getElementById('try-on-notification')) {
+        console.log('Found completed job, showing notification');
+        updateStatusIndicator('completed');
+        showNotification('Look how great you look!', jobInfo.output);
       } else {
         updateStatusIndicator('none');
       }
-    }
-
-    // Check immediately on page load
-    checkAndUpdateNotification();
-
-    // Set up interval for periodic checks
-    setInterval(checkAndUpdateNotification, 5000); // Check every 5 seconds
+    }, 5000); // Check every 5 seconds
   }
 
   // Move createLightbox function here, outside of any other function
@@ -563,49 +573,66 @@ console.log('Shopify try-on widget script started');
   // Modify the pollJobStatus function
   function pollJobStatus(jobId) {
     console.log('Polling started for job:', jobId);
-    let attempts = 0;
-    const maxAttempts = 60; // 5 minutes maximum polling time
-    const pollInterval = 5000; // 5 seconds between each poll
+    let pollCount = 0;
+    const maxPolls = 60; // 5 minutes maximum polling time
 
-    function poll() {
-      attempts++;
-      console.log(`Polling attempt ${attempts} for job ${jobId}`);
-      
-      checkJobStatus(jobId)
-        .then(data => {
+    const jobInfo = getStoredJobInformation();
+    const customMessage = `Trying on ${jobInfo.productTitle} in ${jobInfo.colorVariant || 'selected color'}`;
+
+    setTimeout(() => {
+      const pollInterval = setInterval(async () => {
+        pollCount++;
+        console.log(`Polling attempt ${pollCount} for job ${jobId}`);
+
+        updateStatusIndicator('processing', customMessage);
+
+        try {
+          const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
+          
+          if (!response.ok) {
+            throw new Error(`Polling request failed with status ${response.status}`);
+          }
+
+          const data = await response.json();
+          console.log('Polling response:', data);
+
           if (data.status === 'completed') {
+            clearInterval(pollInterval);
             console.log('Job completed successfully:', data.output);
             updateStoredJobStatus('completed', data.output);
             showNotification('Look how great you look!', data.output);
             resetWidget();
           } else if (data.status === 'failed') {
-            console.log('Job failed');
+            clearInterval(pollInterval);
+            console.error('Processing failed:', data.error);
             updateStoredJobStatus('failed');
             showNotification('Virtual try-on processing failed. Please try again.');
             resetWidget();
-          } else if (attempts < maxAttempts) {
+          } else if (data.status === 'processing') {
             console.log('Still processing...');
-            setTimeout(poll, pollInterval);
+            if (pollCount >= maxPolls) {
+              clearInterval(pollInterval);
+              console.error('Polling timeout reached');
+              updateStoredJobStatus('timeout');
+              showNotification('Error: Processing timeout. Please try again.');
+              resetWidget();
+            }
           } else {
-            console.log('Max polling attempts reached. Job timed out.');
-            updateStoredJobStatus('failed');
-            showNotification('Virtual try-on processing timed out. Please try again.');
+            clearInterval(pollInterval);
+            console.error('Unexpected status:', data.status);
+            updateStoredJobStatus('error');
+            showNotification('Error: Unexpected response from server. Please try again.');
             resetWidget();
           }
-        })
-        .catch(error => {
-          console.error('Error during polling:', error);
-          if (attempts < maxAttempts) {
-            setTimeout(poll, pollInterval);
-          } else {
-            updateStoredJobStatus('failed');
-            showNotification('Error occurred during processing. Please try again.');
-            resetWidget();
-          }
-        });
-    }
-
-    poll();
+        } catch (error) {
+          console.error('Error polling job status:', error);
+          clearInterval(pollInterval);
+          updateStoredJobStatus('error');
+          showNotification(`Error: Unable to get processing status - ${error.message}`);
+          resetWidget();
+        }
+      }, 5000);
+    }, 3000);
   }
 
   // Modify the resetUploadBox function
@@ -615,9 +642,8 @@ console.log('Shopify try-on widget script started');
       uploadArea.innerHTML = `
         <ul class="try-on-widget-quick-tips-list">
           <li><strong>Solo:</strong> be the only one in the photo.</li>
+          <li><strong>Pose®:</strong> stand naturally facing forward.</li>
           <li><strong>Full-body:</strong> use a head-to-toe photo.</li>
-          <li><strong>Pose:</strong> stand naturally facing forward.</li>
-
         </ul>
         <button class="try-on-widget-upload-button">Upload a photo</button>
         <p class="try-on-widget-privacy-notice">Your data is never shared or stored.</p>
@@ -875,9 +901,8 @@ console.log('Shopify try-on widget script started');
     quickTipsList.className = 'try-on-widget-quick-tips-list';
     quickTipsList.innerHTML = `
       <li><strong>Solo:</strong> be the only one in the photo.</li>
+      <li><strong>Pose® :</strong> stand naturally facing forward.</li>
       <li><strong>Full-body:</strong> use a head-to-toe photo.</li>
-      <li><strong>Pose :</strong> stand naturally facing forward.</li>
-
     `;
 
     // Modify the "Upload a photo" button creation and styling
