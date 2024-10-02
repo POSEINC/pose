@@ -406,7 +406,7 @@ console.log('Shopify try-on widget script started');
     const statusText = document.createElement('span');
     statusText.style.flex = '1';
     statusText.style.textAlign = 'left'; // Left-align the text
-    statusText.style.marginRight = '8px'; // Add margin to the right of the text
+    statusText.style.marginRight = '2px'; // Add margin to the right of the text
 
     indicator.appendChild(spinner);
     indicator.appendChild(statusText);
