@@ -56,23 +56,10 @@ console.log('Shopify try-on widget script started');
       const data = await response.json();
       console.log(`Status check for job ${jobId}:`, data);
 
-      if (data.status === 'completed') {
-        console.log('Job completed, updating status and showing notification');
-        updateStoredJobStatus('completed', data.output);
-        localStorage.removeItem('notificationClosed'); // Reset the flag for new completed jobs
-        updateStatusIndicator('completed');
-        showNotification('Look how great you look!', data.output);
-        resetWidget();
-      } else if (data.status === 'failed') {
-        console.log('Job failed, updating status and showing notification');
-        updateStoredJobStatus('failed');
-        updateStatusIndicator('none');
-        showNotification('Virtual try-on processing failed. Please try again.');
-        resetWidget();
-      }
+      return data;
     } catch (error) {
       console.error('Error checking job status:', error);
-      updateStatusIndicator('none');
+      throw error;
     }
   }
 
@@ -265,15 +252,22 @@ console.log('Shopify try-on widget script started');
       const jobInfo = getStoredJobInformation();
       const notificationClosed = localStorage.getItem('notificationClosed') === 'true';
       
-      if (jobInfo && jobInfo.status === 'processing') {
-        const customMessage = `Trying on ${jobInfo.productTitle} in ${jobInfo.colorVariant || 'selected color'}`;
-        updateStatusIndicator('processing', customMessage);
-      } else if (jobInfo && jobInfo.status === 'completed') {
-        if (!notificationClosed && !document.getElementById('try-on-notification')) {
-          localStorage.removeItem('notificationClosed'); // Reset the flag for new completed jobs
-          showNotification('Look how great you look!', jobInfo.output);
+      if (jobInfo) {
+        console.log('Current job info:', jobInfo);
+        if (jobInfo.status === 'processing') {
+          const customMessage = `Trying on ${jobInfo.productTitle} in ${jobInfo.colorVariant || 'selected color'}`;
+          updateStatusIndicator('processing', customMessage);
+          // Continue polling for processing jobs
+          pollJobStatus(jobInfo.jobId);
+        } else if (jobInfo.status === 'completed') {
+          if (!notificationClosed && !document.getElementById('try-on-notification')) {
+            localStorage.removeItem('notificationClosed'); // Reset the flag for new completed jobs
+            showNotification('Look how great you look!', jobInfo.output);
+          }
+          updateStatusIndicator('completed');
+        } else {
+          updateStatusIndicator('none');
         }
-        updateStatusIndicator('completed');
       } else {
         updateStatusIndicator('none');
       }
@@ -569,66 +563,49 @@ console.log('Shopify try-on widget script started');
   // Modify the pollJobStatus function
   function pollJobStatus(jobId) {
     console.log('Polling started for job:', jobId);
-    let pollCount = 0;
-    const maxPolls = 60; // 5 minutes maximum polling time
+    let attempts = 0;
+    const maxAttempts = 60; // 5 minutes maximum polling time
+    const pollInterval = 5000; // 5 seconds between each poll
 
-    const jobInfo = getStoredJobInformation();
-    const customMessage = `Trying on ${jobInfo.productTitle} in ${jobInfo.colorVariant || 'selected color'}`;
-
-    setTimeout(() => {
-      const pollInterval = setInterval(async () => {
-        pollCount++;
-        console.log(`Polling attempt ${pollCount} for job ${jobId}`);
-
-        updateStatusIndicator('processing', customMessage);
-
-        try {
-          const response = await fetch(`https://shopify-virtual-tryon-app.vercel.app/api/try-on?jobId=${jobId}`);
-          
-          if (!response.ok) {
-            throw new Error(`Polling request failed with status ${response.status}`);
-          }
-
-          const data = await response.json();
-          console.log('Polling response:', data);
-
+    function poll() {
+      attempts++;
+      console.log(`Polling attempt ${attempts} for job ${jobId}`);
+      
+      checkJobStatus(jobId)
+        .then(data => {
           if (data.status === 'completed') {
-            clearInterval(pollInterval);
             console.log('Job completed successfully:', data.output);
             updateStoredJobStatus('completed', data.output);
             showNotification('Look how great you look!', data.output);
             resetWidget();
           } else if (data.status === 'failed') {
-            clearInterval(pollInterval);
-            console.error('Processing failed:', data.error);
+            console.log('Job failed');
             updateStoredJobStatus('failed');
             showNotification('Virtual try-on processing failed. Please try again.');
             resetWidget();
-          } else if (data.status === 'processing') {
+          } else if (attempts < maxAttempts) {
             console.log('Still processing...');
-            if (pollCount >= maxPolls) {
-              clearInterval(pollInterval);
-              console.error('Polling timeout reached');
-              updateStoredJobStatus('timeout');
-              showNotification('Error: Processing timeout. Please try again.');
-              resetWidget();
-            }
+            setTimeout(poll, pollInterval);
           } else {
-            clearInterval(pollInterval);
-            console.error('Unexpected status:', data.status);
-            updateStoredJobStatus('error');
-            showNotification('Error: Unexpected response from server. Please try again.');
+            console.log('Max polling attempts reached. Job timed out.');
+            updateStoredJobStatus('failed');
+            showNotification('Virtual try-on processing timed out. Please try again.');
             resetWidget();
           }
-        } catch (error) {
-          console.error('Error polling job status:', error);
-          clearInterval(pollInterval);
-          updateStoredJobStatus('error');
-          showNotification(`Error: Unable to get processing status - ${error.message}`);
-          resetWidget();
-        }
-      }, 5000);
-    }, 3000);
+        })
+        .catch(error => {
+          console.error('Error during polling:', error);
+          if (attempts < maxAttempts) {
+            setTimeout(poll, pollInterval);
+          } else {
+            updateStoredJobStatus('failed');
+            showNotification('Error occurred during processing. Please try again.');
+            resetWidget();
+          }
+        });
+    }
+
+    poll();
   }
 
   // Modify the resetUploadBox function
