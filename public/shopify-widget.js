@@ -95,19 +95,21 @@ console.log('Shopify try-on widget script started');
     notification.style.right = '20px';
     notification.style.backgroundColor = '#ffffff';
     notification.style.color = '#000000';
-    notification.style.padding = '15px';
+    notification.style.padding = '12px'; // Reduced padding
     notification.style.borderRadius = '8px';
     notification.style.zIndex = '9999';
     notification.style.maxWidth = '225px'; // Reduced by 25%
+    notification.style.maxHeight = '80vh'; // Limit maximum height to 80% of viewport height
+    notification.style.overflowY = 'auto'; // Add scrollbar if content exceeds max height
     notification.style.textAlign = 'center';
     notification.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
     notification.style.border = '1px solid #e0e0e0';
-    notification.style.fontSize = '14px';
+    notification.style.fontSize = '12px'; // Reduced font size
 
     // Add message to notification
     const messageElement = document.createElement('p');
     messageElement.textContent = message;
-    messageElement.style.margin = '0 0 10px 0';
+    messageElement.style.margin = '0 0 8px 0'; // Reduced margin
     notification.appendChild(messageElement);
 
     // If we have output, add the image and new elements to the notification
@@ -115,30 +117,32 @@ console.log('Shopify try-on widget script started');
       const imageContainer = document.createElement('div');
       imageContainer.style.position = 'relative';
       imageContainer.style.width = '100%';
-      imageContainer.style.marginBottom = '10px';
+      imageContainer.style.marginBottom = '8px'; // Reduced margin
 
       const image = document.createElement('img');
       image.src = output;
       image.alt = 'Try-on result';
       image.style.width = '100%';
       image.style.height = 'auto';
+      image.style.maxHeight = '40vh'; // Limit image height to 40% of viewport height
+      image.style.objectFit = 'contain'; // Ensure the entire image is visible
       image.style.borderRadius = '3px';
       image.style.cursor = 'pointer';
 
       // Add expand icon
       const expandIcon = document.createElement('div');
       expandIcon.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="15 3 21 3 21 9"></polyline>
           <polyline points="9 21 3 21 3 15"></polyline>
         </svg>
       `;
       expandIcon.style.position = 'absolute';
-      expandIcon.style.top = '5px';
-      expandIcon.style.right = '5px';
+      expandIcon.style.top = '4px';
+      expandIcon.style.right = '4px';
       expandIcon.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
       expandIcon.style.borderRadius = '50%';
-      expandIcon.style.padding = '5px';
+      expandIcon.style.padding = '4px';
       expandIcon.style.cursor = 'pointer';
 
       image.addEventListener('click', () => createLightbox(output));
@@ -154,18 +158,19 @@ console.log('Shopify try-on widget script started');
       // Update product summary
       const jobInfo = getStoredJobInformation();
       const productSummary = document.createElement('div');
-      productSummary.style.marginBottom = '10px';
+      productSummary.style.marginBottom = '8px'; // Reduced margin
       productSummary.innerHTML = `
-        <p style="margin: 0;">Price: ${jobInfo.price || 'N/A'}</p>
-        <p style="margin: 0;">Color: ${jobInfo.colorVariant || 'N/A'}</p>
+        <p style="margin: 0; font-size: 11px;">Price: ${jobInfo.price || 'N/A'}</p>
+        <p style="margin: 0; font-size: 11px;">Color: ${jobInfo.colorVariant || 'N/A'}</p>
       `;
       notification.appendChild(productSummary);
 
       // Add size dropdown
       const sizeDropdown = document.createElement('select');
-      sizeDropdown.style.marginBottom = '10px';
+      sizeDropdown.style.marginBottom = '8px'; // Reduced margin
       sizeDropdown.style.width = '100%';
-      sizeDropdown.style.padding = '5px';
+      sizeDropdown.style.padding = '4px';
+      sizeDropdown.style.fontSize = '11px';
       sizeDropdown.innerHTML = `
         <option value="">Select Size</option>
         <option value="S">Small</option>
@@ -178,19 +183,20 @@ console.log('Shopify try-on widget script started');
       const buttonContainer = document.createElement('div');
       buttonContainer.style.display = 'flex';
       buttonContainer.style.justifyContent = 'space-between';
-      buttonContainer.style.marginTop = '10px';
+      buttonContainer.style.marginTop = '8px'; // Reduced margin
 
       // Create "Add to Cart" button
       const addToCartButton = document.createElement('button');
       addToCartButton.textContent = 'Add to Cart';
-      addToCartButton.style.padding = '8px 12px';
+      addToCartButton.style.padding = '6px 10px'; // Reduced padding
       addToCartButton.style.backgroundColor = '#000000';
       addToCartButton.style.color = '#ffffff';
       addToCartButton.style.border = 'none';
       addToCartButton.style.borderRadius = '4px';
       addToCartButton.style.cursor = 'pointer';
       addToCartButton.style.flex = '2';
-      addToCartButton.style.marginRight = '5px';
+      addToCartButton.style.marginRight = '4px'; // Reduced margin
+      addToCartButton.style.fontSize = '11px';
       addToCartButton.style.transition = 'background-color 0.3s ease';
       addToCartButton.onmouseover = () => { addToCartButton.style.backgroundColor = '#333333'; };
       addToCartButton.onmouseout = () => { addToCartButton.style.backgroundColor = '#000000'; };
@@ -202,14 +208,15 @@ console.log('Shopify try-on widget script started');
       // Modify existing buttons
       const saveButton = document.createElement('button');
       saveButton.textContent = 'Save';
-      saveButton.style.padding = '8px 12px';
+      saveButton.style.padding = '6px 10px'; // Reduced padding
       saveButton.style.backgroundColor = '#f0f0f0';
       saveButton.style.color = '#000000';
       saveButton.style.border = '1px solid #e0e0e0';
       saveButton.style.borderRadius = '4px';
       saveButton.style.cursor = 'pointer';
       saveButton.style.flex = '1';
-      saveButton.style.marginRight = '5px';
+      saveButton.style.marginRight = '4px'; // Reduced margin
+      saveButton.style.fontSize = '11px';
       saveButton.style.transition = 'background-color 0.3s ease';
       saveButton.onmouseover = () => { saveButton.style.backgroundColor = '#e0e0e0'; };
       saveButton.onmouseout = () => { saveButton.style.backgroundColor = '#f0f0f0'; };
@@ -219,13 +226,14 @@ console.log('Shopify try-on widget script started');
 
       const viewProductButton = document.createElement('button');
       viewProductButton.textContent = 'View';
-      viewProductButton.style.padding = '8px 12px';
+      viewProductButton.style.padding = '6px 10px'; // Reduced padding
       viewProductButton.style.backgroundColor = '#f0f0f0';
       viewProductButton.style.color = '#000000';
       viewProductButton.style.border = '1px solid #e0e0e0';
       viewProductButton.style.borderRadius = '4px';
       viewProductButton.style.cursor = 'pointer';
       viewProductButton.style.flex = '1';
+      viewProductButton.style.fontSize = '11px';
       viewProductButton.style.transition = 'background-color 0.3s ease';
       viewProductButton.onmouseover = () => { viewProductButton.style.backgroundColor = '#e0e0e0'; };
       viewProductButton.onmouseout = () => { viewProductButton.style.backgroundColor = '#f0f0f0'; };
@@ -251,13 +259,13 @@ console.log('Shopify try-on widget script started');
     const closeButton = document.createElement('button');
     closeButton.textContent = 'X';
     closeButton.style.position = 'absolute';
-    closeButton.style.top = '5px';
-    closeButton.style.right = '5px';
+    closeButton.style.top = '4px';
+    closeButton.style.right = '4px';
     closeButton.style.background = 'none';
     closeButton.style.border = 'none';
     closeButton.style.color = '#000000';
     closeButton.style.cursor = 'pointer';
-    closeButton.style.fontSize = '16px';
+    closeButton.style.fontSize = '14px';
     closeButton.onclick = () => {
       notification.remove();
       localStorage.setItem('notificationClosed', 'true');
