@@ -10,7 +10,7 @@ console.log('Shopify try-on widget script started');
 
   // Function to store job information
   function storeJobInformation(jobId, productImage, productTitle, productUrl, colorVariant) {
-    const variantId = getSelectedVariantId(); // We'll create this function
+    const variantId = getSelectedVariantId();
     const priceElement = document.querySelector('.price__regular .price-item--regular');
     const jobInfo = {
       jobId: jobId,
@@ -18,12 +18,13 @@ console.log('Shopify try-on widget script started');
       productTitle: productTitle,
       productUrl: productUrl,
       colorVariant: colorVariant,
-      variantId: variantId, // Add this line
+      variantId: variantId,
       price: priceElement ? priceElement.textContent.trim() : 'N/A',
       status: 'processing',
       timestamp: Date.now(),
       notified: false
     };
+    console.log('Storing job information:', jobInfo); // Add this line for debugging
     localStorage.setItem('currentTryOnJob', JSON.stringify(jobInfo));
     // Add this line to reset the notificationClosed flag when a new job starts
     localStorage.removeItem('notificationClosed');
@@ -1104,13 +1105,23 @@ console.log('Shopify try-on widget script started');
 
   // Add this new function to get the selected variant ID
   function getSelectedVariantId() {
-    const variantSelector = document.querySelector('select[name="id"], input[name="id"]:checked');
-    return variantSelector ? variantSelector.value : null;
+    const variantSelector = document.querySelector('select[name="id"], input[name="id"]:checked, [name="id"][aria-selected="true"]');
+    const variantId = variantSelector ? variantSelector.value : null;
+    console.log('Selected variant ID:', variantId); // Add this line for debugging
+    return variantId;
   }
 
   async function addToCart(size) {
     const jobInfo = getStoredJobInformation();
-    if (!jobInfo || !jobInfo.variantId) {
+    console.log('Job info for add to cart:', jobInfo); // Add this line for debugging
+    let variantId = jobInfo && jobInfo.variantId;
+    
+    if (!variantId) {
+      console.log('Variant ID not found in stored job info, attempting to get current variant ID');
+      variantId = getSelectedVariantId();
+    }
+
+    if (!variantId) {
       console.error('No variant ID found');
       alert('Unable to add item to cart. Please try again on the product page.');
       return;
@@ -1123,11 +1134,11 @@ console.log('Shopify try-on widget script started');
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          id: jobInfo.variantId,
+          id: variantId,
           quantity: 1,
           properties: {
             'Size': size,
-            'Color': jobInfo.colorVariant
+            'Color': jobInfo ? jobInfo.colorVariant : 'N/A'
           }
         }),
       });
@@ -1139,9 +1150,6 @@ console.log('Shopify try-on widget script started');
       const result = await response.json();
       console.log('Item added to cart:', result);
       alert('Item added to cart successfully!');
-      
-      // Optionally, update the cart count or open the cart drawer here
-      // This depends on how your theme handles cart updates
     } catch (error) {
       console.error('Error adding item to cart:', error);
       alert('Unable to add item to cart. It may be out of stock or unavailable in the selected size.');
