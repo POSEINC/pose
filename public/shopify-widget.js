@@ -239,7 +239,7 @@ console.log('Shopify try-on widget script started');
     const closeButton = document.createElement('button');
     closeButton.textContent = 'X';
     closeButton.style.position = 'absolute';
-    closeButton.style.top = '5px';
+    closeButton.style.top = '15px';
     closeButton.style.right = '5px';
     closeButton.style.background = 'none';
     closeButton.style.border = 'none';
@@ -356,7 +356,7 @@ console.log('Shopify try-on widget script started');
     indicator.style.alignItems = 'center';
     indicator.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
     indicator.style.border = '1px solid #e0e0e0';
-    indicator.style.maxWidth = '175px';
+    indicator.style.maxWidth = '200px';
     indicator.style.fontSize = '12px'; // Single font size declaration for the indicator
 
     const spinner = document.createElement('div');
