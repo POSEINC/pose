@@ -165,8 +165,8 @@ console.log('Shopify try-on widget script started');
       const productSummary = document.createElement('div');
       productSummary.style.marginBottom = '8px'; // Reduced margin
       productSummary.innerHTML = `
-        <p style="margin: 0; font-size: 11px;">Price: ${jobInfo.price || 'N/A'}</p>
-        <p style="margin: 0; font-size: 11px;">Color: ${jobInfo.colorVariant || 'N/A'}</p>
+        <p style="margin: 0; font-size: 12px;">Price: ${jobInfo.price || 'N/A'}</p>
+        <p style="margin: 0; font-size: 12px;">Color: ${jobInfo.colorVariant || 'N/A'}</p>
       `;
       notification.appendChild(productSummary);
 
