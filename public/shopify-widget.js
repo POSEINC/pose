@@ -389,7 +389,7 @@ console.log('Shopify try-on widget script started');
     indicator.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
     indicator.style.border = '1px solid #e0e0e0';
     indicator.style.maxWidth = '250px';
-    indicator.style.fontSize = '13px';  
+    indicator.style.fontSize = '14px';  
 
     const spinner = document.createElement('div');
     spinner.className = 'try-on-spinner';
