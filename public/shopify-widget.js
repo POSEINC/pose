@@ -109,7 +109,7 @@ console.log('Shopify try-on widget script started');
     notification.style.textAlign = 'center';
     notification.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
     notification.style.border = '1px solid #e0e0e0';
-    notification.style.fontSize = '12px'; // Reduced font size
+    notification.style.fontSize = '12px'; 
 
     // Add message to notification
     const messageElement = document.createElement('p');
@@ -175,7 +175,7 @@ console.log('Shopify try-on widget script started');
       sizeDropdown.style.marginBottom = '8px'; // Reduced margin
       sizeDropdown.style.width = '100%';
       sizeDropdown.style.padding = '4px';
-      sizeDropdown.style.fontSize = '11px';
+      sizeDropdown.style.fontSize = '12px';
       sizeDropdown.innerHTML = `
         <option value="">Select Size</option>
         <option value="S">Small</option>
@@ -202,7 +202,7 @@ console.log('Shopify try-on widget script started');
       addToCartButton.style.cursor = 'pointer';
       addToCartButton.style.flex = '2';
       addToCartButton.style.marginRight = '4px';
-      addToCartButton.style.fontSize = '11px';
+      addToCartButton.style.fontSize = '12px';
       addToCartButton.style.transition = 'background-color 0.3s ease';
       addToCartButton.onmouseover = () => { addToCartButton.style.backgroundColor = '#333333'; };
       addToCartButton.onmouseout = () => { addToCartButton.style.backgroundColor = '#000000'; };
@@ -228,7 +228,7 @@ console.log('Shopify try-on widget script started');
       saveButton.style.cursor = 'pointer';
       saveButton.style.flex = '1';
       saveButton.style.marginRight = '4px'; // Reduced margin
-      saveButton.style.fontSize = '11px';
+      saveButton.style.fontSize = '12px';
       saveButton.style.transition = 'background-color 0.3s ease';
       saveButton.onmouseover = () => { saveButton.style.backgroundColor = '#e0e0e0'; };
       saveButton.onmouseout = () => { saveButton.style.backgroundColor = '#f0f0f0'; };
@@ -245,7 +245,7 @@ console.log('Shopify try-on widget script started');
       viewProductButton.style.borderRadius = '4px';
       viewProductButton.style.cursor = 'pointer';
       viewProductButton.style.flex = '1';
-      viewProductButton.style.fontSize = '11px';
+      viewProductButton.style.fontSize = '12px';
       viewProductButton.style.transition = 'background-color 0.3s ease';
       viewProductButton.onmouseover = () => { viewProductButton.style.backgroundColor = '#e0e0e0'; };
       viewProductButton.onmouseout = () => { viewProductButton.style.backgroundColor = '#f0f0f0'; };
@@ -389,7 +389,7 @@ console.log('Shopify try-on widget script started');
     indicator.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
     indicator.style.border = '1px solid #e0e0e0';
     indicator.style.maxWidth = '250px';
-    indicator.style.fontSize = '14px';  
+    indicator.style.fontSize = '13px';  
 
     const spinner = document.createElement('div');
     spinner.className = 'try-on-spinner';
